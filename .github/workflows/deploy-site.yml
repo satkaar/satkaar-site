@@ -55,3 +55,48 @@ jobs:
           echo "  - ${IMAGE_SHA_TAG}"
           echo "  - ${IMAGE_LATEST_TAG}"
 
+      - name: Install Scaleway CLI
+        run: |
+          curl -sSfL "https://github.com/scaleway/scaleway-cli/releases/latest/download/scw-$(uname -s)-$(uname -m)" -o /usr/local/bin/scw
+          chmod +x /usr/local/bin/scw
+          scw -v
+
+      - name: Deploy Scaleway Serverless Container (frontend)
+        env:
+          SCW_ACCESS_KEY: ${{ secrets.SCW_REGISTRY_USERNAME }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_REGISTRY_PASSWORD }}
+          SCW_DEFAULT_REGION: ${{ env.SCW_REGION }}
+          SCW_FRONTEND_CONTAINER_ID: ${{ secrets.SCW_FRONTEND_CONTAINER_ID }}
+        run: |
+          if [ -z "$SCW_ACCESS_KEY" ] || [ -z "$SCW_SECRET_KEY" ]; then
+            echo "::error::SCW_ACCESS_KEY / SCW_SECRET_KEY (via SCW_REGISTRY_USERNAME / SCW_REGISTRY_PASSWORD) are not set."
+            exit 1
+          fi
+
+          if [ -z "$SCW_FRONTEND_CONTAINER_ID" ]; then
+            echo "::error::SCW_FRONTEND_CONTAINER_ID secret is not set."
+            echo "::error::Add it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+          echo "Deploying Scaleway container ID=${SCW_FRONTEND_CONTAINER_ID} in region=${SCW_REGION}"
+          scw container container deploy "${SCW_FRONTEND_CONTAINER_ID}" region="${SCW_REGION}"
+
+      - name: Show deployed Scaleway frontend URL
+        env:
+          SCW_FRONTEND_CONTAINER_ID: ${{ secrets.SCW_FRONTEND_CONTAINER_ID }}
+        run: |
+          if [ -z "$SCW_FRONTEND_CONTAINER_ID" ]; then
+            echo "::error::SCW_FRONTEND_CONTAINER_ID secret is not set."
+            exit 1
+          fi
+
+          DOMAIN=$(scw container container get "${SCW_FRONTEND_CONTAINER_ID}" region="${SCW_REGION}" -o json | jq -r '.domain_name')
+
+          if [ -z "$DOMAIN" ] || [ "$DOMAIN" = "null" ]; then
+            echo "::error::Unable to retrieve frontend container domain name."
+            exit 1
+          fi
+
+          echo "✅ Frontend déployé sur : https://${DOMAIN}"
+

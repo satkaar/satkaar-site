@@ -60,3 +60,11 @@ jobs:
             --min-instances 0 \
             --max-instances 1 \
             --quiet
+
+      - name: Show deployed Cloud Run URL
+        run: |
+          URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --format='value(status.url)')
+          echo "✅ Site déployé sur : ${URL}"
