@@ -81,6 +81,10 @@ jobs:
             exit 1
           fi
 
+          FRONTEND_IMAGE="${SCW_REGISTRY_URL}/${SCW_REGISTRY_NAMESPACE}/${SCW_FRONTEND_IMAGE_NAME}:latest"
+          echo "Updating container to use image: ${FRONTEND_IMAGE}"
+          scw container container update "${SCW_FRONTEND_CONTAINER_ID}" region="${SCW_REGION}" registry-image="${FRONTEND_IMAGE}"
+
           echo "Deploying Scaleway container ID=${SCW_FRONTEND_CONTAINER_ID} in region=${SCW_REGION}"
           scw container container deploy "${SCW_FRONTEND_CONTAINER_ID}" region="${SCW_REGION}"
 
