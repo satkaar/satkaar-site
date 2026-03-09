@@ -1,0 +1,57 @@
+name: Deploy frontend to Scaleway
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # Région et registry Scaleway (cohérents avec Terraform)
+  SCW_REGION: fr-par
+  SCW_REGISTRY_URL: rg.fr-par.scw.cloud
+  SCW_REGISTRY_NAMESPACE: satkaar-dev
+  SCW_FRONTEND_IMAGE_NAME: frontend
+
+jobs:
+  deploy-frontend:
+    name: Build and deploy frontend to Scaleway
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Scaleway Container Registry
+        env:
+          SCW_REGISTRY_USERNAME: ${{ secrets.SCW_REGISTRY_USERNAME }}
+          SCW_REGISTRY_PASSWORD: ${{ secrets.SCW_REGISTRY_PASSWORD }}
+        run: |
+          if [ -z "$SCW_REGISTRY_USERNAME" ] || [ -z "$SCW_REGISTRY_PASSWORD" ]; then
+            echo "::error::SCW_REGISTRY_USERNAME and/or SCW_REGISTRY_PASSWORD secrets are not set."
+            echo "::error::Add them in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+          echo "$SCW_REGISTRY_PASSWORD" | docker login \
+            "${SCW_REGISTRY_URL}" \
+            -u "$SCW_REGISTRY_USERNAME" \
+            --password-stdin
+
+      - name: Build and push Docker image
+        env:
+          IMAGE_REPO: ${{ env.SCW_REGISTRY_URL }}/${{ env.SCW_REGISTRY_NAMESPACE }}/${{ env.SCW_FRONTEND_IMAGE_NAME }}
+        run: |
+          IMAGE_SHA_TAG="${IMAGE_REPO}:${GITHUB_SHA}"
+          IMAGE_LATEST_TAG="${IMAGE_REPO}:latest"
+
+          echo "Building image ${IMAGE_SHA_TAG}"
+          docker build -t "${IMAGE_SHA_TAG}" -t "${IMAGE_LATEST_TAG}" .
+
+          echo "Pushing image tags to Scaleway registry"
+          docker push "${IMAGE_SHA_TAG}"
+          docker push "${IMAGE_LATEST_TAG}"
+
+          echo "Image pushed:"
+          echo "  - ${IMAGE_SHA_TAG}"
+          echo "  - ${IMAGE_LATEST_TAG}"
+
