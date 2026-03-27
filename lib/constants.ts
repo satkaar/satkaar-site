@@ -1,3 +1,5 @@
+import osoWebApp from "../config/oso-web-app.json";
+
 /**
  * Site configuration
  */
@@ -7,6 +9,8 @@ export const siteConfig = {
   url: "https://oso-app.com",
   ogImage: "/og-image.png",
   links: {
+    /** App web OSO — source unique : config/oso-web-app.json (lue aussi par Terraform bienvenue). */
+    osoWebApp: osoWebApp.oso_web_app_url,
     appStore: "https://apps.apple.com/app/oso",
     playStore: "https://play.google.com/store/apps/details?id=com.oso",
     twitter: "https://twitter.com/oso_app",
