@@ -1,4 +1,4 @@
-name: Deploy frontend to Scaleway
+name: Deploy website to Scaleway
 
 on:
   push:
@@ -6,15 +6,15 @@ on:
   workflow_dispatch:
 
 env:
-  # Région et registry Scaleway (cohérents avec Terraform)
+  # Image dédiée à ce dépôt : satkaar-prod/website (aligné avec infra Terraform).
   SCW_REGION: fr-par
   SCW_REGISTRY_URL: rg.fr-par.scw.cloud
-  SCW_REGISTRY_NAMESPACE: satkaar-dev
-  SCW_FRONTEND_IMAGE_NAME: frontend
+  SCW_REGISTRY_NAMESPACE: satkaar-prod
+  SCW_WEBSITE_IMAGE_NAME: website
 
 jobs:
-  deploy-frontend:
-    name: Build and deploy frontend to Scaleway
+  deploy-website:
+    name: Build and deploy website to Scaleway
     runs-on: ubuntu-latest
 
     steps:
@@ -39,7 +39,7 @@ jobs:
 
       - name: Build and push Docker image
         env:
-          IMAGE_REPO: ${{ env.SCW_REGISTRY_URL }}/${{ env.SCW_REGISTRY_NAMESPACE }}/${{ env.SCW_FRONTEND_IMAGE_NAME }}
+          IMAGE_REPO: ${{ env.SCW_REGISTRY_URL }}/${{ env.SCW_REGISTRY_NAMESPACE }}/${{ env.SCW_WEBSITE_IMAGE_NAME }}
         run: |
           IMAGE_SHA_TAG="${IMAGE_REPO}:${GITHUB_SHA}"
           IMAGE_LATEST_TAG="${IMAGE_REPO}:latest"
@@ -61,53 +61,52 @@ jobs:
           echo "$HOME/bin" >> $GITHUB_PATH
           scw version
 
-      - name: Deploy Scaleway Serverless Container (frontend)
+      - name: Deploy Scaleway Serverless Container (website)
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_REGISTRY_USERNAME }}
           SCW_SECRET_KEY: ${{ secrets.SCW_REGISTRY_PASSWORD }}
           SCW_DEFAULT_REGION: ${{ env.SCW_REGION }}
           SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_ORGANIZATION_ID }}
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_PROJECT_ID }}
-          SCW_FRONTEND_CONTAINER_ID: ${{ secrets.SCW_FRONTEND_CONTAINER_ID }}
+          SCW_WEBSITE_CONTAINER_ID: ${{ secrets.SCW_WEBSITE_CONTAINER_ID }}
         run: |
           if [ -z "$SCW_ACCESS_KEY" ] || [ -z "$SCW_SECRET_KEY" ]; then
             echo "::error::SCW_ACCESS_KEY / SCW_SECRET_KEY (via SCW_REGISTRY_USERNAME / SCW_REGISTRY_PASSWORD) are not set."
             exit 1
           fi
 
-          if [ -z "$SCW_FRONTEND_CONTAINER_ID" ]; then
-            echo "::error::SCW_FRONTEND_CONTAINER_ID secret is not set."
-            echo "::error::Add it in Settings → Secrets and variables → Actions."
+          if [ -z "$SCW_WEBSITE_CONTAINER_ID" ]; then
+            echo "::error::SCW_WEBSITE_CONTAINER_ID secret is not set."
+            echo "::error::Add it in Settings → Secrets and variables → Actions (même valeur que l’ancien SCW_FRONTEND_CONTAINER_ID si tu migres)."
             exit 1
           fi
 
-          FRONTEND_IMAGE="${SCW_REGISTRY_URL}/${SCW_REGISTRY_NAMESPACE}/${SCW_FRONTEND_IMAGE_NAME}:latest"
-          echo "Updating container to use image: ${FRONTEND_IMAGE}"
-          scw container container update "${SCW_FRONTEND_CONTAINER_ID}" region="${SCW_REGION}" registry-image="${FRONTEND_IMAGE}"
+          WEBSITE_IMAGE="${SCW_REGISTRY_URL}/${SCW_REGISTRY_NAMESPACE}/${SCW_WEBSITE_IMAGE_NAME}:latest"
+          echo "Updating container ${SCW_WEBSITE_CONTAINER_ID} → image ${WEBSITE_IMAGE}"
+          scw container container update "${SCW_WEBSITE_CONTAINER_ID}" region="${SCW_REGION}" registry-image="${WEBSITE_IMAGE}"
 
-          echo "Deploying Scaleway container ID=${SCW_FRONTEND_CONTAINER_ID} in region=${SCW_REGION}"
-          scw container container deploy "${SCW_FRONTEND_CONTAINER_ID}" region="${SCW_REGION}"
+          echo "Deploying Scaleway container ID=${SCW_WEBSITE_CONTAINER_ID} in region=${SCW_REGION}"
+          scw container container deploy "${SCW_WEBSITE_CONTAINER_ID}" region="${SCW_REGION}"
 
-      - name: Show deployed Scaleway frontend URL
+      - name: Show deployed Scaleway website URL
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_REGISTRY_USERNAME }}
           SCW_SECRET_KEY: ${{ secrets.SCW_REGISTRY_PASSWORD }}
           SCW_DEFAULT_REGION: ${{ env.SCW_REGION }}
           SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_ORGANIZATION_ID }}
           SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_PROJECT_ID }}
-          SCW_FRONTEND_CONTAINER_ID: ${{ secrets.SCW_FRONTEND_CONTAINER_ID }}
+          SCW_WEBSITE_CONTAINER_ID: ${{ secrets.SCW_WEBSITE_CONTAINER_ID }}
         run: |
-          if [ -z "$SCW_FRONTEND_CONTAINER_ID" ]; then
-            echo "::error::SCW_FRONTEND_CONTAINER_ID secret is not set."
+          if [ -z "$SCW_WEBSITE_CONTAINER_ID" ]; then
+            echo "::error::SCW_WEBSITE_CONTAINER_ID secret is not set."
             exit 1
           fi
 
-          DOMAIN=$(scw container container get "${SCW_FRONTEND_CONTAINER_ID}" region="${SCW_REGION}" -o json | jq -r '.domain_name')
+          DOMAIN=$(scw container container get "${SCW_WEBSITE_CONTAINER_ID}" region="${SCW_REGION}" -o json | jq -r '.domain_name')
 
           if [ -z "$DOMAIN" ] || [ "$DOMAIN" = "null" ]; then
-            echo "::error::Unable to retrieve frontend container domain name."
+            echo "::error::Unable to retrieve website container domain name."
             exit 1
           fi
 
-          echo "✅ Frontend déployé sur : https://${DOMAIN}"
-
+          echo "✅ Site déployé sur : https://${DOMAIN}"
