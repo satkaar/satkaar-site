@@ -41,6 +41,8 @@ jobs:
         env:
           IMAGE_REPO: ${{ env.SCW_REGISTRY_URL }}/${{ env.SCW_REGISTRY_NAMESPACE }}/${{ env.SCW_WEBSITE_IMAGE_NAME }}
         run: |
+          # Image cible : satkaar-prod/website (pas satkaar-prod/frontend).
+          echo "::notice::IMAGE_REPO=${IMAGE_REPO} (nom image = ${{ env.SCW_WEBSITE_IMAGE_NAME }})"
           IMAGE_SHA_TAG="${IMAGE_REPO}:${GITHUB_SHA}"
           IMAGE_LATEST_TAG="${IMAGE_REPO}:latest"
 
@@ -82,6 +84,7 @@ jobs:
           fi
 
           WEBSITE_IMAGE="${SCW_REGISTRY_URL}/${SCW_REGISTRY_NAMESPACE}/${SCW_WEBSITE_IMAGE_NAME}:latest"
+          echo "::notice::registry-image pour le container = ${WEBSITE_IMAGE}"
           echo "Updating container ${SCW_WEBSITE_CONTAINER_ID} → image ${WEBSITE_IMAGE}"
           scw container container update "${SCW_WEBSITE_CONTAINER_ID}" region="${SCW_REGION}" registry-image="${WEBSITE_IMAGE}"
 
