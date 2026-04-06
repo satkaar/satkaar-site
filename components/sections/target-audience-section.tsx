@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import independantImage from "@/public/images/independent-worker.jpg";
@@ -60,6 +61,26 @@ const profiles = [
   },
 ];
 
+type AssistanceFormData = {
+  app_version: string;
+  email: string;
+  full_name: string;
+  message: string;
+  platform: "mobile" | "web";
+  subject: string;
+  user_id: string;
+};
+
+const initialAssistanceFormData: AssistanceFormData = {
+  app_version: "1.0.0",
+  email: "",
+  full_name: "",
+  message: "",
+  platform: "mobile",
+  subject: "",
+  user_id: "",
+};
+
 export function TargetAudienceSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
@@ -68,6 +89,17 @@ export function TargetAudienceSection() {
   });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(true);
+  const [assistanceFormData, setAssistanceFormData] = useState<AssistanceFormData>(
+    initialAssistanceFormData
+  );
+  const [isSubmittingAssistance, setIsSubmittingAssistance] = useState(false);
+  const [assistanceStatus, setAssistanceStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({
+    type: null,
+    message: "",
+  });
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -87,8 +119,163 @@ export function TargetAudienceSection() {
     };
   }, [emblaApi, onSelect]);
 
+  const handleAssistanceFieldChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    setAssistanceFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+  };
+
+  const handleAssistanceSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmittingAssistance(true);
+    setAssistanceStatus({ type: null, message: "" });
+
+    try {
+      const response = await fetch("https://back-end-prod.satkaar.io/meta/assistance", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...assistanceFormData,
+          user_id: assistanceFormData.user_id
+            ? Number(assistanceFormData.user_id)
+            : 0,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'envoi de votre demande.");
+      }
+
+      setAssistanceStatus({
+        type: "success",
+        message: "Votre question a bien ete envoyee.",
+      });
+      setAssistanceFormData(initialAssistanceFormData);
+    } catch {
+      setAssistanceStatus({
+        type: "error",
+        message: "Impossible d'envoyer votre demande pour le moment.",
+      });
+    } finally {
+      setIsSubmittingAssistance(false);
+    }
+  };
+
   return (
     <section className="py-16 lg:py-24 overflow-hidden">
+      <div className="container-oso">
+        <motion.div
+          className="mb-16 rounded-oso-s border border-gris-20 bg-white p-6 lg:p-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="mb-6">
+            <h3 className="font-heading text-3xl font-semibold text-gris-70">
+              Vous avez une question ou besoin d&apos;assistance ?
+            </h3>
+            <p className="mt-2 text-gris-60">
+              Envoyez-nous votre demande, notre equipe vous repondra rapidement.
+            </p>
+          </div>
+
+          <form className="grid gap-4" onSubmit={handleAssistanceSubmit}>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Input
+                name="full_name"
+                placeholder="Nom complet"
+                value={assistanceFormData.full_name}
+                onChange={handleAssistanceFieldChange}
+                required
+              />
+              <Input
+                name="email"
+                type="email"
+                placeholder="Email"
+                value={assistanceFormData.email}
+                onChange={handleAssistanceFieldChange}
+                required
+              />
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Input
+                name="subject"
+                placeholder="Sujet"
+                value={assistanceFormData.subject}
+                onChange={handleAssistanceFieldChange}
+                required
+              />
+              <select
+                name="platform"
+                aria-label="Plateforme"
+                title="Plateforme"
+                value={assistanceFormData.platform}
+                onChange={handleAssistanceFieldChange}
+                className="h-[53px] w-full rounded-oso-s border border-gris-20 bg-white px-4 text-base font-body text-gris-70 focus:outline-none focus:ring-2 focus:ring-bleu-200 focus:border-bleu-200"
+                required
+              >
+                <option value="mobile">Mobile</option>
+                <option value="web">Web</option>
+              </select>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Input
+                name="app_version"
+                placeholder="Version de l'application"
+                value={assistanceFormData.app_version}
+                onChange={handleAssistanceFieldChange}
+                required
+              />
+              <Input
+                name="user_id"
+                type="number"
+                min="0"
+                placeholder="User ID (optionnel)"
+                value={assistanceFormData.user_id}
+                onChange={handleAssistanceFieldChange}
+              />
+            </div>
+
+            <textarea
+              name="message"
+              rows={5}
+              placeholder="Votre message"
+              value={assistanceFormData.message}
+              onChange={handleAssistanceFieldChange}
+              className="w-full rounded-oso-s border border-gris-20 bg-white px-4 py-3 text-base font-body text-gris-70 placeholder:text-gris-40 transition-colors focus:outline-none focus:ring-2 focus:ring-bleu-200 focus:border-bleu-200"
+              required
+            />
+
+            <div className="flex flex-col items-start gap-3">
+              <Button type="submit" disabled={isSubmittingAssistance}>
+                {isSubmittingAssistance ? "Envoi en cours..." : "Envoyer ma question"}
+              </Button>
+              {assistanceStatus.type && (
+                <p
+                  className={
+                    assistanceStatus.type === "success"
+                      ? "text-sm text-emerald-700"
+                      : "text-sm text-rose-700"
+                  }
+                >
+                  {assistanceStatus.message}
+                </p>
+              )}
+            </div>
+          </form>
+        </motion.div>
+      </div>
+
       {/* Title */}
       <div className="container-oso">
         <motion.h2
