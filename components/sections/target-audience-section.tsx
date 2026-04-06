@@ -62,23 +62,17 @@ const profiles = [
 ];
 
 type AssistanceFormData = {
-  app_version: string;
   email: string;
   full_name: string;
   message: string;
-  platform: "mobile" | "web";
   subject: string;
-  user_id: string;
 };
 
 const initialAssistanceFormData: AssistanceFormData = {
-  app_version: "1.0.0",
   email: "",
   full_name: "",
   message: "",
-  platform: "mobile",
   subject: "",
-  user_id: "",
 };
 
 export function TargetAudienceSection() {
@@ -142,10 +136,10 @@ export function TargetAudienceSection() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          app_version: "1.0.0",
           ...assistanceFormData,
-          user_id: assistanceFormData.user_id
-            ? Number(assistanceFormData.user_id)
-            : 0,
+          platform: "mobile",
+          user_id: 0,
         }),
       });
 
@@ -206,43 +200,13 @@ export function TargetAudienceSection() {
               />
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4">
               <Input
                 name="subject"
                 placeholder="Sujet"
                 value={assistanceFormData.subject}
                 onChange={handleAssistanceFieldChange}
                 required
-              />
-              <select
-                name="platform"
-                aria-label="Plateforme"
-                title="Plateforme"
-                value={assistanceFormData.platform}
-                onChange={handleAssistanceFieldChange}
-                className="h-[53px] w-full rounded-oso-s border border-gris-20 bg-white px-4 text-base font-body text-gris-70 focus:outline-none focus:ring-2 focus:ring-bleu-200 focus:border-bleu-200"
-                required
-              >
-                <option value="mobile">Mobile</option>
-                <option value="web">Web</option>
-              </select>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Input
-                name="app_version"
-                placeholder="Version de l'application"
-                value={assistanceFormData.app_version}
-                onChange={handleAssistanceFieldChange}
-                required
-              />
-              <Input
-                name="user_id"
-                type="number"
-                min="0"
-                placeholder="User ID (optionnel)"
-                value={assistanceFormData.user_id}
-                onChange={handleAssistanceFieldChange}
               />
             </div>
 
