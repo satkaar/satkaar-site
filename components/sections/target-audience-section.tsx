@@ -128,19 +128,38 @@ export function TargetAudienceSection() {
     setIsSubmittingAssistance(true);
     setAssistanceStatus({ type: null, message: "" });
 
+    const assistancePayload = {
+      app_version: "1.0.0",
+      ...assistanceFormData,
+      platform: "mobile",
+      user_id: 0,
+    };
+
     try {
+      console.info("[Assistance] Sending request", assistancePayload);
       const response = await fetch("https://back-end-prod.satkaar.io/meta/assistance", {
         method: "POST",
         headers: {
           accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          app_version: "1.0.0",
-          ...assistanceFormData,
-          platform: "mobile",
-          user_id: 0,
-        }),
+        body: JSON.stringify(assistancePayload),
+      });
+
+      const rawResponseBody = await response.text();
+      let parsedResponseBody: unknown = rawResponseBody;
+
+      try {
+        parsedResponseBody = rawResponseBody ? JSON.parse(rawResponseBody) : null;
+      } catch {
+        // Keep raw text if response is not valid JSON.
+      }
+
+      console.info("[Assistance] Response received", {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        body: parsedResponseBody,
       });
 
       if (!response.ok) {
@@ -152,7 +171,8 @@ export function TargetAudienceSection() {
         message: "Votre question a bien ete envoyee.",
       });
       setAssistanceFormData(initialAssistanceFormData);
-    } catch {
+    } catch (error) {
+      console.error("[Assistance] Request failed", error);
       setAssistanceStatus({
         type: "error",
         message: "Impossible d'envoyer votre demande pour le moment.",
