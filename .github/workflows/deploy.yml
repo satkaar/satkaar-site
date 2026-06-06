@@ -1,0 +1,33 @@
+# Build & deploy Kapsule (preprod + prod).
+#
+# Particularité satkaar-site : vitrine SANS Postgres (SQLite éphémère dans le
+# conteneur, choix assumé) → require-db: false. Servie sur l'APEX satkaar.io.
+
+name: 🚢 Build & Deploy (Kapsule)
+
+on:
+  push:
+    branches: [preprod]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        options: [preprod, prod]
+        default: preprod
+
+permissions:
+  contents: read
+  # Requis pour Trivy SARIF upload côté reusable scan job.
+  security-events: write
+
+jobs:
+  deploy:
+    uses: satkaar/platform/.github/workflows/reusable-deploy.yml@main
+    secrets: inherit
+    with:
+      app-name: satkaar-site
+      prod-host: satkaar.io
+      preprod-host: preprod.satkaar.io
+      smoke-path: "/"
+      require-db: false

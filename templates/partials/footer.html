@@ -1,0 +1,52 @@
+<footer class="site-footer" id="site-footer">
+    <div class="container">
+        <div class="site-footer__grid">
+            <div class="site-footer__col site-footer__col--brand">
+                <div class="site-footer__brand">
+                    <span class="site-header__mark" aria-hidden="true">
+                        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="6" fill="#2238d8"/>
+                            <path d="M9 11.5c0-2 1.7-3.5 4-3.5h6c2.3 0 4 1.5 4 3.5S21.3 15 19 15h-6c-2.3 0-4 1.5-4 3.5S10.7 22 13 22h6c2.3 0 4-1.5 4-3.5" stroke="#fafafa" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    <strong>Satkaar SAS</strong>
+                </div>
+                <p class="site-footer__about">
+                    Éditeur de logiciel français spécialisé dans la transformation
+                    numérique des communes et intercommunalités.
+                </p>
+            </div>
+
+            <div class="site-footer__col">
+                <h4>Produits</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}#mission">Application citoyenne</a></li>
+                    <li><a href="{% url 'home' %}#mission">Plateforme back-office</a></li>
+                    <li><a href="{% url 'home' %}#ia-souveraine">Notre IA souveraine</a></li>
+                </ul>
+            </div>
+
+            <div class="site-footer__col">
+                <h4>Ressources</h4>
+                <ul>
+                    <li><a href="{% url 'mentions_legales' %}">Mentions légales &amp; RGPD</a></li>
+                    <li><a href="{% url 'home' %}#confiance">Labels &amp; partenariats</a></li>
+                </ul>
+            </div>
+
+            <div class="site-footer__col">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Montpellier · France</li>
+                    <li><a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a></li>
+                    <li><a href="{% url 'home' %}#contact">Formulaire de contact</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="site-footer__legal">
+            <small>© {% now "Y" %} Satkaar SAS · Immatriculée en France · SIREN à venir</small>
+            <small>Hébergé chez Scaleway · Datacenters en France</small>
+        </div>
+    </div>
+</footer>

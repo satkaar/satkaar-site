@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% comment %}=== 1. HERO ==={% endcomment %}
+<section class="section section--hero" id="hero">
+    <div class="container hero">
+        <div class="hero__text">
+            <p class="eyebrow">Éditeur de logiciel · Deeptech française</p>
+
+            <h1 class="display">
+                Satkaar — l'éditeur qui remet le
+                <em>citoyen au centre</em> de la commune
+            </h1>
+
+            <p class="lede">
+                Nous concevons des logiciels propulsés par l'intelligence artificielle pour aider
+                les communes à moderniser leur relation avec les citoyens, sans alourdir le travail
+                des agents.
+            </p>
+
+            <div class="cta-row">
+                <a href="#contact" class="btn btn--primary btn--lg">Demander une démonstration</a>
+                <a href="#mission" class="btn btn--ghost btn--lg">Découvrir notre approche</a>
+            </div>
+        </div>
+
+        <div class="hero__labels" aria-label="Labels et incubateurs">
+            <p class="eyebrow eyebrow--muted">Labellisée &amp; incubée par</p>
+            <ul class="label-strip">
+                <li><span class="label-strip__chip">French Tech Tremplin</span></li>
+                <li><span class="label-strip__chip">Deeptech · Bpifrance</span></li>
+                <li><span class="label-strip__chip">BIC Montpellier</span></li>
+                <li><span class="label-strip__chip">Rmine · Carcassonne</span></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+{% comment %}=== 2. QUI SOMMES-NOUS ==={% endcomment %}
+<section class="section section--alt" id="qui-sommes-nous">
+    <div class="container">
+        <p class="eyebrow">Qui sommes-nous</p>
+        <h2 class="title">Une startup deeptech française, fondée par un ingénieur du numérique public</h2>
+
+        <div class="two-cols">
+            <div class="prose">
+                <p>
+                    Satkaar SAS a été fondée en 2025 par <strong>Damien Marque</strong>, ingénieur
+                    diplômé de l'ENSIMAG (Grenoble), après plus de huit années passées à concevoir
+                    des systèmes de données et d'intelligence artificielle pour de grands groupes
+                    français — Sopra Steria, GeoPost, ADEO, Auchan, Septeo.
+                </p>
+                <p>
+                    L'idée de Satkaar est née d'un constat simple&nbsp;: les citoyens passent un
+                    temps considérable à comprendre et accomplir leurs démarches administratives,
+                    pendant que les agents communaux croulent sous des sollicitations dispersées.
+                    <strong>L'intelligence artificielle moderne, bien utilisée, peut réconcilier
+                    ces deux réalités.</strong>
+                </p>
+            </div>
+
+            <aside class="ancrage">
+                <p class="eyebrow eyebrow--accent">Notre ancrage</p>
+                <p>
+                    Satkaar est immatriculée en France, basée à <strong>Montpellier</strong>, et
+                    incubée à la fois au <strong>BIC de Montpellier</strong> et chez
+                    <strong>Rmine</strong> à Carcassonne.
+                </p>
+                <p>
+                    Nous concevons et hébergeons nos logiciels en France, sur des infrastructures
+                    souveraines.
+                </p>
+            </aside>
+        </div>
+    </div>
+</section>
+
+
+{% comment %}=== 3. MISSION / DOMAINE D'ACTION ==={% endcomment %}
+<section class="section" id="mission">
+    <div class="container">
+        <p class="eyebrow">Notre métier</p>
+        <h2 class="title">Éditer des logiciels qui simplifient la mairie</h2>
+
+        <p class="lede">
+            En tant qu'éditeur, Satkaar conçoit, développe et maintient deux logiciels
+            complémentaires qui couvrent les deux côtés de la relation commune-citoyen.
+        </p>
+
+        <div class="cards-grid cards-grid--2">
+            <article class="product-card">
+                <div class="product-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="14" y="6" width="20" height="36" rx="3" fill="none" stroke="#1a2952" stroke-width="2"/>
+                        <rect x="16.5" y="9.5" width="15" height="25" fill="#dde2f5"/>
+                        <circle cx="24" cy="38" r="1.6" fill="#1a2952"/>
+                        <rect x="20" y="13" width="8" height="2" fill="#2238d8"/>
+                        <rect x="19" y="18" width="10" height="1.5" fill="#1a2952"/>
+                        <rect x="19" y="22" width="10" height="1.5" fill="#1a2952"/>
+                        <rect x="19" y="26" width="6" height="1.5" fill="#1a2952"/>
+                    </svg>
+                </div>
+                <p class="eyebrow eyebrow--accent">Côté citoyen</p>
+                <h3 class="product-card__title">Une application mobile pour les citoyens</h3>
+                <p class="product-card__body">
+                    Une application qui accompagne le citoyen dans toutes ses démarches communales&nbsp;:
+                    il photographie ses documents, les centralise dans un <strong>coffre-fort numérique
+                    personnel</strong>, et notre IA l'aide à constituer ses dossiers — inscription en
+                    crèche, à la cantine, sur les listes électorales, demande de logement social…
+                </p>
+            </article>
+
+            <article class="product-card">
+                <div class="product-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="4" y="8" width="40" height="28" rx="3" fill="none" stroke="#1a2952" stroke-width="2"/>
+                        <rect x="7" y="11" width="34" height="3" fill="#1a2952"/>
+                        <rect x="8" y="17" width="12" height="6" fill="#dde2f5"/>
+                        <rect x="22" y="17" width="9" height="6" fill="#2238d8"/>
+                        <rect x="33" y="17" width="7" height="6" fill="#dde2f5"/>
+                        <rect x="8" y="25" width="14" height="8" fill="#dde2f5"/>
+                        <rect x="24" y="25" width="16" height="8" fill="#dde2f5"/>
+                        <rect x="18" y="38" width="12" height="2" fill="#1a2952"/>
+                    </svg>
+                </div>
+                <p class="eyebrow eyebrow--accent">Côté mairie</p>
+                <h3 class="product-card__title">Une plateforme back-office pour les agents</h3>
+                <p class="product-card__body">
+                    Une plateforme web pour les services municipaux qui centralise l'ensemble des
+                    demandes citoyennes — quel que soit le canal d'origine (mail, accueil, formulaire,
+                    téléphone). Les agents disposent d'une <strong>vision 360° des dossiers en
+                    cours</strong>, d'un système de tickets et de tableaux de bord pour le pilotage
+                    transversal entre services.
+                </p>
+            </article>
+        </div>
+
+        <p class="note-muted">
+            Les deux logiciels sont conçus pour fonctionner ensemble, mais peuvent être déployés
+            séparément selon les besoins de votre commune.
+        </p>
+    </div>
+</section>
+
+
+{% comment %}=== 4. CONFIANCE — Labels + Partenariats ==={% endcomment %}
+<section class="section section--alt" id="confiance">
+    <div class="container">
+        <p class="eyebrow">Pourquoi nous faire confiance</p>
+        <h2 class="title">Une crédibilité reconnue par l'État et les territoires</h2>
+
+        <p class="lede">
+            Satkaar n'est pas un acteur isolé. Notre projet a été validé par les principales
+            institutions de soutien à l'innovation française, et nous travaillons déjà avec des
+            collectivités du Sud de la France.
+        </p>
+
+        {# --- Sous-bloc A : labels --- #}
+        <div class="subblock">
+            <h3 class="subblock__title">Labellisée par l'État</h3>
+
+            <div class="badges">
+                <article class="badge-card">
+                    <div class="badge-card__pill">
+                        <span class="badge-card__dot" aria-hidden="true"></span>
+                        French Tech Tremplin
+                    </div>
+                    <p>
+                        Bourse d'amorçage attribuée par <strong>La French Tech</strong> aux
+                        entrepreneurs issus de la diversité portant des projets technologiques à
+                        fort potentiel. Satkaar fait partie des promotions sélectionnées sur
+                        dossier et jury national.
+                    </p>
+                </article>
+
+                <article class="badge-card">
+                    <div class="badge-card__pill">
+                        <span class="badge-card__dot" aria-hidden="true"></span>
+                        Label Deeptech · Bpifrance
+                    </div>
+                    <p>
+                        Label attribué par <strong>Bpifrance</strong> aux entreprises dont
+                        l'innovation repose sur des verrous technologiques avancés. Il reconnaît la
+                        nature scientifique et technologique de notre travail sur l'intelligence
+                        artificielle appliquée au service public.
+                    </p>
+                </article>
+
+                <article class="badge-card">
+                    <div class="badge-card__pill">
+                        <span class="badge-card__dot" aria-hidden="true"></span>
+                        Incubation BIC Montpellier &amp; Rmine
+                    </div>
+                    <p>
+                        Suivi par <strong>deux incubateurs reconnus</strong>, qui accompagnent
+                        Satkaar sur la structuration commerciale, juridique et financière de
+                        l'entreprise.
+                    </p>
+                </article>
+            </div>
+        </div>
+
+        {# --- Sous-bloc B : partenariats --- #}
+        <div class="subblock">
+            <h3 class="subblock__title">Nos partenariats avec les collectivités</h3>
+
+            <p class="lede lede--sm">
+                Satkaar co-construit ses produits avec les communes qui les utiliseront. Plutôt que
+                d'imposer un logiciel descendant, nous travaillons en partenariat de terrain avec
+                deux intercommunalités pilotes en région
+                <strong>Provence-Alpes-Côte d'Azur</strong>.
+            </p>
+
+            <div class="cards-grid cards-grid--2">
+                <article class="partner-card">
+                    <p class="eyebrow eyebrow--accent">Partenaire pilote</p>
+                    <h4 class="partner-card__title">
+                        Communauté de Communes de Forcalquier — Pays de Forcalquier-Montagne de Lure (CCFL)
+                    </h4>
+                    <p>
+                        La commune de <strong>Forcalquier</strong>, sous l'impulsion de son maire
+                        <strong>David Gehant</strong>, accompagne Satkaar dans la conception de la
+                        plateforme back-office et dans la définition des cas d'usage prioritaires
+                        pour les services municipaux.
+                    </p>
+                </article>
+
+                <article class="partner-card">
+                    <p class="eyebrow eyebrow--accent">Agglomération de référence</p>
+                    <h4 class="partner-card__title">
+                        Durance Luberon Verdon Agglomération (DLVA)
+                    </h4>
+                    <p>
+                        Agglomération de référence du département des
+                        <strong>Alpes-de-Haute-Provence</strong>, regroupant
+                        <strong>Manosque</strong> et 24 communes du Val de Durance, du Luberon et
+                        du Verdon. Satkaar y déploie son approche territoriale et y construit des
+                        cas d'usage adaptés aux communes rurales et péri-urbaines.
+                    </p>
+                </article>
+            </div>
+
+            <p class="note-muted">
+                Ces partenariats nous permettent de garantir que nos logiciels répondent aux
+                <strong>vraies contraintes de terrain</strong> des communes françaises, et non à
+                une vision théorique de la transformation numérique.
+            </p>
+        </div>
+    </div>
+</section>
+
+
+{% comment %}=== 5. IA SOUVERAINE ==={% endcomment %}
+<section class="section" id="ia-souveraine">
+    <div class="container">
+        <p class="eyebrow">Notre approche</p>
+        <h2 class="title">Une IA française, souveraine et au service de l'humain</h2>
+
+        <p class="lede">
+            Beaucoup d'éditeurs parlent d'intelligence artificielle. Chez Satkaar, l'IA n'est pas
+            un argument marketing&nbsp;: c'est le cœur de notre technologie. Et nous avons fait des
+            choix de souveraineté assumés.
+        </p>
+
+        <div class="cards-grid cards-grid--3">
+            <article class="pillar-card">
+                <div class="pillar-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="none" stroke="#2238d8" stroke-width="2.4"/>
+                        <text x="24" y="29" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#1a2952">FR</text>
+                    </svg>
+                </div>
+                <p class="eyebrow eyebrow--accent">IA française</p>
+                <h3 class="pillar-card__title">Nous utilisons Mistral AI</h3>
+                <p>
+                    Notre traitement intelligent des documents administratifs s'appuie sur les
+                    modèles de <strong>Mistral AI</strong>, leader européen de l'IA générative.
+                    <strong>Aucune donnée citoyenne</strong> ne transite par des modèles américains
+                    ou chinois.
+                </p>
+            </article>
+
+            <article class="pillar-card">
+                <div class="pillar-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="8" y="10" width="32" height="9" rx="2" fill="none" stroke="#2238d8" stroke-width="2"/>
+                        <rect x="8" y="22" width="32" height="9" rx="2" fill="none" stroke="#2238d8" stroke-width="2"/>
+                        <rect x="8" y="34" width="32" height="8" rx="2" fill="none" stroke="#2238d8" stroke-width="2"/>
+                        <circle cx="13" cy="14.5" r="1.3" fill="#0f7a4e"/>
+                        <circle cx="13" cy="26.5" r="1.3" fill="#0f7a4e"/>
+                        <circle cx="13" cy="38" r="1.3" fill="#0f7a4e"/>
+                    </svg>
+                </div>
+                <p class="eyebrow eyebrow--accent">Hébergement souverain</p>
+                <h3 class="pillar-card__title">Données hébergées en France</h3>
+                <p>
+                    L'ensemble de nos infrastructures (bases de données, traitements, sauvegardes)
+                    est hébergé chez <strong>Scaleway</strong>, opérateur français, dans des
+                    datacenters situés sur le territoire national.
+                </p>
+            </article>
+
+            <article class="pillar-card">
+                <div class="pillar-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 4 L40 10 V24 C40 33 33 40 24 44 C15 40 8 33 8 24 V10 Z" fill="none" stroke="#2238d8" stroke-width="2.2"/>
+                        <path d="M17 23 L22 28 L31 18" stroke="#0f7a4e" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <p class="eyebrow eyebrow--accent">RGPD by design</p>
+                <h3 class="pillar-card__title">Conformité RGPD native</h3>
+                <p>
+                    Nous avons construit notre architecture autour de la conformité RGPD dès le
+                    premier jour&nbsp;: ROPA, DPA, DPIA, politique de confidentialité, droits des
+                    personnes. Notre documentation est disponible sur demande.
+                </p>
+            </article>
+        </div>
+    </div>
+</section>
+
+
+{% comment %}=== 6. CONTACT ==={% endcomment %}
+<section class="section section--alt" id="contact">
+    <div class="container">
+        <p class="eyebrow">Contact</p>
+        <h2 class="title">Discutons de votre commune</h2>
+
+        <p class="lede">
+            Vous êtes maire, DGS, ou chef de service d'une commune intéressée par notre démarche&nbsp;?
+            Nous proposons des rendez-vous de découverte sans engagement, en visioconférence ou sur
+            place dans les départements <strong>04, 13, 30, 34, 83 et 84</strong>.
+        </p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert--{{ message.tags|default:'info' }}" id="contact-merci" role="status">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="contact-grid">
+            <form method="post" action="{% url 'home' %}#contact" class="contact-form" novalidate>
+                {% csrf_token %}
+
+                {# Honeypot caché : vrai humain ne le voit pas, bots remplissent #}
+                <div class="hp" aria-hidden="true">
+                    <label for="id_site_web">Site web (ne pas remplir)</label>
+                    {{ form.site_web }}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert--error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="id_nom">Nom *</label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}<p class="form-error">{{ form.nom.errors|join:" " }}</p>{% endif %}
+                    </div>
+                    <div class="form-field">
+                        <label for="id_fonction">Fonction *</label>
+                        {{ form.fonction }}
+                        {% if form.fonction.errors %}<p class="form-error">{{ form.fonction.errors|join:" " }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="id_commune">Commune ou intercommunalité *</label>
+                        {{ form.commune }}
+                        {% if form.commune.errors %}<p class="form-error">{{ form.commune.errors|join:" " }}</p>{% endif %}
+                    </div>
+                    <div class="form-field">
+                        <label for="id_email">Email *</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<p class="form-error">{{ form.email.errors|join:" " }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="id_telephone">Téléphone (optionnel)</label>
+                    {{ form.telephone }}
+                </div>
+
+                <div class="form-field">
+                    <label for="id_message">Votre message *</label>
+                    {{ form.message }}
+                    {% if form.message.errors %}<p class="form-error">{{ form.message.errors|join:" " }}</p>{% endif %}
+                </div>
+
+                <div class="form-field form-field--check">
+                    <label for="id_consentement_rgpd">
+                        {{ form.consentement_rgpd }}
+                        <span>{{ form.consentement_rgpd.label }}</span>
+                    </label>
+                    {% if form.consentement_rgpd.errors %}<p class="form-error">{{ form.consentement_rgpd.errors|join:" " }}</p>{% endif %}
+                </div>
+
+                <button type="submit" class="btn btn--primary btn--lg">Envoyer ma demande</button>
+            </form>
+
+            <aside class="contact-aside">
+                <p class="eyebrow eyebrow--inverse">Satkaar SAS</p>
+                <p class="contact-aside__line">Montpellier · France</p>
+                <p class="contact-aside__line"><a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a></p>
+                <p class="contact-aside__line"><a href="https://satkaar.fr">satkaar.fr</a></p>
+
+                <hr>
+
+                <p class="eyebrow eyebrow--inverse">Suivez-nous</p>
+                <ul class="social">
+                    <li><a href="https://www.linkedin.com/company/satkaar" rel="noopener" target="_blank">LinkedIn ↗</a></li>
+                    <li><a href="https://x.com/satkaar_fr" rel="noopener" target="_blank">X ↗</a></li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

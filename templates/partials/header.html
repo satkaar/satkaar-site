@@ -1,0 +1,29 @@
+<header class="site-header" id="site-header">
+    <div class="container site-header__inner">
+        <a href="{% url 'home' %}#hero" class="site-header__brand" aria-label="Satkaar — accueil">
+            <span class="site-header__mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="6" fill="#1a2952"/>
+                    <path d="M9 11.5c0-2 1.7-3.5 4-3.5h6c2.3 0 4 1.5 4 3.5S21.3 15 19 15h-6c-2.3 0-4 1.5-4 3.5S10.7 22 13 22h6c2.3 0 4-1.5 4-3.5" stroke="#fafafa" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </span>
+            <span class="site-header__brand-text">
+                <span class="site-header__brand-name">Satkaar</span>
+                <span class="site-header__brand-tag">Logiciels pour les communes</span>
+            </span>
+        </a>
+
+        <nav class="site-nav" aria-label="Navigation principale">
+            <button class="site-nav__toggle" aria-controls="primary-menu" aria-expanded="false" aria-label="Ouvrir le menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul id="primary-menu" class="site-nav__list">
+                <li><a href="{% url 'home' %}#qui-sommes-nous">Qui sommes-nous</a></li>
+                <li><a href="{% url 'home' %}#mission">Nos logiciels</a></li>
+                <li><a href="{% url 'home' %}#confiance">Confiance</a></li>
+                <li><a href="{% url 'home' %}#ia-souveraine">IA souveraine</a></li>
+                <li><a href="{% url 'home' %}#contact" class="btn btn--primary btn--sm">Demander une démo</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>

@@ -1,0 +1,23 @@
+# Pipeline CI : Django tests sur Postgres 16 + lint Dockerfile (hadolint).
+# La logique vit dans satkaar/platform/.github/workflows/reusable-django-ci.yml.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main, preprod]
+  push:
+    branches: [main, preprod, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: satkaar/platform/.github/workflows/reusable-django-ci.yml@main
+    with:
+      python-version: "3.12"

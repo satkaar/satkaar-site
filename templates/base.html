@@ -1,0 +1,43 @@
+{% load static %}<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}Satkaar — Éditeur de logiciel pour les communes françaises{% endblock %}</title>
+    <meta name="description" content="{% block description %}Satkaar conçoit des logiciels d'IA pour les communes françaises : application citoyenne et back-office mairie. Startup deeptech labellisée French Tech Tremplin et Bpifrance.{% endblock %}">
+    <meta name="theme-color" content="#1a2952">
+
+    {# Open Graph #}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Satkaar">
+    <meta property="og:title" content="{% block og_title %}Satkaar — l'éditeur qui remet le citoyen au centre de la commune{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Logiciels d'IA pour la transformation numérique des communes françaises.{% endblock %}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <a class="skip-link" href="#main">Aller au contenu principal</a>
+
+    {% include "partials/header.html" %}
+
+    <main id="main" tabindex="-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "partials/footer.html" %}
+
+    <script src="{% static 'js/nav.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

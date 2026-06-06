@@ -1,0 +1,22 @@
+# Exclure du contexte de build Docker tout ce qui n'a rien à faire dans
+# l'image : la prod démarre sur une base vierge (SQLite créée par migrate).
+.git
+.github
+.gitignore
+.dockerignore
+.env
+.env.example
+.venv
+venv/
+env/
+__pycache__/
+*.py[cod]
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+README.md
+.idea/
+.vscode/
+.DS_Store
+*.log

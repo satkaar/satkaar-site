@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Mentions légales · Satkaar{% endblock %}
+{% block description %}Mentions légales du site satkaar.fr : éditeur, hébergeur, propriété intellectuelle, protection des données personnelles (RGPD), cookies.{% endblock %}
+
+{% block content %}
+<section class="section section--narrow">
+    <div class="container container--narrow">
+        <p class="eyebrow">Informations légales</p>
+        <h1 class="title">Mentions légales &amp; protection des données</h1>
+
+        <h2>Éditeur du site</h2>
+        <p>
+            Le présent site est édité par <strong>Satkaar SAS</strong>, société par actions
+            simplifiée de droit français, dont le siège social est situé à <strong>Montpellier (34)</strong>.
+            <br>SIREN&nbsp;: à compléter dès immatriculation.
+            <br>Email&nbsp;: <a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a>
+            <br>Directeur de la publication&nbsp;: Damien Marque, président.
+        </p>
+
+        <h2>Hébergement</h2>
+        <p>
+            Le site est hébergé en France par <strong>Scaleway SAS</strong>,
+            8 rue de la Ville l'Évêque, 75008 Paris.
+            Les données techniques (logs, base de données, formulaires) sont stockées dans des
+            datacenters situés sur le territoire français.
+        </p>
+
+        <h2>Propriété intellectuelle</h2>
+        <p>
+            L'ensemble des contenus du site (textes, illustrations, logos, code source, charte
+            graphique) est la propriété exclusive de Satkaar SAS, sauf mention contraire. Toute
+            reproduction, représentation ou diffusion, totale ou partielle, sans autorisation
+            écrite préalable, est interdite.
+        </p>
+        <p>
+            Les marques citées (French Tech, Bpifrance, BIC Montpellier, Rmine, Scaleway,
+            Mistral AI, etc.) sont la propriété de leurs détenteurs respectifs et ne sont
+            mentionnées que dans un cadre informatif et factuel.
+        </p>
+
+        <h2>Protection des données personnelles (RGPD)</h2>
+        <p>
+            Conformément au Règlement (UE) 2016/679 (RGPD) et à la loi Informatique et Libertés
+            modifiée, les données collectées via le formulaire de contact (nom, fonction, commune,
+            email, téléphone, message) sont&nbsp;:
+        </p>
+        <ul>
+            <li>collectées par <strong>Satkaar SAS</strong> en sa qualité de responsable de traitement&nbsp;;</li>
+            <li>traitées dans le seul but de répondre à votre demande de contact&nbsp;;</li>
+            <li>conservées au maximum <strong>3 ans</strong> à compter du dernier échange&nbsp;;</li>
+            <li>hébergées en France, sur les infrastructures de Scaleway.</li>
+        </ul>
+        <p>
+            Vous disposez d'un droit d'accès, de rectification, d'effacement, de portabilité et
+            d'opposition. Pour exercer ces droits, écrivez à
+            <a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a>.
+            En cas de difficulté, vous pouvez introduire une réclamation auprès de la
+            <a href="https://www.cnil.fr/" rel="noopener" target="_blank">CNIL</a>.
+        </p>
+
+        <h2>Cookies</h2>
+        <p>
+            Le site satkaar.fr <strong>n'utilise aucun cookie de mesure d'audience ni traceur tiers
+            par défaut</strong>. Seuls des cookies techniques strictement nécessaires au
+            fonctionnement du site (jeton CSRF de Django) sont déposés.
+        </p>
+
+        <h2>Crédits</h2>
+        <p>
+            Conception et développement&nbsp;: Satkaar SAS.
+            Polices&nbsp;: Inter (Rasmus Andersson) et Fraunces (Undercase Type), sous licence
+            SIL Open Font.
+        </p>
+
+        <p><a href="{% url 'home' %}">← Retour à l'accueil</a></p>
+    </div>
+</section>
+{% endblock %}
