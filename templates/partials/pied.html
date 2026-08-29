@@ -1,0 +1,43 @@
+<footer class="pied">
+  <div class="contenant">
+    <div class="pied__haut">
+      <div>
+        <span class="marque">{% include "partials/signe.html" %} Satkaar</span>
+        <p>Éditeur de logiciels de relation citoyen pour les collectivités.<br>
+          La Brillanne, Alpes-de-Haute-Provence.</p>
+        <p class="sans-marge"><a class="lien-fleche" href="{% url 'pages:contact' %}">Demander une démonstration</a></p>
+      </div>
+
+      <div>
+        <h2>Le site</h2>
+        <ul>
+          <li><a href="{% url 'pages:solutions' %}">Nos solutions</a></li>
+          <li><a href="{% url 'pages:conseil' %}">Conseil et accompagnement</a></li>
+          <li><a href="{% url 'pages:souverainete' %}">Souveraineté et conformité</a></li>
+          <li><a href="{% url 'pages:references' %}">Références</a></li>
+          <li><a href="{% url 'pages:a_propos' %}">À propos</a></li>
+          <li><a href="{% url 'pages:contact' %}">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2>Nous joindre</h2>
+        <ul>
+          <li><a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a> <span class="jalon">à confirmer</span></li>
+          <li>La Brillanne (04700)</li>
+          <li>Hébergement en France</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pied__bas">
+      <p class="sans-marge">© {% now "Y" %} Satkaar — société par actions simplifiée</p>
+      <ul class="pied__legal">
+        <li><a href="{% url 'pages:mentions_legales' %}">Mentions légales</a></li>
+        <li><a href="{% url 'pages:confidentialite' %}">Politique de confidentialité</a></li>
+        <li><a href="{% url 'pages:accessibilite' %}">Accessibilité : non conforme</a></li>
+        <li><a href="{% url 'pages:cgu' %}">CGU</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

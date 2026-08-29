@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block titre %}Politique de confidentialité — Satkaar{% endblock %}
+{% block description %}Quelles données personnelles nous traitons, pourquoi, combien de temps nous les conservons et comment exercer vos droits.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Politique de confidentialité</p>
+    <h1>Politique de confidentialité</h1>
+    <p class="chapo">
+      Cette politique couvre le site satkaar.fr. Le traitement des données des habitants dans
+      Marine et Vanessa relève de la collectivité, responsable de traitement, pour laquelle
+      Satkaar intervient comme sous-traitant.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant prose">
+    <h2>Responsable de traitement</h2>
+    <p>
+      Satkaar SAS, La Brillanne (04700). Contact :
+      <a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a> <span class="jalon">à confirmer</span>
+    </p>
+
+    <h2>Données traitées sur ce site</h2>
+    <div class="tableau-defilant">
+      <table>
+        <caption class="visuellement-cache">Traitements de données personnelles réalisés depuis le site</caption>
+        <thead>
+          <tr>
+            <th scope="col">Traitement</th>
+            <th scope="col">Données</th>
+            <th scope="col">Base légale</th>
+            <th scope="col">Conservation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Demande de démonstration</td>
+            <td>Nom, collectivité, fonction, courriel, téléphone, message</td>
+            <td>Intérêt légitime — répondre à une sollicitation professionnelle</td>
+            <td>3 ans à compter du dernier contact</td>
+          </tr>
+          <tr>
+            <td>Mesure d'audience</td>
+            <td><span class="jalon">à compléter si un outil de mesure est installé</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Destinataires</h2>
+    <p>
+      Les données ne sont transmises à aucun tiers à des fins commerciales. Elles sont
+      accessibles aux seules personnes de Satkaar chargées de traiter votre demande, et
+      hébergées en France.
+    </p>
+
+    <h2>Cookies</h2>
+    <p>
+      Ce site ne dépose aucun cookie de mesure d'audience ni de publicité. Seul un cookie
+      technique de session est utilisé lors de l'envoi du formulaire, pour la protection contre
+      la falsification de requête. Il ne nécessite pas votre consentement.
+    </p>
+
+    <h2>Vos droits</h2>
+    <p>
+      Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation et
+      d'opposition. Écrivez à <a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a>. Vous
+      pouvez également introduire une réclamation auprès de la
+      <a href="https://www.cnil.fr" rel="noopener">CNIL</a>.
+    </p>
+
+    <h2>Sous-traitance pour les collectivités</h2>
+    <p>
+      Dans le cadre de Marine et Vanessa, Satkaar agit comme sous-traitant au sens de l'article 28
+      du RGPD. Le contrat de sous-traitance, le registre des traitements et l'analyse d'impact
+      sont remis à chaque collectivité cliente.
+      <a href="{% url 'pages:souverainete' %}">Voir nos engagements</a>.
+    </p>
+
+    <p><em>Dernière mise à jour : <span class="jalon">date à fixer à la mise en ligne</span></em></p>
+  </div>
+</section>
+
+{% endblock %}

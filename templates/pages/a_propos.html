@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block titre %}À propos — Satkaar{% endblock %}
+{% block description %}Satkaar, société par actions simplifiée installée à La Brillanne (Alpes-de-Haute-Provence), édite des logiciels de relation citoyen pour les collectivités.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>À propos</p>
+    <h1>Qui sommes-nous</h1>
+    <p class="chapo">
+      Satkaar est une société par actions simplifiée installée à La Brillanne, dans les
+      Alpes-de-Haute-Provence. Nous éditons des logiciels de relation citoyen pour les
+      collectivités.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <div class="territoire territoire--haut">
+      <div>
+        <p class="surtitre">Notre constat</p>
+        <h2>Les outils existants ont été conçus pour l'administration, rarement pour la relation</h2>
+      </div>
+      <div>
+        <p>
+          Nous sommes partis d'un constat simple : les élus doivent faire mieux avec moins
+          d'agents, et les habitants attendent d'une mairie ce qu'ils obtiennent partout ailleurs
+          — une réponse, et la possibilité de savoir où en est leur demande.
+        </p>
+        <p class="sans-marge">
+          Nous avons passé quatre mois en immersion sur le territoire de Forcalquier avant
+          d'écrire une ligne de code. Nous participons au Hub 04.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant">
+    <p class="surtitre">L'équipe</p>
+    <h2>Une équipe courte</h2>
+    <p class="mesure">
+      Ce qui veut dire que la personne qui vous répond est celle qui construit l'outil.
+    </p>
+
+    <div class="grille grille--3 espace-t">
+      <article class="membre">
+        <h3>Damien</h3>
+        <p>Fondateur, ingénieur en intelligence artificielle</p>
+      </article>
+      <article class="membre">
+        <h3>Yvan</h3>
+        <p>Développement front-end</p>
+      </article>
+      <article class="membre">
+        <h3>Saurel</h3>
+        <p>Expérience utilisateur</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <div class="territoire territoire--haut">
+      <div>
+        <p class="surtitre">Nos labels</p>
+        <h2>Reconnaissance et incubation</h2>
+        <p class="sans-marge">
+          Satkaar est labellisée Deeptech par Bpifrance et lauréate du French Tech Tremplin.
+          L'entreprise est incubée au BIC de Montpellier et à Rmine.
+        </p>
+      </div>
+      <div>
+        <ul class="labels">
+          <li>Deeptech Bpifrance</li>
+          <li>French Tech Tremplin</li>
+          <li>BIC de Montpellier</li>
+          <li>Rmine</li>
+          <li>Hub 04</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Rencontrons-nous</h2>
+        <p>Nous nous déplaçons dans les Alpes-de-Haute-Provence et les départements voisins.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Prendre rendez-vous</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

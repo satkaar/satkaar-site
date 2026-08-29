@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block titre %}Mentions légales — Satkaar{% endblock %}
+{% block description %}Mentions légales du site satkaar.fr : éditeur, directeur de publication et hébergeur.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Mentions légales</p>
+    <h1>Mentions légales</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant prose">
+    <h2>Éditeur du site</h2>
+    <p>
+      Satkaar, société par actions simplifiée au capital de <span class="jalon">à confirmer</span><br>
+      Siège social : La Brillanne (04700), Alpes-de-Haute-Provence<br>
+      RCS <span class="jalon">ville et numéro à confirmer</span><br>
+      SIRET : <span class="jalon">à confirmer</span><br>
+      Numéro de TVA intracommunautaire : <span class="jalon">à confirmer</span><br>
+      Courriel : <a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a> <span class="jalon">à confirmer</span>
+    </p>
+
+    <h2>Directeur de la publication</h2>
+    <p>Damien <span class="jalon">nom complet à confirmer</span>, président.</p>
+
+    <h2>Hébergeur</h2>
+    <p>
+      Le site et les applications Marine et Vanessa sont hébergés sur une infrastructure opérée
+      en France, sans transfert hors Union européenne.<br>
+      <span class="jalon">raison sociale, adresse et téléphone de l'hébergeur à confirmer</span>
+    </p>
+
+    <h2>Propriété intellectuelle</h2>
+    <p>
+      L'ensemble du site — structure, textes, éléments graphiques et logiciels — est la propriété
+      de Satkaar, à l'exception des marques et logos appartenant à leurs titulaires respectifs.
+      Toute reproduction ou représentation, totale ou partielle, sans autorisation écrite
+      préalable est interdite.
+    </p>
+
+    <h2>Crédits</h2>
+    <p>
+      Polices de caractères : Instrument Sans, Inter et JetBrains Mono, distribuées sous licence
+      SIL Open Font License 1.1 et hébergées sur nos propres serveurs.
+    </p>
+  </div>
+</section>
+
+{% endblock %}

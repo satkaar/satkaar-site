@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block titre %}Satkaar — la relation citoyen, enfin simple{% endblock %}
+{% block description %}Un back-office pour vos agents, une application pour vos habitants, et un accompagnement sur le terrain. Logiciel de relation citoyen conçu, hébergé et maintenu en France.{% endblock %}
+
+{% block contenu %}
+
+<section class="heros">
+  <svg class="heros__fond" viewBox="0 0 1200 520" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false">
+    <g fill="none" stroke="#1a3f66" stroke-width="1.5">
+      <path d="M700 -40C820 60 900 140 880 240s-120 160-80 260"/>
+      <path d="M760 -40C880 70 970 150 950 250s-120 170-80 270"/>
+      <path d="M820 -40C945 80 1040 160 1020 260s-120 180-80 280"/>
+      <path d="M880 -40C1010 90 1110 170 1090 270s-120 190-80 290"/>
+      <path d="M940 -40C1075 100 1180 180 1160 280s-120 200-80 300"/>
+    </g>
+    <g fill="none" stroke="#d96a34" stroke-width="1.5" opacity="0.55">
+      <path d="M1000 -40C1140 110 1250 190 1230 290s-120 210-80 310"/>
+    </g>
+  </svg>
+
+  <div class="contenant heros__interieur">
+    <div class="heros__filet"></div>
+    <h1>La relation citoyen, enfin simple</h1>
+    <p class="chapo">
+      Satkaar équipe les communes et intercommunalités d'un outil de gestion de la relation
+      citoyen conçu, hébergé et maintenu en France. Un back-office pour vos agents, une
+      application pour vos habitants, et un accompagnement sur le terrain.
+    </p>
+
+    <div class="groupe-boutons">
+      <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Demander une démonstration</a>
+      <a class="bouton bouton--clair" href="{% url 'pages:solutions' %}">Découvrir nos solutions</a>
+    </div>
+
+    <ul class="bandeau-preuve">
+      <li class="preuve">Forcalquier et Manosque</li>
+      <li class="preuve">3 cas d'usage en production</li>
+      <li class="preuve">Hébergement en France</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <p class="surtitre">Ce que nous faisons</p>
+    <h2>Trois métiers, un seul interlocuteur</h2>
+
+    <div class="grille grille--3 espace-t">
+      <article class="carte carte--pilier">
+        <p class="carte__numero">01</p>
+        <h3>Édition logicielle</h3>
+        <p>
+          Marine pour vos agents, Vanessa pour vos habitants. Deux outils qui parlent le même
+          langage et qui couvrent la doléance, la réservation de salle et la convention
+          territoriale globale.
+        </p>
+        <a class="lien-fleche" href="{% url 'pages:solutions' %}">Voir nos solutions</a>
+      </article>
+
+      <article class="carte carte--pilier">
+        <p class="carte__numero">02</p>
+        <h3>Conseil et accompagnement</h3>
+        <p>
+          Un logiciel ne change rien tout seul. Cadrage sur site, reprise de vos données,
+          formation des agents, suivi dans la durée.
+        </p>
+        <a class="lien-fleche" href="{% url 'pages:conseil' %}">Découvrir notre accompagnement</a>
+      </article>
+
+      <article class="carte carte--pilier">
+        <p class="carte__numero">03</p>
+        <h3>Souveraineté et conformité</h3>
+        <p>
+          Vos données restent en France, chez vous. RGPD, NIS&nbsp;2, accessibilité : la
+          conformité est intégrée au produit, pas vendue en option.
+        </p>
+        <a class="lien-fleche" href="{% url 'pages:souverainete' %}">Nos engagements</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant territoire">
+    <div>
+      <p class="surtitre">Notre territoire</p>
+      <h2>Un éditeur de logiciel dans les Alpes-de-Haute-Provence</h2>
+      <p>
+        Satkaar est installé à La Brillanne. Nous avons passé quatre mois en immersion sur le
+        territoire de Forcalquier avant d'écrire une ligne de code, parce qu'on ne conçoit pas un
+        outil pour une commune sans avoir vu comment elle fonctionne. Nous participons au Hub 04.
+      </p>
+      <a class="lien-fleche" href="{% url 'pages:a_propos' %}">Qui sommes-nous</a>
+    </div>
+
+    <div>
+      <svg viewBox="0 0 400 300" role="img" aria-label="Relief stylisé des Alpes-de-Haute-Provence, avec l'implantation de Satkaar à La Brillanne.">
+        <rect width="400" height="300" rx="8" fill="#ece7de"/>
+        <g fill="none" stroke="#c9c1b4" stroke-width="1.4">
+          <path d="M20 235c50-14 78-52 120-56s70 26 112 12 78-52 128-58"/>
+          <path d="M20 258c52-16 80-52 122-56s72 26 114 12 76-50 124-56"/>
+          <path d="M20 212c48-12 76-50 118-54s68 24 110 10 80-50 132-56"/>
+          <path d="M20 189c46-10 74-48 116-52s66 22 108 8 82-48 136-54"/>
+          <path d="M20 166c44-8 72-46 114-50s64 20 106 6 84-46 140-52"/>
+        </g>
+        <g fill="none" stroke="#1e63a8" stroke-width="2" opacity="0.7">
+          <path d="M20 120c60-20 96-56 150-58s96 34 150 26"/>
+        </g>
+        <circle cx="196" cy="163" r="16" fill="#d96a34" opacity="0.18"/>
+        <circle cx="196" cy="163" r="6" fill="#d96a34"/>
+        <text x="196" y="146" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0e2c4b">La Brillanne</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <p class="surtitre">Ce qu'ils en disent</p>
+    <h2>La parole des agents et des élus</h2>
+
+    <div class="grille grille--3 espace-t">
+      <figure class="verbatim">
+        <blockquote>
+          « Verbatim à recueillir auprès d'un agent : ce qui a changé concrètement dans son
+          quotidien depuis le déploiement. »
+        </blockquote>
+        <figcaption>
+          <strong>Prénom Nom</strong>
+          Fonction, commune <span class="jalon">à recueillir</span>
+        </figcaption>
+      </figure>
+
+      <figure class="verbatim">
+        <blockquote>
+          « Verbatim à recueillir auprès d'un élu : pourquoi la collectivité a choisi Satkaar
+          plutôt qu'un autre outil. »
+        </blockquote>
+        <figcaption>
+          <strong>Prénom Nom</strong>
+          Fonction, commune <span class="jalon">à recueillir</span>
+        </figcaption>
+      </figure>
+
+      <figure class="verbatim">
+        <blockquote>
+          « Verbatim à recueillir auprès d'un DGS : l'effet sur l'organisation des services. »
+        </blockquote>
+        <figcaption>
+          <strong>Prénom Nom</strong>
+          Fonction, commune <span class="jalon">à recueillir</span>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Trente minutes suffisent pour voir si ça vous correspond</h2>
+        <p>Une démonstration, sans engagement, avec la personne qui a construit l'outil.</p>
+      </div>
+      <div>
+        <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Prendre rendez-vous</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

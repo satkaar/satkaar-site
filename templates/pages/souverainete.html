@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block titre %}Souveraineté et conformité — Satkaar{% endblock %}
+{% block description %}Hébergement en France, RGPD, NIS 2, intelligence artificielle européenne et accessibilité RGAA 4.1 : la conformité est intégrée au produit.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Souveraineté et conformité</p>
+    <h1>Vos données ne quittent pas la France</h1>
+    <p class="chapo">
+      Une collectivité traite des données personnelles sensibles. La question n'est pas de savoir
+      si vous serez contrôlé, mais si vous serez prêt. Nous avons construit le produit dans ce
+      sens.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <p class="surtitre">Nos engagements</p>
+    <h2>Cinq engagements, documentés</h2>
+
+    <div class="espace-t">
+      <section class="engagement">
+        <h3>Hébergement en France</h3>
+        <div>
+          <p>
+            Infrastructure opérée sur le territoire national, sans transfert hors Union
+            européenne.
+          </p>
+        </div>
+      </section>
+
+      <section class="engagement">
+        <h3>RGPD</h3>
+        <div>
+          <p>
+            Registre des traitements, contrat de sous-traitance au titre de l'article 28, analyse
+            d'impact, politique de confidentialité : la documentation vous est fournie, prête à
+            être versée à votre dossier.
+          </p>
+        </div>
+      </section>
+
+      <section class="engagement">
+        <h3>Intelligence artificielle souveraine</h3>
+        <div>
+          <p>
+            Les traitements automatiques reposent sur des modèles européens. Aucune donnée
+            d'habitant n'alimente l'entraînement d'un modèle tiers.
+          </p>
+        </div>
+      </section>
+
+      <section class="engagement">
+        <h3>NIS&nbsp;2</h3>
+        <div>
+          <p>
+            Nous suivons les exigences de la directive et documentons nos mesures pour que vous
+            puissiez justifier de la chaîne complète.
+          </p>
+        </div>
+      </section>
+
+      <section class="engagement">
+        <h3>Accessibilité</h3>
+        <div>
+          <p>
+            Nos interfaces sont conçues selon le RGAA&nbsp;4.1, parce que votre obligation
+            d'accessibilité s'étend aux outils que vous mettez à disposition du public.
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<section class="section section--pierre section--serre">
+  <div class="contenant">
+    <div class="territoire territoire--haut">
+      <div>
+        <h2 class="titre-secondaire">Les pièces que nous vous remettons</h2>
+        <p>
+          De quoi constituer votre dossier de conformité sans avoir à nous relancer, dès la
+          signature.
+        </p>
+      </div>
+      <div>
+        <ul class="liste-cles sans-espace-t">
+          <li>Contrat de sous-traitance (article 28 du RGPD)</li>
+          <li>Registre des traitements</li>
+          <li>Analyse d'impact relative à la protection des données</li>
+          <li>Politique de confidentialité et durées de conservation</li>
+          <li>Description des mesures de sécurité au titre de NIS&nbsp;2</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Une question de votre DPO&nbsp;?</h2>
+        <p>Nous répondons sur pièces, pas sur promesses.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Nous écrire</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

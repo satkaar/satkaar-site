@@ -1,0 +1,9 @@
+<div class="champ-groupe">
+  <label for="{{ champ.id_for_label }}">
+    {{ champ.label }}{% if not champ.field.required %} <span class="facultatif">(facultatif)</span>{% endif %}
+  </label>
+  {% if champ.errors %}
+    <p class="erreur" id="{{ champ.auto_id }}-erreur">{{ champ.errors|join:" " }}</p>
+  {% endif %}
+  {{ champ }}
+</div>

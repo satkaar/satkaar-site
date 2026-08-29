@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block titre %}Contact — Satkaar{% endblock %}
+{% block description %}Une démonstration dure trente minutes. Nous vous montrons l'outil sur un cas concret, et nous vous disons franchement s'il correspond à votre besoin.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Contact</p>
+    <h1>Parlons de votre collectivité</h1>
+    <p class="chapo">
+      Une démonstration dure trente minutes. Nous vous montrons l'outil sur un cas concret, et
+      nous vous disons franchement s'il correspond à votre besoin.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant territoire territoire--haut">
+
+    <div>
+      {% if envoye %}
+        <div class="confirmation" role="status">
+          <h2>Votre demande est bien arrivée</h2>
+          <p>Nous vous répondons sous deux jours ouvrés, depuis La Brillanne.</p>
+          <p class="sans-marge">
+            <a class="lien-fleche" href="{% url 'pages:solutions' %}">En attendant, découvrir nos solutions</a>
+          </p>
+        </div>
+      {% else %}
+        <h2>Demander une démonstration</h2>
+
+        {% if form.errors %}
+          <div class="confirmation confirmation--erreur" role="alert">
+            <p class="sans-marge">
+              Le formulaire n'a pas pu être envoyé. Corrigez les champs signalés ci-dessous.
+            </p>
+          </div>
+        {% endif %}
+
+        <form class="formulaire espace-t" method="post" novalidate>
+          {% csrf_token %}
+          <div class="paire">
+            {% include "partials/champ.html" with champ=form.nom %}
+            {% include "partials/champ.html" with champ=form.collectivite %}
+          </div>
+          <div class="paire">
+            {% include "partials/champ.html" with champ=form.fonction %}
+            {% include "partials/champ.html" with champ=form.courriel %}
+          </div>
+          {% include "partials/champ.html" with champ=form.telephone %}
+          {% include "partials/champ.html" with champ=form.message %}
+
+          <div>
+            <button class="bouton bouton--primaire" type="submit">Envoyer ma demande</button>
+          </div>
+
+          <p class="mention">
+            Les informations saisies servent uniquement à traiter votre demande. Elles sont
+            conservées trois ans et ne sont transmises à personne. Vous pouvez demander leur
+            suppression à tout moment&nbsp;: voir notre
+            <a href="{% url 'pages:confidentialite' %}">politique de confidentialité</a>.
+          </p>
+        </form>
+      {% endif %}
+    </div>
+
+    <aside>
+      <h2 class="titre-secondaire">Nous joindre directement</h2>
+      <dl class="coordonnees">
+        <div>
+          <dt>Courriel</dt>
+          <dd><a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a> <span class="jalon">à confirmer</span></dd>
+        </div>
+        <div>
+          <dt>Téléphone</dt>
+          <dd>00 00 00 00 00 <span class="jalon">à confirmer</span></dd>
+        </div>
+        <div>
+          <dt>Adresse</dt>
+          <dd>Satkaar SAS<br>La Brillanne (04700)<br>Alpes-de-Haute-Provence</dd>
+        </div>
+        <div>
+          <dt>Prise de rendez-vous</dt>
+          <dd><a class="lien-fleche" href="#">Choisir un créneau</a> <span class="jalon">lien à fournir</span></dd>
+        </div>
+      </dl>
+    </aside>
+
+  </div>
+</section>
+
+{% endblock %}

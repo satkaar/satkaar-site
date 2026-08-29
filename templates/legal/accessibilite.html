@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block titre %}Déclaration d'accessibilité — Satkaar{% endblock %}
+{% block description %}Déclaration d'accessibilité du site satkaar.fr au regard du RGAA 4.1 : état de conformité, contenus non accessibles, contact et voie de recours.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Déclaration d'accessibilité</p>
+    <h1>Déclaration d'accessibilité</h1>
+    <p class="chapo">
+      Satkaar s'engage à rendre son site accessible conformément à l'article 47 de la loi
+      n°&nbsp;2005-102 du 11 février 2005.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant prose">
+    <p>
+      Cette déclaration s'applique au site <strong>satkaar.fr</strong>.
+    </p>
+
+    <h2>État de conformité</h2>
+    <p>
+      Le site est <strong>non conforme</strong> avec le RGAA&nbsp;4.1 : l'audit de conformité
+      n'a pas encore été réalisé. <span class="jalon">à mettre à jour après l'audit</span>
+    </p>
+    <p>
+      Le site a été conçu en appliquant les critères du RGAA&nbsp;4.1 — contrastes vérifiés,
+      navigation au clavier, structure de titres, libellés de formulaire, alternatives textuelles
+      — mais tant qu'un audit n'a pas été mené, la mention obligatoire reste « non conforme ».
+    </p>
+
+    <h2>Résultats des tests</h2>
+    <p><span class="jalon">taux de conformité et date de l'audit à renseigner</span></p>
+
+    <h2>Contenus non accessibles</h2>
+    <h3>Non-conformités</h3>
+    <p><span class="jalon">à établir lors de l'audit</span></p>
+    <h3>Dérogations pour charge disproportionnée</h3>
+    <p>Aucune à ce jour.</p>
+    <h3>Contenus non soumis à l'obligation d'accessibilité</h3>
+    <p>Aucun à ce jour.</p>
+
+    <h2>Établissement de cette déclaration</h2>
+    <p>
+      Déclaration établie le <span class="jalon">date à fixer</span>. Technologies utilisées :
+      HTML, CSS, JavaScript. Le site est produit avec Django et ne dépend d'aucune ressource
+      externe : polices, styles et scripts sont hébergés sur nos serveurs.
+    </p>
+
+    <h2>Retour d'information et contact</h2>
+    <p>
+      Si vous n'arrivez pas à accéder à un contenu ou à un service, écrivez-nous à
+      <a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a>
+      <span class="jalon">à confirmer</span> ou par courrier à&nbsp;: Satkaar SAS, La Brillanne
+      (04700). Nous vous répondrons et vous indiquerons une alternative.
+    </p>
+
+    <h2>Voie de recours</h2>
+    <p>
+      Si vous constatez un défaut d'accessibilité vous empêchant d'accéder à un contenu et que
+      vous n'obtenez pas de réponse satisfaisante, vous pouvez&nbsp;:
+    </p>
+    <ul>
+      <li>écrire un message au <a href="https://formulaire.defenseurdesdroits.fr/" rel="noopener">Défenseur des droits</a>&nbsp;;</li>
+      <li>contacter le délégué du Défenseur des droits de votre département&nbsp;;</li>
+      <li>envoyer un courrier par la poste, sans affranchissement, à&nbsp;: Défenseur des droits,
+        Libre réponse 71120, 75342 Paris CEDEX 07.</li>
+    </ul>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block titre %}Conseil et accompagnement — Satkaar{% endblock %}
+{% block description %}Cadrage sur site, reprise de données, formation des agents, suivi dans la durée. Dix ans de projets data et intelligence artificielle appliqués au service public.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Conseil et accompagnement</p>
+    <h1>Un logiciel ne change rien tout seul</h1>
+    <p class="chapo">
+      La plupart des projets de logiciel en collectivité échouent au moment du déploiement, pas
+      au moment de l'achat. C'est pour ça que notre métier ne s'arrête pas à la livraison d'un
+      accès.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <p class="surtitre">Ce que nous faisons</p>
+    <h2>Quatre temps, du terrain à la durée</h2>
+
+    <div class="grille grille--2 espace-t">
+      <article class="carte carte--pilier">
+        <p class="carte__numero">01 — Cadrage</p>
+        <h3>Nous venons voir comment vous fonctionnez</h3>
+        <p>
+          Qui reçoit les demandes, qui décide, ce qui coince aujourd'hui. Le paramétrage part de
+          là, pas d'un modèle générique.
+        </p>
+      </article>
+
+      <article class="carte carte--pilier">
+        <p class="carte__numero">02 — Reprise de données</p>
+        <h3>Sans perte d'historique</h3>
+        <p>
+          Migration de vos fichiers existants, y compris les tableurs et les boîtes courriel
+          partagées.
+        </p>
+      </article>
+
+      <article class="carte carte--pilier">
+        <p class="carte__numero">03 — Formation des agents</p>
+        <h3>Sur site, avec vos vrais dossiers</h3>
+        <p>
+          En petits groupes. L'objectif est qu'un agent sache se servir de l'outil à la fin de la
+          matinée.
+        </p>
+      </article>
+
+      <article class="carte carte--pilier">
+        <p class="carte__numero">04 — Suivi</p>
+        <h3>Un interlocuteur identifié</h3>
+        <p>
+          Joignable, et qui connaît votre collectivité. Les évolutions demandées par nos clients
+          alimentent le produit.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--nuit">
+  <div class="contenant">
+    <div class="territoire territoire--haut">
+      <div>
+        <p class="surtitre">Notre expertise</p>
+        <h2>Dix ans de projets data appliqués au service public</h2>
+        <p class="chapo">
+          Dix ans de projets data et intelligence artificielle en grande entreprise, appliqués au
+          service public : conception d'architectures, industrialisation de modèles, intégration
+          de systèmes.
+        </p>
+        <p>
+          Nous intervenons aussi en conseil pur, sans notre produit, quand c'est ce dont vous
+          avez besoin.
+        </p>
+      </div>
+      <div>
+        <ul class="liste-cles">
+          <li>Conception d'architectures de données</li>
+          <li>Industrialisation de modèles</li>
+          <li>Intégration de systèmes existants</li>
+          <li>Accompagnement au changement dans les services</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Parlons de votre organisation</h2>
+        <p>Trente minutes, avec la personne qui a construit l'outil.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Prendre rendez-vous</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

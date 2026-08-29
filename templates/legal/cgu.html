@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block titre %}Conditions générales d'utilisation — Satkaar{% endblock %}
+{% block description %}Conditions générales d'utilisation du site satkaar.fr.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>CGU</p>
+    <h1>Conditions générales d'utilisation</h1>
+    <p class="chapo">
+      Ces conditions régissent l'usage du site satkaar.fr. L'usage des applications Marine et
+      Vanessa est régi par le contrat conclu avec chaque collectivité.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant prose">
+    <h2>Objet</h2>
+    <p>
+      Le site présente les activités de Satkaar et permet de demander une démonstration de ses
+      solutions. Sa consultation vaut acceptation des présentes conditions.
+    </p>
+
+    <h2>Accès au site</h2>
+    <p>
+      L'accès est gratuit. Satkaar s'efforce d'assurer une disponibilité continue mais peut
+      interrompre le service pour maintenance, sans préavis ni indemnité.
+    </p>
+
+    <h2>Usage du formulaire</h2>
+    <p>
+      Le formulaire de demande de démonstration est réservé aux sollicitations professionnelles.
+      Toute utilisation détournée, notamment à des fins de démarchage automatisé, peut entraîner
+      un blocage d'accès.
+    </p>
+
+    <h2>Responsabilité</h2>
+    <p>
+      Les informations publiées sont fournies à titre indicatif et peuvent évoluer. Satkaar ne
+      saurait être tenue responsable des dommages résultant de l'usage du site ou des sites tiers
+      vers lesquels il renvoie.
+    </p>
+
+    <h2>Droit applicable</h2>
+    <p>
+      Les présentes conditions sont soumises au droit français. À défaut de résolution amiable,
+      tout litige relève des tribunaux compétents.
+      <span class="jalon">ressort à confirmer</span>
+    </p>
+
+    <p><em>Dernière mise à jour : <span class="jalon">date à fixer à la mise en ligne</span></em></p>
+  </div>
+</section>
+
+{% endblock %}
