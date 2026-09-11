@@ -5,17 +5,22 @@
 
 {% block contenu %}
 
-<section class="entete-page">
-  <div class="contenant">
-    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>À propos</p>
-    <h1>Qui <span class="accent">sommes-nous</span></h1>
-    <p class="chapo">
-      Satkaar est une société par actions simplifiée présente à Manosque, dans les
-      Alpes-de-Haute-Provence, et à Aix-en-Provence, dans les Bouches-du-Rhône. Le groupe réunit trois
-      métiers&nbsp;: le conseil en intelligence artificielle, data et systèmes d'information,
-      l'édition de quatre logiciels métier (Isidor, Katarina, Vanessa et Bernard) et la
-      formation, certifiée Qualiopi.
-    </p>
+<section class="entete-page entete-page--image">
+  <div class="contenant entete-page__grille">
+    <div class="entete-page__texte">
+      <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>À propos</p>
+      <h1>Qui <span class="accent">sommes-nous</span></h1>
+      <p class="chapo">
+        Satkaar est une société par actions simplifiée présente à Manosque, dans les
+        Alpes-de-Haute-Provence, et à Aix-en-Provence, dans les Bouches-du-Rhône. Le groupe réunit trois
+        métiers&nbsp;: le conseil en intelligence artificielle, data et systèmes d'information,
+        l'édition de quatre logiciels métier (Isidor, Katarina, Vanessa et Bernard) et la
+        formation, certifiée Qualiopi.
+      </p>
+    </div>
+    <div class="entete-page__visuel" aria-hidden="true">
+      {% include "partials/illustrations/a_propos.html" %}
+    </div>
   </div>
 </section>
 

@@ -4,16 +4,21 @@
 
 {% block contenu %}
 
-<section class="entete-page">
-  <div class="contenant">
-    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Formation</p>
-    <p class="surtitre">Formation — certifiée Qualiopi</p>
-    <h1>Former vos équipes à <span class="accent">l'IA, à la data</span> et à nos outils</h1>
-    <p class="chapo">
-      Nos formations transmettent ce que nous pratiquons chaque jour en conseil et dans nos
-      logiciels. Des contenus concrets, adaptés à votre métier, pour que vos équipes deviennent
-      autonomes.
-    </p>
+<section class="entete-page entete-page--image entete-page--inverse">
+  <div class="contenant entete-page__grille">
+    <div class="entete-page__texte">
+      <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Formation</p>
+      <p class="surtitre">Formation — certifiée Qualiopi</p>
+      <h1>Former vos équipes à <span class="accent">l'IA, à la data</span> et à nos outils</h1>
+      <p class="chapo">
+        Nos formations transmettent ce que nous pratiquons chaque jour en conseil et dans nos
+        logiciels. Des contenus concrets, adaptés à votre métier, pour que vos équipes deviennent
+        autonomes.
+      </p>
+    </div>
+    <div class="entete-page__visuel" aria-hidden="true">
+      {% include "partials/illustrations/formation.html" %}
+    </div>
   </div>
 </section>
 

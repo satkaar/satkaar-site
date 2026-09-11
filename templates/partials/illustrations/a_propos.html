@@ -1,0 +1,26 @@
+{% comment %}À propos : le portrait du fondateur posé sur la carte Manosque – Aix-en-Provence. Décoratif.{% endcomment %}
+{% load static %}
+<div class="apropos-visuel">
+  <svg class="visuel-page" viewBox="0 0 480 400" focusable="false">
+    <rect x="40" y="40" width="420" height="340" rx="22" fill="#ffffff" fill-opacity="0.82" stroke="#dcd7cd"/>
+    <g fill="none" stroke="#e4ded4" stroke-width="1.3">
+      <path d="M40 318c56-14 84-50 128-54s76 26 120 12 86-50 172-58"/>
+      <path d="M40 346c58-16 88-52 132-56s78 26 122 12 84-48 166-56"/>
+    </g>
+    <path d="M250 86 348 76l72 42 6 72-50 50-82 8-42-34-17-66z" fill="#f6f3ee" stroke="#c9c1b4" stroke-width="1.5"/>
+    <path d="M86 196 188 176l46 40 17 56-38 42-100 6-38-52z" fill="#f6f3ee" stroke="#c9c1b4" stroke-width="1.5"/>
+    <text x="392" y="104" font-family="JetBrains Mono, monospace" font-size="10" fill="#8b8579">04</text>
+    <text x="112" y="220" font-family="JetBrains Mono, monospace" font-size="10" fill="#8b8579">13</text>
+    <path class="ia-flux" d="M290 186C262 204 236 222 198 258" fill="none" stroke="#1e63a8" stroke-width="2" stroke-linecap="round"/>
+    <circle class="ia-halo" cx="292" cy="184" r="16" fill="#d96a34" fill-opacity="0.3"/>
+    <circle cx="292" cy="184" r="6.5" fill="#d96a34"/>
+    <text x="306" y="176" font-family="JetBrains Mono, monospace" font-size="11" fill="#0e2c4b">Manosque</text>
+    <circle class="ia-halo ia-halo--decale" cx="194" cy="262" r="16" fill="#d96a34" fill-opacity="0.3"/>
+    <circle cx="194" cy="262" r="6.5" fill="#d96a34"/>
+    <text x="194" y="292" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0e2c4b">Aix-en-Provence</text>
+  </svg>
+  <div class="apropos-visuel__portrait">
+    <img src="{% static 'img/equipe/damien.webp' %}" alt="" width="204" height="204">
+    <p><strong>Damien Marque</strong><span>Fondateur et CEO</span></p>
+  </div>
+</div>

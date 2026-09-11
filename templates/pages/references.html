@@ -4,15 +4,20 @@
 
 {% block contenu %}
 
-<section class="entete-page">
-  <div class="contenant">
-    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Références</p>
-    <p class="surtitre">Références</p>
-    <h1>Ils nous <span class="accent">font confiance</span></h1>
-    <p class="chapo">
-      Des collectivités, des entreprises et des exploitants, en conseil comme sur nos logiciels.
-      Chaque projet enrichit le suivant.
-    </p>
+<section class="entete-page entete-page--image entete-page--inverse">
+  <div class="contenant entete-page__grille">
+    <div class="entete-page__texte">
+      <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Références</p>
+      <p class="surtitre">Références</p>
+      <h1>Ils nous <span class="accent">font confiance</span></h1>
+      <p class="chapo">
+        Des collectivités, des entreprises et des exploitants, en conseil comme sur nos logiciels.
+        Chaque projet enrichit le suivant.
+      </p>
+    </div>
+    <div class="entete-page__visuel" aria-hidden="true">
+      {% include "partials/illustrations/references.html" %}
+    </div>
   </div>
 </section>
 

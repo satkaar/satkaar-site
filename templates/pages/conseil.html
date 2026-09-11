@@ -4,15 +4,20 @@
 
 {% block contenu %}
 
-<section class="entete-page">
-  <div class="contenant">
-    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Conseil</p>
-    <h1>Conseil en <span class="accent">IA, data</span> et systèmes d'information</h1>
-    <p class="chapo">
-      Dix ans de projets data et intelligence artificielle en grande entreprise&nbsp;: conception
-      d'architectures, industrialisation de modèles, intégration de systèmes. Nous intervenons sur
-      un point précis ou sur l'ensemble d'un projet, de la stratégie à l'adoption par vos équipes.
-    </p>
+<section class="entete-page entete-page--image">
+  <div class="contenant entete-page__grille">
+    <div class="entete-page__texte">
+      <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Conseil</p>
+      <h1>Conseil en <span class="accent">IA, data</span> et systèmes d'information</h1>
+      <p class="chapo">
+        Dix ans de projets data et intelligence artificielle en grande entreprise&nbsp;: conception
+        d'architectures, industrialisation de modèles, intégration de systèmes. Nous intervenons sur
+        un point précis ou sur l'ensemble d'un projet, de la stratégie à l'adoption par vos équipes.
+      </p>
+    </div>
+    <div class="entete-page__visuel" aria-hidden="true">
+      {% include "partials/illustrations/conseil.html" %}
+    </div>
   </div>
 </section>
 

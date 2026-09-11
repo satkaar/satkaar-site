@@ -4,14 +4,19 @@
 
 {% block contenu %}
 
-<section class="entete-page">
-  <div class="contenant">
-    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Logiciels</p>
-    <h1>Quatre <span class="accent">logiciels métier</span></h1>
-    <p class="chapo">
-      Chaque logiciel est conçu pour un métier précis, avec ceux qui l'exercent, et maintenu dans
-      la durée par l'équipe qui l'a construit.
-    </p>
+<section class="entete-page entete-page--image">
+  <div class="contenant entete-page__grille">
+    <div class="entete-page__texte">
+      <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Logiciels</p>
+      <h1>Quatre <span class="accent">logiciels métier</span></h1>
+      <p class="chapo">
+        Chaque logiciel est conçu pour un métier précis, avec ceux qui l'exercent, et maintenu dans
+        la durée par l'équipe qui l'a construit.
+      </p>
+    </div>
+    <div class="entete-page__visuel" aria-hidden="true">
+      {% include "partials/illustrations/logiciels.html" %}
+    </div>
   </div>
 </section>
 

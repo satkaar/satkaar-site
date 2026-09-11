@@ -1,0 +1,42 @@
+{% comment %}Formation : un écran de formation, des participants et le badge Qualiopi. Décoratif.{% endcomment %}
+<svg class="visuel-page" viewBox="0 0 480 400" focusable="false">
+  <rect x="30" y="40" width="400" height="250" rx="18" fill="#ffffff" fill-opacity="0.9" stroke="#dcd7cd"/>
+  <g fill="#dcd7cd"><circle cx="54" cy="64" r="5"/><circle cx="70" cy="64" r="5"/><circle cx="86" cy="64" r="5"/></g>
+  <text x="104" y="68" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#5c6672">formation — ia et data au quotidien</text>
+  <line x1="30" y1="84" x2="430" y2="84" stroke="#ece7de"/>
+
+  <text x="56" y="118" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1.2" fill="#be5620">MODULE 2 SUR 4</text>
+  <text x="56" y="146" font-family="Instrument Sans, sans-serif" font-size="21" font-weight="700" fill="#0e2c4b">Utiliser l'IA au quotidien</text>
+
+  <g fill="#ece7de">
+    <rect x="56" y="166" width="220" height="9" rx="4.5"/>
+    <rect x="56" y="184" width="186" height="9" rx="4.5"/>
+    <rect x="56" y="202" width="204" height="9" rx="4.5"/>
+  </g>
+  <g transform="translate(306 158)">
+    <rect width="98" height="66" rx="10" fill="#f6f3ee"/>
+    <path class="ia-flux" d="M12 50 34 36 54 42 84 16" fill="none" stroke="#1e63a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <rect x="56" y="248" width="348" height="10" rx="5" fill="#ece7de"/>
+  <rect class="progression" x="56" y="248" width="348" height="10" rx="5" fill="url(#degrade-formation)"/>
+  <defs>
+    <linearGradient id="degrade-formation" x1="0" x2="1">
+      <stop offset="0" stop-color="#d96a34"/><stop offset="1" stop-color="#1e63a8"/>
+    </linearGradient>
+  </defs>
+
+  <g class="participants">
+    <g class="flotte"><circle cx="96" cy="336" r="26" fill="#0e2c4b"/><circle cx="96" cy="328" r="9" fill="#cadaea"/><path d="M80 352a16 13 0 0 1 32 0" fill="#cadaea"/></g>
+    <g class="flotte" style="animation-delay:-1s"><circle cx="160" cy="336" r="26" fill="#d96a34"/><circle cx="160" cy="328" r="9" fill="#fbe3d6"/><path d="M144 352a16 13 0 0 1 32 0" fill="#fbe3d6"/></g>
+    <g class="flotte" style="animation-delay:-2s"><circle cx="224" cy="336" r="26" fill="#3f8f7a"/><circle cx="224" cy="328" r="9" fill="#dcefe8"/><path d="M208 352a16 13 0 0 1 32 0" fill="#dcefe8"/></g>
+    <g class="flotte" style="animation-delay:-3s"><circle cx="288" cy="336" r="26" fill="#1e63a8"/><circle cx="288" cy="328" r="9" fill="#d8e6f5"/><path d="M272 352a16 13 0 0 1 32 0" fill="#d8e6f5"/></g>
+  </g>
+
+  <g transform="translate(330 14)">
+    <rect width="136" height="52" rx="26" fill="#ffffff" stroke="#dcd7cd"/>
+    <path d="M30 13 19 17.5v8.5c0 7 4.8 13 11 15.5 6.2-2.5 11-8.5 11-15.5v-8.5L30 13z" fill="none" stroke="#2e6b5a" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="m25 26.5 3.5 3.5 6.5-6.5" fill="none" stroke="#2e6b5a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="50" y="31" font-family="Instrument Sans, sans-serif" font-size="14" font-weight="700" fill="#0e2c4b">Qualiopi</text>
+  </g>
+</svg>
