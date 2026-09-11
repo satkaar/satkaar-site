@@ -3,16 +3,20 @@
     <div class="pied__haut">
       <div>
         <span class="marque">{% include "partials/signe.html" %} Satkaar</span>
-        <p>Éditeur de logiciels de relation citoyen pour les collectivités.<br>
-          La Brillanne, Alpes-de-Haute-Provence.</p>
-        <p class="sans-marge"><a class="lien-fleche" href="{% url 'pages:contact' %}">Demander une démonstration</a></p>
+        <p>Conseil en IA, data et systèmes d'information.<br>
+          Édition de logiciels métier&nbsp;: Isidor, Katarina, Vanessa, Bernard.<br>
+          Formation, certifiée Qualiopi.<br>
+          Manosque (04) et Aix-en-Provence (13).</p>
+        <p class="sans-marge"><a class="lien-fleche" href="{% url 'pages:contact' %}">Nous contacter</a></p>
       </div>
 
       <div>
         <h2>Le site</h2>
         <ul>
-          <li><a href="{% url 'pages:solutions' %}">Nos solutions</a></li>
-          <li><a href="{% url 'pages:conseil' %}">Conseil et accompagnement</a></li>
+          <li><a href="{% url 'pages:conseil' %}">Conseil</a></li>
+          <li><a href="{% url 'pages:formation' %}">Formation</a></li>
+          <li><a href="{% url 'pages:logiciels' %}">Logiciels</a></li>
+          <li><a href="{% url 'pages:isidor' %}">Isidor</a> · <a href="{% url 'pages:katarina' %}">Katarina</a> · <a href="{% url 'pages:vanessa' %}">Vanessa</a> · <a href="{% url 'pages:bernard' %}">Bernard</a></li>
           <li><a href="{% url 'pages:souverainete' %}">Souveraineté et conformité</a></li>
           <li><a href="{% url 'pages:references' %}">Références</a></li>
           <li><a href="{% url 'pages:a_propos' %}">À propos</a></li>
@@ -23,8 +27,9 @@
       <div>
         <h2>Nous joindre</h2>
         <ul>
-          <li><a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a> <span class="jalon">à confirmer</span></li>
-          <li>La Brillanne (04700)</li>
+          <li><a href="mailto:contact@satkaar.io">contact@satkaar.io</a></li>
+          <li><a href="tel:+33634618697">06&nbsp;34&nbsp;61&nbsp;86&nbsp;97</a></li>
+          <li>67 chemin Auguste Girard, 04100 Manosque</li>
           <li>Hébergement en France</li>
         </ul>
       </div>

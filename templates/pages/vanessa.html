@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block titre %}Vanessa, l'application des mairies — Satkaar{% endblock %}
+{% block description %}Vanessa met la mairie dans la poche des habitants : signalements, réservation de salle, suivi des démarches et convention territoriale globale. En production à Forcalquier et Manosque.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil">
+      <a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span><a href="{% url 'pages:logiciels' %}">Logiciels</a><span>/</span>Vanessa
+    </p>
+    <p class="surtitre">Mairies</p>
+    <h1>Vanessa, la mairie dans la poche de vos administrés</h1>
+    <p class="chapo">
+      Un habitant signale un problème, réserve une salle ou suit une démarche depuis son
+      téléphone. Il est informé à chaque étape, et rien ne se perd entre l'habitant et les
+      services.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <article class="produit">
+      <div>
+        <div class="produit__nom">
+          <h2>Vanessa</h2>
+        </div>
+        <p class="accroche">Une réponse, et la possibilité de savoir où en est sa demande</p>
+        <p>
+          L'habitant dépose sa demande en quelques secondes, à l'oral s'il le souhaite. La mairie
+          la reçoit, la traite, et l'habitant est notifié à chaque changement de statut.
+        </p>
+        <ul class="liste-cles">
+          <li>Dépôt d'une demande à la voix, reformulée automatiquement</li>
+          <li>Suivi en temps réel de l'avancement</li>
+          <li>Notifications par courriel ou notification mobile</li>
+          <li>Disponible sur iOS et Android</li>
+        </ul>
+      </div>
+
+      <div class="apercu" role="img" aria-label="Fac-similé du suivi d'une demande dans Vanessa : signalement déposé, pris en charge par les services techniques, puis résolu.">
+        <div class="apercu__barre">
+          <span class="apercu__pastille"></span>
+          <span class="apercu__pastille"></span>
+          <span class="apercu__pastille"></span>
+          <span class="apercu__titre">vanessa — ma demande</span>
+        </div>
+        <div class="apercu__ligne"><span>Signalement déposé</span><span class="apercu__etat etat--clos">12 mai</span></div>
+        <div class="apercu__ligne"><span>Accusé de réception</span><span class="apercu__etat etat--clos">12 mai</span></div>
+        <div class="apercu__ligne"><span>Pris en charge — services techniques</span><span class="apercu__etat etat--cours">14 mai</span></div>
+        <div class="apercu__ligne"><span>Résolu</span><span class="apercu__etat etat--recu">en attente</span></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant">
+    <p class="surtitre">Cas d'usage</p>
+    <h2>Trois usages déjà en production</h2>
+
+    <div class="grille grille--3 espace-t">
+      <article class="carte">
+        <p class="carte__numero">Doléances</p>
+        <h3>Signaler, suivre, être informé</h3>
+        <p>
+          Un nid-de-poule, un lampadaire cassé, un dépôt sauvage. L'habitant signale, la mairie
+          traite, l'habitant est informé. Les délais de traitement deviennent mesurables.
+        </p>
+      </article>
+
+      <article class="carte">
+        <p class="carte__numero">Réservation de salle</p>
+        <h3>Un seul fil, du premier contact à la validation</h3>
+        <p>
+          Demande, instruction et validation des salles communales dans un seul fil, sans
+          échanges de courriels.
+        </p>
+      </article>
+
+      <article class="carte">
+        <p class="carte__numero">CTG</p>
+        <h3>Convention territoriale globale</h3>
+        <p>
+          Le suivi des actions CTG et de leurs indicateurs, au même endroit que le reste.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Confiance</p>
+      <h2>Des communes qui nous font confiance</h2>
+      <p>
+        Vanessa est en production à Forcalquier et à Manosque. Les données des habitants restent
+        en France, et la conformité (RGPD, accessibilité) est intégrée au produit.
+      </p>
+    </div>
+    <div>
+      <ul class="liste-cles">
+        <li><a href="{% url 'pages:references' %}">Nos références</a> — Forcalquier, Manosque</li>
+        <li><a href="{% url 'pages:souverainete' %}">Souveraineté et conformité</a> — nos engagements</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Voir Vanessa sur votre commune</h2>
+        <p>Une démonstration de trente minutes, sans engagement.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}?sujet=vanessa">Demander une démonstration</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,68 @@
+{% comment %}
+  Bandeau défilant « Ils nous font confiance ». Deux pistes identiques font la boucle : la
+  première est lue par les lecteurs d'écran, la seconde est masquée (aria-hidden). Le défilement
+  s'arrête au survol, au bouton Pause (RGAA 13.8) et pour les visiteurs qui limitent les
+  animations. Logos issus des sites officiels de chaque organisation : leur usage suppose leur
+  accord.
+{% endcomment %}
+{% load static %}
+<section class="confiance" aria-labelledby="titre-confiance">
+  <div class="contenant confiance__entete">
+    <h2 class="confiance__titre" id="titre-confiance">Ils nous font confiance</h2>
+    <button class="confiance__pause" type="button" aria-pressed="false" hidden>
+      <span data-libelle>Mettre en pause</span>
+    </button>
+  </div>
+
+  <div class="defilement">
+    {% for piste in "12" %}
+      <ul class="defilement__piste"{% if not forloop.first %} aria-hidden="true"{% endif %}>
+        <li class="defilement__logo">
+          <span class="defilement__marque">
+            <img src="{% static 'img/confiance/dlva.svg' %}" width="212" height="102" alt="">
+            <span class="defilement__legende">Durance Luberon Verdon Agglomération</span>
+          </span>
+        </li>
+        <li class="defilement__logo">
+          <span class="defilement__marque">
+            <img src="{% static 'img/confiance/ccfml.svg' %}" width="226" height="117" alt="">
+            <span class="defilement__legende">Communauté de communes Pays de Forcalquier – Montagne de Lure</span>
+          </span>
+        </li>
+        <li class="defilement__logo">
+          <img src="{% static 'img/confiance/chambre-agriculture-04.webp' %}" width="900" height="289"
+            alt="{% if forloop.first %}Chambre d'agriculture des Alpes-de-Haute-Provence{% endif %}">
+        </li>
+        <li>Net Patrimoine &amp; Capitaux</li>
+        <li class="defilement__logo">
+          <img src="{% static 'img/confiance/geopost.svg' %}" width="106" height="64"
+            alt="{% if forloop.first %}Geopost{% endif %}">
+        </li>
+        <li class="defilement__logo defilement__logo--horizontal">
+          <img src="{% static 'img/confiance/septeo.svg' %}" width="448" height="106"
+            alt="{% if forloop.first %}Septeo{% endif %}">
+        </li>
+        <li class="defilement__logo">
+          <img src="{% static 'img/confiance/adeo.webp' %}" width="700" height="368"
+            alt="{% if forloop.first %}Adeo{% endif %}">
+        </li>
+        <li class="defilement__logo defilement__logo--horizontal">
+          <img src="{% static 'img/confiance/pennylane.svg' %}" width="162" height="32"
+            alt="{% if forloop.first %}Pennylane{% endif %}">
+        </li>
+        <li class="defilement__logo defilement__logo--horizontal">
+          <img src="{% static 'img/confiance/auchan.svg' %}" width="116" height="28"
+            alt="{% if forloop.first %}Auchan{% endif %}">
+        </li>
+        <li class="defilement__logo defilement__logo--horizontal defilement__logo--sombre">
+          <img src="{% static 'img/confiance/easierlabs.webp' %}" width="900" height="156"
+            alt="{% if forloop.first %}Easier Labs{% endif %}">
+        </li>
+        <li class="defilement__logo">
+          <img src="{% static 'img/confiance/credit-agricole-technologies-services.webp' %}" width="143" height="97"
+            alt="{% if forloop.first %}Crédit Agricole Technologies et Services (CA-TS){% endif %}">
+        </li>
+      </ul>
+    {% endfor %}
+  </div>
+</section>

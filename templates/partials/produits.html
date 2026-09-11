@@ -1,0 +1,59 @@
+{% comment %}Les quatre logiciels du groupe, repris sur l'accueil et sur la page Logiciels.{% endcomment %}
+{% load static %}
+<div class="grille grille--4 espace-t">
+  <article class="carte carte--produit">
+    <a class="vitrine vitrine--isidor" href="{% url 'pages:isidor' %}" tabindex="-1" aria-hidden="true">
+      <img src="{% static 'img/produits/isidor-tableau-de-bord.webp' %}" alt="" width="1300" height="860" loading="lazy">
+    </a>
+    <p class="carte__numero">Agriculture</p>
+    <h3>Isidor</h3>
+    <p class="accroche-carte">Votre exploitation, sans la garder en tête</p>
+    <p>
+      L'assistant agricole qui retient, calcule et prouve à votre place&nbsp;: irrigation,
+      charges, traçabilité, équipe. À l'écrit comme à la voix.
+    </p>
+    <a class="lien-fleche" href="{% url 'pages:isidor' %}">Découvrir Isidor</a>
+  </article>
+
+  <article class="carte carte--produit">
+    <a class="vitrine vitrine--katarina" href="{% url 'pages:katarina' %}" tabindex="-1" aria-hidden="true">
+      <img src="{% static 'img/produits/katarina-taches.webp' %}" alt="" width="1006" height="605" loading="lazy">
+    </a>
+    <p class="carte__numero">Chambres d'agriculture</p>
+    <h3>Katarina</h3>
+    <p class="accroche-carte">Moins de saisie, plus de terrain</p>
+    <p>
+      Le suivi des tâches et une saisie optimisée pour les équipes des chambres d'agriculture&nbsp;:
+      chacun sait ce qu'il a à faire, sans ressaisir.
+    </p>
+    <a class="lien-fleche" href="{% url 'pages:katarina' %}">Découvrir Katarina</a>
+  </article>
+
+  <article class="carte carte--produit">
+    <a class="vitrine vitrine--vanessa" href="{% url 'pages:vanessa' %}" tabindex="-1" aria-hidden="true">
+      <img src="{% static 'img/produits/vanessa-suivi.webp' %}" alt="" width="1040" height="640" loading="lazy">
+    </a>
+    <p class="carte__numero">Mairies</p>
+    <h3>Vanessa</h3>
+    <p class="accroche-carte">La mairie dans la poche de vos administrés</p>
+    <p>
+      Les habitants signalent un problème, réservent une salle ou suivent une démarche depuis
+      leur téléphone, et sont informés à chaque étape.
+    </p>
+    <a class="lien-fleche" href="{% url 'pages:vanessa' %}">Découvrir Vanessa</a>
+  </article>
+
+  <article class="carte carte--produit">
+    <a class="vitrine vitrine--bernard" href="{% url 'pages:bernard' %}" tabindex="-1" aria-hidden="true">
+      <img src="{% static 'img/produits/bernard-portefeuille.webp' %}" alt="" width="1088" height="508" loading="lazy">
+    </a>
+    <p class="carte__numero">Immobilier</p>
+    <h3>Bernard</h3>
+    <p class="accroche-carte">La gestion immobilière, du mandat à la quittance</p>
+    <p>
+      Vos biens, vos mandats et vos locataires dans un seul outil, et un espace où chacun de vos
+      clients retrouve ses documents.
+    </p>
+    <a class="lien-fleche" href="{% url 'pages:bernard' %}">Découvrir Bernard</a>
+  </article>
+</div>

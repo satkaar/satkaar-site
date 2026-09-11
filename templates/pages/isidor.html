@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titre %}Isidor, l'assistant agricole — Satkaar{% endblock %}
+{% block description %}Isidor, l'assistant agricole français qui retient, calcule et prouve à votre place : irrigation de précision, charges et marges, traçabilité, équipe, conformité. À l'écrit comme à la voix.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil">
+      <a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span><a href="{% url 'pages:logiciels' %}">Logiciels</a><span>/</span>Isidor
+    </p>
+    <p class="surtitre">Agriculture</p>
+    <h1>Isidor, votre exploitation sans la garder en tête</h1>
+    <p class="chapo">
+      L'assistant agricole qui retient, calcule et prouve à votre place. Isidor prend en charge
+      ce qui se colle par-dessus le métier&nbsp;: la traçabilité, les rapports, les dossiers, le
+      suivi des parcelles. Disponible à la voix, sur le tracteur, à 22&nbsp;h.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <article class="produit">
+      <div>
+        <div class="produit__nom">
+          <h2>Isidor</h2>
+        </div>
+        <p class="accroche">Cinq préoccupations, une seule réponse</p>
+        <ul class="liste-cles">
+          <li><strong>« Je n'ai pas le temps »</strong> — les rapports et la traçabilité sont automatisés</li>
+          <li><strong>« Je dois réduire mes charges »</strong> — un tableau de bord financier en temps réel</li>
+          <li><strong>« Le climat change »</strong> — alertes météo, suivi parcellaire, aide à la décision</li>
+          <li><strong>« Je gère des saisonniers »</strong> — équipe et tâches, avec rappels automatiques</li>
+          <li><strong>« Je ne sais pas à qui demander »</strong> — un assistant IA spécialisé en agriculture, 24&nbsp;h/24</li>
+        </ul>
+      </div>
+
+      <div class="vitrine vitrine--isidor vitrine--grande">
+        <img src="{% static 'img/produits/isidor-tableau-de-bord.webp' %}" width="1300" height="860"
+          alt="Tableau de bord d'Isidor : 22 parcelles, 14,85 hectares, quota d'eau utilisé à 62 %, courbe de consommation d'eau et alerte de gel sur la parcelle des Coteaux.">
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant">
+    <p class="surtitre">Ce qu'il couvre</p>
+    <h2>Douze domaines, un seul outil</h2>
+
+    <ul class="domaines espace-t">
+      <li><strong>Irrigation et eau</strong> Programmes, quotas, capteurs connectés</li>
+      <li><strong>Charges et marges</strong> Suivi économique en temps réel</li>
+      <li><strong>Parc matériel</strong> Maintenance, alertes, historique</li>
+      <li><strong>Interventions</strong> Traitements, travaux, traçabilité</li>
+      <li><strong>Analyses de sol</strong> Résultats et recommandations</li>
+      <li><strong>Facture électronique</strong> Format UBL, plateforme agréée</li>
+      <li><strong>Signature électronique</strong> Devis signés au doigt ou au stylet</li>
+      <li><strong>Récoltes</strong> Volumes, qualité, rendements</li>
+      <li><strong>Équipe et planning</strong> Saisonniers, apprentis, associés</li>
+      <li><strong>Conformité réglementaire</strong> Taxonomie européenne, Plan Eau 2030</li>
+      <li><strong>Dossiers de subvention</strong> JEI, CIR, aides PAC</li>
+      <li><strong>Météo et alertes</strong> Gel, évapotranspiration, prévisions à 7 jours</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Souveraineté</p>
+      <h2>Vos données restent à la ferme</h2>
+      <p>
+        Vos parcelles, vos rendements et vos contrats disent tout de votre exploitation. Ils sont
+        hébergés en France, ne sont jamais revendus et restent exportables à tout moment. Isidor
+        se connecte à votre système d'irrigation (Vyrsa, capteurs connectés) et fonctionne sur
+        smartphone, tablette et ordinateur.
+      </p>
+    </div>
+    <div class="tarif">
+      <p class="tarif__titre">Tarif</p>
+      <p class="tarif__prix">29,90&nbsp;€ <span>HT par mois et par exploitation</span></p>
+      <p class="tarif__detail">+ 0,33&nbsp;€ HT par hectare et par mois</p>
+      <ul class="liste-cles">
+        <li>Utilisateurs illimités</li>
+        <li>Tous les modules et l'assistant vocal inclus</li>
+        <li>Prise en main guidée incluse</li>
+        <li>Sans engagement</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Voir Isidor sur votre exploitation</h2>
+        <p>Une démonstration de trente minutes, sans engagement.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}?sujet=isidor">Demander une démonstration</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

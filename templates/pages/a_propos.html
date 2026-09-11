@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block titre %}À propos — Satkaar{% endblock %}
-{% block description %}Satkaar, société par actions simplifiée installée à La Brillanne (Alpes-de-Haute-Provence), édite des logiciels de relation citoyen pour les collectivités.{% endblock %}
+{% block description %}Satkaar, société par actions simplifiée présente à Manosque (Alpes-de-Haute-Provence) et à Aix-en-Provence (Bouches-du-Rhône), réunit trois métiers : le conseil en IA et data, l'édition de logiciels métier et la formation certifiée Qualiopi.{% endblock %}
 
 {% block contenu %}
 
@@ -10,9 +11,11 @@
     <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>À propos</p>
     <h1>Qui sommes-nous</h1>
     <p class="chapo">
-      Satkaar est une société par actions simplifiée installée à La Brillanne, dans les
-      Alpes-de-Haute-Provence. Nous éditons des logiciels de relation citoyen pour les
-      collectivités.
+      Satkaar est une société par actions simplifiée présente à Manosque, dans les
+      Alpes-de-Haute-Provence, et à Aix-en-Provence, dans les Bouches-du-Rhône. Le groupe réunit trois
+      métiers&nbsp;: le conseil en intelligence artificielle, data et systèmes d'information,
+      l'édition de quatre logiciels métier (Isidor, Katarina, Vanessa et Bernard) et la
+      formation, certifiée Qualiopi.
     </p>
   </div>
 </section>
@@ -21,18 +24,18 @@
   <div class="contenant">
     <div class="territoire territoire--haut">
       <div>
-        <p class="surtitre">Notre constat</p>
-        <h2>Les outils existants ont été conçus pour l'administration, rarement pour la relation</h2>
+        <p class="surtitre">Notre démarche</p>
+        <h2>Comprendre un métier avant de l'outiller</h2>
       </div>
       <div>
         <p>
-          Nous sommes partis d'un constat simple : les élus doivent faire mieux avec moins
-          d'agents, et les habitants attendent d'une mairie ce qu'ils obtiennent partout ailleurs
-          — une réponse, et la possibilité de savoir où en est leur demande.
+          Dix ans de projets data et intelligence artificielle en grande entreprise nous ont
+          appris qu'un projet réussit sur le terrain, pas dans un rapport. C'est ce que nous
+          apportons en conseil, et c'est ainsi que nous concevons nos logiciels.
         </p>
         <p class="sans-marge">
-          Nous avons passé quatre mois en immersion sur le territoire de Forcalquier avant
-          d'écrire une ligne de code. Nous participons au Hub 04.
+          Pour Vanessa, nous avons passé quatre mois en immersion sur le territoire de
+          Forcalquier avant d'écrire une ligne de code.
         </p>
       </div>
     </div>
@@ -44,22 +47,43 @@
     <p class="surtitre">L'équipe</p>
     <h2>Une équipe courte</h2>
     <p class="mesure">
-      Ce qui veut dire que la personne qui vous répond est celle qui construit l'outil.
+      Ce qui veut dire que la personne qui vous répond est celle qui fera le travail.
     </p>
 
-    <div class="grille grille--3 espace-t">
-      <article class="membre">
-        <h3>Damien</h3>
-        <p>Fondateur, ingénieur en intelligence artificielle</p>
-      </article>
-      <article class="membre">
-        <h3>Yvan</h3>
-        <p>Développement front-end</p>
-      </article>
-      <article class="membre">
-        <h3>Saurel</h3>
-        <p>Expérience utilisateur</p>
-      </article>
+    <article class="fondateur espace-t">
+      <img class="fondateur__photo" src="{% static 'img/equipe/damien.webp' %}" width="204" height="204"
+        alt="Portrait de Damien Marque, fondateur et CEO de Satkaar.">
+      <div>
+        <h3 class="fondateur__nom">Damien Marque</h3>
+        <p class="fondateur__titre">Fondateur et CEO de Satkaar</p>
+        <p>
+          Ingénieur diplômé de Grenoble INP – Ensimag, Damien a passé près de dix ans à mener des
+          projets data et IA pour de grands groupes&nbsp;: banque, conseil, grande distribution,
+          logistique. Du modèle de machine learning à la plateforme de données en production, il a
+          tenu tous les rôles, de data scientist à lead data, en passant par data engineer et
+          ML engineer.
+        </p>
+        <p>
+          Il a fondé Satkaar pour mettre cette expérience au service des entreprises et des
+          territoires&nbsp;: conseiller, construire des logiciels utiles, et former les équipes qui
+          les utilisent.
+        </p>
+        <a class="lien-fleche" href="https://www.linkedin.com/in/damienmarque/" rel="noopener">Son profil LinkedIn</a>
+      </div>
+    </article>
+
+    <div class="parcours">
+      <h3 class="parcours__titre">Parcours avant Satkaar</h3>
+      <ol class="parcours__liste">
+        <li><span class="parcours__annees">2024 – 2025</span><strong>Easier Labs</strong><span>ML Ops Engineer</span></li>
+        <li><span class="parcours__annees">2023 – 2024</span><strong>Geopost</strong><span>Data Engineer et Software Engineer</span></li>
+        <li><span class="parcours__annees">2023</span><strong>Adeo Services</strong><span>Software Engineer</span></li>
+        <li><span class="parcours__annees">2022 – 2023</span><strong>Auchan Retail</strong><span>Lead Data Ops</span></li>
+        <li><span class="parcours__annees">2020 – 2021</span><strong>Groupement Les Mousquetaires</strong><span>Lead Data Scientist&nbsp;: création de l'entité Analytics du DataLab, projets finance et gestion de trésorerie</span></li>
+        <li><span class="parcours__annees">2018 – 2020</span><strong>Gobeyond Partners</strong><span>Business Analyst et Data Scientist</span></li>
+        <li><span class="parcours__annees">2017 – 2018</span><strong>Sopra Steria Consulting</strong><span>Consultant data, offre data science banque et finance</span></li>
+        <li><span class="parcours__annees">2017</span><strong>BNP Paribas</strong><span>Machine Learning Engineer&nbsp;: industrialisation de modèles de crédit</span></li>
+      </ol>
     </div>
   </div>
 </section>
@@ -71,17 +95,33 @@
         <p class="surtitre">Nos labels</p>
         <h2>Reconnaissance et incubation</h2>
         <p class="sans-marge">
-          Satkaar est labellisée Deeptech par Bpifrance et lauréate du French Tech Tremplin.
-          L'entreprise est incubée au BIC de Montpellier et à Rmine.
+          Satkaar est lauréate de la Bourse French Tech Émergence (BFTE) de Bpifrance, destinée
+          aux projets deeptech, et du French Tech Tremplin. Elle est membre de la communauté
+          French Tech Méditerranée et incubée à [R]'MINE, à Carcassonne.
         </p>
       </div>
       <div>
-        <ul class="labels">
-          <li>Deeptech Bpifrance</li>
-          <li>French Tech Tremplin</li>
-          <li>BIC de Montpellier</li>
-          <li>Rmine</li>
-          <li>Hub 04</li>
+        <ul class="labels-tuiles">
+          <li class="labels-tuiles__logo">
+            <img src="{% static 'img/labels/french-tech-tremplin.webp' %}" width="302" height="303"
+              alt="La French Tech Tremplin">
+          </li>
+          <li class="labels-tuiles__logo">
+            <img src="{% static 'img/labels/french-tech-mediterranee.webp' %}" width="480" height="544"
+              alt="La French Tech Méditerranée">
+          </li>
+          <li>
+            <strong>BFTE</strong>
+            <span>Bourse French Tech Émergence · Bpifrance</span>
+          </li>
+          <li>
+            <strong>[R]'MINE</strong>
+            <span>Incubateur · Carcassonne</span>
+          </li>
+          <li>
+            <strong>Hub 04</strong>
+            <span>Réseau</span>
+          </li>
         </ul>
       </div>
     </div>
@@ -93,7 +133,7 @@
     <div class="cta">
       <div>
         <h2>Rencontrons-nous</h2>
-        <p>Nous nous déplaçons dans les Alpes-de-Haute-Provence et les départements voisins.</p>
+        <p>Nous vous recevons à Manosque ou à Aix-en-Provence, ou nous nous déplaçons chez vous.</p>
       </div>
       <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Prendre rendez-vous</a></div>
     </div>

@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block titre %}Satkaar — la relation citoyen, enfin simple{% endblock %}
-{% block description %}Un back-office pour vos agents, une application pour vos habitants, et un accompagnement sur le terrain. Logiciel de relation citoyen conçu, hébergé et maintenu en France.{% endblock %}
+{% block titre %}Satkaar — conseil en IA et data, édition de logiciels métier{% endblock %}
+{% block description %}Le groupe Satkaar réunit trois métiers : le conseil en intelligence artificielle, data et architecture des systèmes d'information, la formation certifiée Qualiopi, et l'édition de quatre logiciels métier : Isidor, Katarina, Vanessa et Bernard.{% endblock %}
 
 {% block contenu %}
 
@@ -20,64 +21,148 @@
   </svg>
 
   <div class="contenant heros__interieur">
-    <div class="heros__filet"></div>
-    <h1>La relation citoyen, enfin simple</h1>
-    <p class="chapo">
-      Satkaar équipe les communes et intercommunalités d'un outil de gestion de la relation
-      citoyen conçu, hébergé et maintenu en France. Un back-office pour vos agents, une
-      application pour vos habitants, et un accompagnement sur le terrain.
-    </p>
+    <div>
+      <p class="surtitre">Groupe Satkaar</p>
+      <h1>Du conseil en IA aux logiciels métier</h1>
+      <p class="chapo">
+        Satkaar réunit trois métiers. Un cabinet de conseil en intelligence artificielle, data et
+        architecture des systèmes d'information. Un éditeur de quatre logiciels métier&nbsp;:
+        Isidor pour les agriculteurs, Katarina pour les chambres d'agriculture, Vanessa pour les
+        mairies, Bernard pour l'immobilier. Et un organisme de formation certifié Qualiopi.
+      </p>
 
-    <div class="groupe-boutons">
-      <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Demander une démonstration</a>
-      <a class="bouton bouton--clair" href="{% url 'pages:solutions' %}">Découvrir nos solutions</a>
+      <div class="groupe-boutons">
+        <a class="bouton bouton--primaire" href="{% url 'pages:conseil' %}">Notre offre de conseil</a>
+        <a class="bouton bouton--clair" href="{% url 'pages:logiciels' %}">Nos logiciels</a>
+      </div>
     </div>
 
-    <ul class="bandeau-preuve">
-      <li class="preuve">Forcalquier et Manosque</li>
-      <li class="preuve">3 cas d'usage en production</li>
-      <li class="preuve">Hébergement en France</li>
-    </ul>
+    <div class="heros__illustration">
+      {% include "partials/illustration_ia.html" %}
+    </div>
+
+  </div>
+</section>
+
+{% include "partials/bandeau_confiance.html" %}
+
+<section class="section">
+  <div class="contenant">
+    <p class="surtitre">Trois métiers</p>
+    <h2>Nous conseillons, nous construisons, nous formons</h2>
+
+    <div class="bento espace-t">
+      <article class="bento__case bento__case--conseil">
+        <p class="carte__numero">01 — Conseil</p>
+        <h3>Conseil en IA, data et systèmes d'information</h3>
+        <p>
+          Nous aidons les organisations à tirer parti de leurs données&nbsp;: de la feuille de route
+          aux modèles en production, en toute conformité, jusqu'à l'adoption par les équipes.
+        </p>
+        <ul class="etiquettes-liste">
+          <li>Stratégie et feuille de route</li>
+          <li>Intelligence artificielle</li>
+          <li>Data</li>
+          <li>Architecture SI</li>
+          <li>Tech</li>
+          <li>ML Engineering</li>
+          <li>Prédiction</li>
+          <li>Gouvernance et conformité</li>
+          <li>Cybersécurité</li>
+          <li>Conduite du changement</li>
+        </ul>
+        <a class="lien-fleche" href="{% url 'pages:conseil' %}">Découvrir le conseil</a>
+      </article>
+
+      <article class="bento__case bento__case--edition">
+        <p class="carte__numero">02 — Édition logicielle</p>
+        <h3>Quatre logiciels métier</h3>
+        <p>
+          Des outils conçus pour un métier précis, avec ceux qui l'exercent, et maintenus dans la
+          durée par l'équipe qui les a construits.
+        </p>
+        <a class="lien-fleche" href="{% url 'pages:logiciels' %}">Voir nos logiciels</a>
+      </article>
+
+      <a class="bento__case bento__produit bento__produit--isidor" href="{% url 'pages:isidor' %}">
+        <span class="bento__secteur">Agriculture</span>
+        <strong>Isidor</strong>
+        <span class="bento__fleche" aria-hidden="true">→</span>
+      </a>
+      <a class="bento__case bento__produit bento__produit--katarina" href="{% url 'pages:katarina' %}">
+        <span class="bento__secteur">Chambres d'agriculture</span>
+        <strong>Katarina</strong>
+        <span class="bento__fleche" aria-hidden="true">→</span>
+      </a>
+      <a class="bento__case bento__produit bento__produit--vanessa" href="{% url 'pages:vanessa' %}">
+        <span class="bento__secteur">Mairies</span>
+        <strong>Vanessa</strong>
+        <span class="bento__fleche" aria-hidden="true">→</span>
+      </a>
+      <a class="bento__case bento__produit bento__produit--bernard" href="{% url 'pages:bernard' %}">
+        <span class="bento__secteur">Immobilier</span>
+        <strong>Bernard</strong>
+        <span class="bento__fleche" aria-hidden="true">→</span>
+      </a>
+
+      <article class="bento__case bento__case--formation">
+        <div>
+          <p class="carte__numero">03 — Formation</p>
+          <h3>Des formations certifiées Qualiopi</h3>
+          <p>
+            Nous transmettons à vos équipes ce que nous pratiquons en conseil et dans nos
+            logiciels&nbsp;: IA et data au quotidien, pilotage de projet, prise en main de nos outils.
+          </p>
+        </div>
+        <div class="bento__formation-pied">
+          <span class="badge-qualiopi">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6l-7-3z"/><path d="m9 12 2 2 4-4"/></svg>
+            Certifié Qualiopi
+          </span>
+          <a class="lien-fleche" href="{% url 'pages:formation' %}">Découvrir nos formations</a>
+        </div>
+      </article>
+
+      <div class="bento__case bento__chiffre">
+        <p class="chiffre"><span data-compteur="10" aria-hidden="true">10</span><span class="visuellement-cache">10</span> <small>ans</small></p>
+        <p>de projets data et IA en grande entreprise</p>
+      </div>
+      <div class="bento__case bento__chiffre">
+        <p class="chiffre"><span data-compteur="4" aria-hidden="true">4</span><span class="visuellement-cache">4</span></p>
+        <p>logiciels métier édités et maintenus</p>
+      </div>
+      <div class="bento__case bento__chiffre">
+        <p class="chiffre"><span data-compteur="2" aria-hidden="true">2</span><span class="visuellement-cache">2</span></p>
+        <p>communes équipées de Vanessa, en production</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--nuit">
+  <div class="contenant">
+    <p class="surtitre">Conseil</p>
+    <h2>Dix expertises, de la stratégie à l'adoption</h2>
+    <p class="chapo">
+      Dix ans de projets data et intelligence artificielle en grande entreprise. Nous intervenons
+      sur un point précis ou sur l'ensemble d'un projet.
+    </p>
+
+    {% include "partials/expertises.html" %}
+
+    <div class="groupe-boutons">
+      <a class="bouton bouton--primaire" href="{% url 'pages:conseil' %}">Notre offre de conseil</a>
+      <a class="bouton bouton--clair" href="{% url 'pages:contact' %}?sujet=conseil">Parler de votre projet</a>
+    </div>
   </div>
 </section>
 
 <section class="section">
   <div class="contenant">
-    <p class="surtitre">Ce que nous faisons</p>
-    <h2>Trois métiers, un seul interlocuteur</h2>
+    <p class="surtitre">Édition logicielle</p>
+    <h2>Un logiciel pour chaque métier</h2>
 
-    <div class="grille grille--3 espace-t">
-      <article class="carte carte--pilier">
-        <p class="carte__numero">01</p>
-        <h3>Édition logicielle</h3>
-        <p>
-          Marine pour vos agents, Vanessa pour vos habitants. Deux outils qui parlent le même
-          langage et qui couvrent la doléance, la réservation de salle et la convention
-          territoriale globale.
-        </p>
-        <a class="lien-fleche" href="{% url 'pages:solutions' %}">Voir nos solutions</a>
-      </article>
-
-      <article class="carte carte--pilier">
-        <p class="carte__numero">02</p>
-        <h3>Conseil et accompagnement</h3>
-        <p>
-          Un logiciel ne change rien tout seul. Cadrage sur site, reprise de vos données,
-          formation des agents, suivi dans la durée.
-        </p>
-        <a class="lien-fleche" href="{% url 'pages:conseil' %}">Découvrir notre accompagnement</a>
-      </article>
-
-      <article class="carte carte--pilier">
-        <p class="carte__numero">03</p>
-        <h3>Souveraineté et conformité</h3>
-        <p>
-          Vos données restent en France, chez vous. RGPD, NIS&nbsp;2, accessibilité : la
-          conformité est intégrée au produit, pas vendue en option.
-        </p>
-        <a class="lien-fleche" href="{% url 'pages:souverainete' %}">Nos engagements</a>
-      </article>
-    </div>
+    {% include "partials/produits.html" %}
   </div>
 </section>
 
@@ -85,31 +170,35 @@
   <div class="contenant territoire">
     <div>
       <p class="surtitre">Notre territoire</p>
-      <h2>Un éditeur de logiciel dans les Alpes-de-Haute-Provence</h2>
+      <h2>Un groupe ancré en Provence</h2>
       <p>
-        Satkaar est installé à La Brillanne. Nous avons passé quatre mois en immersion sur le
-        territoire de Forcalquier avant d'écrire une ligne de code, parce qu'on ne conçoit pas un
-        outil pour une commune sans avoir vu comment elle fonctionne. Nous participons au Hub 04.
+        Satkaar est présent à Manosque, dans les Alpes-de-Haute-Provence, et à Aix-en-Provence,
+        dans les Bouches-du-Rhône. Avant d'écrire une ligne de code, nous allons voir
+        comment nos clients travaillent&nbsp;: nous avons par exemple passé quatre mois en
+        immersion sur le territoire de Forcalquier pour concevoir Vanessa.
       </p>
       <a class="lien-fleche" href="{% url 'pages:a_propos' %}">Qui sommes-nous</a>
     </div>
 
     <div>
-      <svg viewBox="0 0 400 300" role="img" aria-label="Relief stylisé des Alpes-de-Haute-Provence, avec l'implantation de Satkaar à La Brillanne.">
+      <svg viewBox="0 0 400 300" role="img" aria-label="Carte stylisée de la Provence : Satkaar est présent à Manosque, dans les Alpes-de-Haute-Provence, et à Aix-en-Provence, dans les Bouches-du-Rhône.">
         <rect width="400" height="300" rx="8" fill="#ece7de"/>
         <g fill="none" stroke="#c9c1b4" stroke-width="1.4">
-          <path d="M20 235c50-14 78-52 120-56s70 26 112 12 78-52 128-58"/>
-          <path d="M20 258c52-16 80-52 122-56s72 26 114 12 76-50 124-56"/>
-          <path d="M20 212c48-12 76-50 118-54s68 24 110 10 80-50 132-56"/>
-          <path d="M20 189c46-10 74-48 116-52s66 22 108 8 82-48 136-54"/>
-          <path d="M20 166c44-8 72-46 114-50s64 20 106 6 84-46 140-52"/>
+          <path d="M20 250c50-14 78-52 120-56s70 26 112 12 78-52 128-58"/>
+          <path d="M20 272c52-16 80-52 122-56s72 26 114 12 76-50 124-56"/>
+          <path d="M20 228c48-12 76-50 118-54s68 24 110 10 80-50 132-56"/>
         </g>
-        <g fill="none" stroke="#1e63a8" stroke-width="2" opacity="0.7">
-          <path d="M20 120c60-20 96-56 150-58s96 34 150 26"/>
-        </g>
-        <circle cx="196" cy="163" r="16" fill="#d96a34" opacity="0.18"/>
-        <circle cx="196" cy="163" r="6" fill="#d96a34"/>
-        <text x="196" y="146" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0e2c4b">La Brillanne</text>
+        <path d="M196 28 300 18l76 44 6 76-52 52-86 8-44-36-18-70z" fill="#f6f3ee" stroke="#c9c1b4" stroke-width="1.5"/>
+        <path d="M34 150 140 130l48 42 18 58-40 44-104 6-40-54z" fill="#f6f3ee" stroke="#c9c1b4" stroke-width="1.5"/>
+        <text x="330" y="44" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#8b8579">04</text>
+        <text x="62" y="176" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#8b8579">13</text>
+        <path d="M232 140C206 160 180 176 150 212" fill="none" stroke="#1e63a8" stroke-width="1.6" stroke-dasharray="4 5" opacity="0.7"/>
+        <circle cx="236" cy="136" r="16" fill="#d96a34" opacity="0.18"/>
+        <circle cx="236" cy="136" r="6" fill="#d96a34"/>
+        <text x="236" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0e2c4b">Manosque</text>
+        <circle cx="146" cy="216" r="16" fill="#d96a34" opacity="0.18"/>
+        <circle cx="146" cy="216" r="6" fill="#d96a34"/>
+        <text x="146" y="246" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0e2c4b">Aix-en-Provence</text>
       </svg>
     </div>
   </div>
@@ -118,38 +207,58 @@
 <section class="section">
   <div class="contenant">
     <p class="surtitre">Ce qu'ils en disent</p>
-    <h2>La parole des agents et des élus</h2>
+    <h2>La parole de nos clients</h2>
 
+    {% comment %}
+      Témoignages : textes rédigés par Satkaar. À ne mettre en ligne qu'après accord écrit de
+      chaque personne citée.
+    {% endcomment %}
     <div class="grille grille--3 espace-t">
       <figure class="verbatim">
+        <p class="verbatim__type">Conseil — relation client</p>
         <blockquote>
-          « Verbatim à recueillir auprès d'un agent : ce qui a changé concrètement dans son
-          quotidien depuis le déploiement. »
+          « Satkaar a compris très vite les enjeux de la relation client dans le luxe, puis les a
+          traduits en solutions concrètes, fondées sur la donnée et l'IA. Une équipe exigeante,
+          pédagogue, qui tient ses engagements jusqu'à la mise en production. »
         </blockquote>
         <figcaption>
-          <strong>Prénom Nom</strong>
-          Fonction, commune <span class="jalon">à recueillir</span>
+          <span class="verbatim__avatar" aria-hidden="true">MC</span>
+          <span>
+            <strong>Matthieu Caron</strong>
+            Global Customer Care &amp; Experience Director, L'Oréal Luxe
+          </span>
         </figcaption>
       </figure>
 
       <figure class="verbatim">
+        <p class="verbatim__type">Conseil — stratégie et opérations</p>
         <blockquote>
-          « Verbatim à recueillir auprès d'un élu : pourquoi la collectivité a choisi Satkaar
-          plutôt qu'un autre outil. »
+          « Avec Satkaar, on a en face de soi des experts de la data et de l'IA qui parlent aussi
+          le langage des opérations. Leur rigueur et leur capacité à rendre simple ce qui est
+          complexe en font des partenaires précieux sur nos missions. »
         </blockquote>
         <figcaption>
-          <strong>Prénom Nom</strong>
-          Fonction, commune <span class="jalon">à recueillir</span>
+          <span class="verbatim__avatar" aria-hidden="true">CL</span>
+          <span>
+            <strong>Clément Lundqvist</strong>
+            Manager, TNP Consultants — Strategy &amp; Ops, Industry &amp; Service
+          </span>
         </figcaption>
       </figure>
 
       <figure class="verbatim">
+        <p class="verbatim__type">Logiciel — Bernard</p>
         <blockquote>
-          « Verbatim à recueillir auprès d'un DGS : l'effet sur l'organisation des services. »
+          « Nos biens, nos baux et nos clients sont enfin réunis au même endroit, et nous gagnons
+          un temps précieux au quotidien. Surtout, Satkaar a construit Bernard avec nous, à
+          l'écoute de notre métier. »
         </blockquote>
         <figcaption>
-          <strong>Prénom Nom</strong>
-          Fonction, commune <span class="jalon">à recueillir</span>
+          <span class="verbatim__avatar" aria-hidden="true">BD</span>
+          <span>
+            <strong>Bernard Desmar</strong>
+            Fondateur et CEO, Net Patrimoine &amp; Capitaux
+          </span>
         </figcaption>
       </figure>
     </div>
@@ -160,14 +269,19 @@
   <div class="contenant">
     <div class="cta">
       <div>
-        <h2>Trente minutes suffisent pour voir si ça vous correspond</h2>
-        <p>Une démonstration, sans engagement, avec la personne qui a construit l'outil.</p>
+        <h2>Un projet data, un besoin logiciel&nbsp;?</h2>
+        <p>Trente minutes pour en parler, sans engagement, avec ceux qui feront le travail.</p>
       </div>
       <div>
-        <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Prendre rendez-vous</a>
+        <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Nous contacter</a>
       </div>
     </div>
   </div>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/compteurs.js' %}" defer></script>
+  <script src="{% static 'js/defilement.js' %}" defer></script>
 {% endblock %}

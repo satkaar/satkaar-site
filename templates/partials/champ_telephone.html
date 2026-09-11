@@ -1,0 +1,64 @@
+{% comment %}
+  Téléphone et moment de rappel, réunis dans un seul bloc. Les pastilles sont de vrais
+  boutons radio : elles fonctionnent au clavier et sans JavaScript. Le script ne fait
+  qu'ajouter les flèches de défilement des jours.
+{% endcomment %}
+<div class="bloc-rappel">
+  {% include "partials/champ.html" with champ=form.telephone %}
+  <p class="bloc-rappel__aide">Pour vous rappeler plus vite, dites-nous quand vous joindre.</p>
+
+  <fieldset class="creneaux">
+    <legend class="creneaux__question">Quel jour&nbsp;?</legend>
+    {% if form.rappel_jour.errors %}
+      <p class="erreur">{{ form.rappel_jour.errors|join:" " }}</p>
+    {% endif %}
+    <div class="creneaux__cadre" data-defilement>
+      <div class="creneaux__defilement">
+        <div class="creneaux__jours">
+          {% for jour in form.jours_de_rappel %}
+            <label class="puce puce--jour">
+              <input class="puce__radio" type="radio" name="{{ form.rappel_jour.html_name }}" value="{{ jour.valeur }}"{% if jour.coche %} checked{% endif %}>
+              <span class="puce__corps">
+                {% if jour.valeur %}
+                  <span class="puce__petit" aria-hidden="true">{{ jour.en_tete }}</span>
+                  <span class="puce__grand" aria-hidden="true">{{ jour.numero }}</span>
+                  <span class="puce__petit" aria-hidden="true">{{ jour.mois }}</span>
+                  <span class="visuellement-cache">{{ jour.complet }}</span>
+                {% else %}
+                  <span class="puce__petit" aria-hidden="true">Peu</span>
+                  <span class="puce__grand" aria-hidden="true">—</span>
+                  <span class="puce__petit" aria-hidden="true">importe</span>
+                  <span class="visuellement-cache">Peu importe</span>
+                {% endif %}
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="creneaux__fleche creneaux__fleche--precedent" type="button" aria-label="Jours précédents" hidden>‹</button>
+      <button class="creneaux__fleche creneaux__fleche--suivant" type="button" aria-label="Jours suivants" hidden>›</button>
+    </div>
+  </fieldset>
+
+  <fieldset class="creneaux">
+    <legend class="creneaux__question">À quelle heure&nbsp;?</legend>
+    {% if form.rappel_heure.errors %}
+      <p class="erreur">{{ form.rappel_heure.errors|join:" " }}</p>
+    {% endif %}
+    <label class="puce puce--texte">
+      <input class="puce__radio" type="radio" name="{{ form.rappel_heure.html_name }}" value=""{% if form.heure_indifferente %} checked{% endif %}>
+      <span class="puce__corps">Peu importe</span>
+    </label>
+    {% for groupe in form.heures_de_rappel %}
+      <p class="creneaux__moment">{{ groupe.moment }}</p>
+      <div class="creneaux__heures">
+        {% for heure in groupe.heures %}
+          <label class="puce puce--heure">
+            <input class="puce__radio" type="radio" name="{{ form.rappel_heure.html_name }}" value="{{ heure.valeur }}"{% if heure.coche %} checked{% endif %}>
+            <span class="puce__corps">{{ heure.valeur }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </fieldset>
+</div>

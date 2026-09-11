@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titre %}Katarina, le logiciel des chambres d'agriculture — Satkaar{% endblock %}
+{% block description %}Katarina accompagne les équipes des chambres d'agriculture : suivi des tâches et saisie optimisée, pour passer moins de temps derrière l'écran et plus de temps sur le terrain.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil">
+      <a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span><a href="{% url 'pages:logiciels' %}">Logiciels</a><span>/</span>Katarina
+    </p>
+    <p class="surtitre">Chambres d'agriculture</p>
+    <h1>Katarina, moins de saisie, plus de terrain</h1>
+    <p class="chapo">
+      Katarina accompagne les équipes des chambres d'agriculture au quotidien&nbsp;: chacun sait
+      ce qu'il a à faire, et la saisie ne prend plus le pas sur le conseil aux agriculteurs.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <article class="produit">
+      <div>
+        <h2>Suivi des tâches</h2>
+        <p class="accroche">Chacun sait ce qu'il a à faire, et où en sont les autres</p>
+        <p>
+          Visites d'exploitation, comptes rendus, dossiers, formations&nbsp;: chaque tâche a un
+          responsable, une échéance et un état. L'équipe voit d'un coup d'œil ce qui avance et ce
+          qui attend.
+        </p>
+        <ul class="liste-cles">
+          <li>Tâches attribuées, avec échéance et état d'avancement</li>
+          <li>Vue d'ensemble par conseiller et par équipe</li>
+          <li>Rappels avant les échéances</li>
+        </ul>
+      </div>
+
+      <div class="vitrine vitrine--katarina vitrine--grande">
+        <img src="{% static 'img/produits/katarina-taches.webp' %}" width="1006" height="605"
+          alt="Fac-similé de la liste des tâches dans Katarina : un compte rendu de visite en cours, une saisie de diagnostic pré-remplie, un dossier d'aide à relancer, des inscriptions à une formation terminées.">
+      </div>
+    </article>
+
+    <article class="produit">
+      <div class="cartes-saisie">
+        <div class="carte-saisie">
+          <p class="carte-saisie__avant">Avant</p>
+          <p>Les mêmes informations ressaisies d'un formulaire à l'autre.</p>
+        </div>
+        <div class="carte-saisie carte-saisie--apres">
+          <p class="carte-saisie__avant">Avec Katarina</p>
+          <p>Les informations déjà connues sont reprises, la saisie va à l'essentiel.</p>
+        </div>
+      </div>
+      <div>
+        <h2>Saisie optimisée</h2>
+        <p class="accroche">Saisir une fois, retrouver partout</p>
+        <p>
+          Katarina allège la saisie&nbsp;: les formulaires vont à l'essentiel et reprennent les
+          informations déjà connues. Moins de ressaisie, moins d'erreurs, et plus de temps pour
+          accompagner les agriculteurs.
+        </p>
+        <ul class="liste-cles">
+          <li>Formulaires allégés, centrés sur l'essentiel</li>
+          <li>Informations déjà connues reprises automatiquement</li>
+          <li>Moins de ressaisie d'un dossier à l'autre</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Sur le terrain</p>
+      <h2>Pensé pour le travail réel des équipes</h2>
+    </div>
+    <div>
+      <p class="sans-marge">
+        La Chambre d'agriculture des Alpes-de-Haute-Provence fait confiance à Satkaar. Comme pour
+        nos autres logiciels, nous partons du travail réel des équipes avant d'écrire la première
+        ligne de code.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Voir Katarina dans votre chambre</h2>
+        <p>Une démonstration de trente minutes, sans engagement.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}?sujet=katarina">Demander une démonstration</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

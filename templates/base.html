@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titre %}Satkaar{% endblock %}</title>
-  <meta name="description" content="{% block description %}Satkaar équipe les communes et intercommunalités d'un outil de gestion de la relation citoyen conçu, hébergé et maintenu en France.{% endblock %}">
+  <meta name="description" content="{% block description %}Satkaar réunit trois métiers : le conseil en intelligence artificielle, data et systèmes d'information, l'édition de logiciels métier et la formation, certifiée Qualiopi.{% endblock %}">
   <meta name="theme-color" content="#0e2c4b">
   <link rel="preload" href="{% static 'fonts/instrument-sans-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/inter-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
@@ -28,12 +28,12 @@
       </button>
 
       <nav class="nav" id="navigation-principale" aria-label="Navigation principale">
-        {% url 'pages:solutions' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>Nos solutions</a>
         {% url 'pages:conseil' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>Conseil</a>
-        {% url 'pages:souverainete' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>Souveraineté</a>
+        {% url 'pages:formation' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>Formation</a>
+        {% url 'pages:logiciels' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% elif u in request.path %}aria-current="true"{% endif %}>Logiciels</a>
         {% url 'pages:references' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>Références</a>
         {% url 'pages:a_propos' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>À propos</a>
-        <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Demander une démonstration</a>
+        <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Nous contacter</a>
       </nav>
     </div>
   </header>
@@ -45,5 +45,6 @@
   {% include "partials/pied.html" %}
 
   <script src="{% static 'js/menu.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

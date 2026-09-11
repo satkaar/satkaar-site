@@ -1,17 +1,18 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block titre %}Contact — Satkaar{% endblock %}
-{% block description %}Une démonstration dure trente minutes. Nous vous montrons l'outil sur un cas concret, et nous vous disons franchement s'il correspond à votre besoin.{% endblock %}
+{% block description %}Un projet de conseil en IA ou data, une formation, une démonstration d'Isidor, de Katarina, de Vanessa ou de Bernard : parlons-en trente minutes, sans engagement.{% endblock %}
 
 {% block contenu %}
 
 <section class="entete-page">
   <div class="contenant">
     <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Contact</p>
-    <h1>Parlons de votre collectivité</h1>
+    <h1>Parlons de votre projet</h1>
     <p class="chapo">
-      Une démonstration dure trente minutes. Nous vous montrons l'outil sur un cas concret, et
-      nous vous disons franchement s'il correspond à votre besoin.
+      Un projet de conseil, une démonstration de l'un de nos logiciels&nbsp;: trente minutes
+      suffisent pour voir si nous pouvons vous aider, et nous vous le disons franchement.
     </p>
   </div>
 </section>
@@ -23,13 +24,17 @@
       {% if envoye %}
         <div class="confirmation" role="status">
           <h2>Votre demande est bien arrivée</h2>
-          <p>Nous vous répondons sous deux jours ouvrés, depuis La Brillanne.</p>
+          {% if rappel %}
+            <p>Nous vous rappelons {{ rappel }}.</p>
+          {% else %}
+            <p>Nous vous répondons sous deux jours ouvrés, depuis Manosque ou Aix-en-Provence.</p>
+          {% endif %}
           <p class="sans-marge">
-            <a class="lien-fleche" href="{% url 'pages:solutions' %}">En attendant, découvrir nos solutions</a>
+            <a class="lien-fleche" href="{% url 'pages:logiciels' %}">En attendant, découvrir nos logiciels</a>
           </p>
         </div>
       {% else %}
-        <h2>Demander une démonstration</h2>
+        <h2>Nous écrire</h2>
 
         {% if form.errors %}
           <div class="confirmation confirmation--erreur" role="alert">
@@ -43,14 +48,15 @@
           {% csrf_token %}
           <div class="paire">
             {% include "partials/champ.html" with champ=form.nom %}
-            {% include "partials/champ.html" with champ=form.collectivite %}
+            {% include "partials/champ.html" with champ=form.organisation %}
           </div>
           <div class="paire">
             {% include "partials/champ.html" with champ=form.fonction %}
             {% include "partials/champ.html" with champ=form.courriel %}
           </div>
-          {% include "partials/champ.html" with champ=form.telephone %}
-          {% include "partials/champ.html" with champ=form.message %}
+          {% include "partials/champ.html" with champ=form.sujet %}
+          {% include "partials/champ_telephone.html" %}
+          {% include "partials/champ_message.html" with champ=form.message %}
 
           <div>
             <button class="bouton bouton--primaire" type="submit">Envoyer ma demande</button>
@@ -71,19 +77,20 @@
       <dl class="coordonnees">
         <div>
           <dt>Courriel</dt>
-          <dd><a href="mailto:contact@satkaar.fr">contact@satkaar.fr</a> <span class="jalon">à confirmer</span></dd>
+          <dd><a href="mailto:contact@satkaar.io">contact@satkaar.io</a></dd>
         </div>
         <div>
           <dt>Téléphone</dt>
-          <dd>00 00 00 00 00 <span class="jalon">à confirmer</span></dd>
+          <dd><a href="tel:+33634618697">06&nbsp;34&nbsp;61&nbsp;86&nbsp;97</a></dd>
         </div>
         <div>
-          <dt>Adresse</dt>
-          <dd>Satkaar SAS<br>La Brillanne (04700)<br>Alpes-de-Haute-Provence</dd>
-        </div>
-        <div>
-          <dt>Prise de rendez-vous</dt>
-          <dd><a class="lien-fleche" href="#">Choisir un créneau</a> <span class="jalon">lien à fournir</span></dd>
+          <dt>Nos bureaux</dt>
+          <dd>
+            <strong>Manosque (04)</strong> — siège<br>67 chemin Auguste Girard<br>04100 Manosque
+          </dd>
+          <dd class="espace-dd">
+            <strong>Aix-en-Provence (13)</strong><br>Adresse <span class="jalon">à fournir</span>
+          </dd>
         </div>
       </dl>
     </aside>
@@ -91,4 +98,9 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/creneaux.js' %}" defer></script>
+  <script src="{% static 'js/message.js' %}" defer></script>
 {% endblock %}

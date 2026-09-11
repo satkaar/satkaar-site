@@ -1,0 +1,29 @@
+{% comment %}
+  Champ « message » avec deux aides, sur le modèle du CRM : la dictée (reconnaissance vocale
+  du navigateur) et la reformulation par l'IA. Sans JavaScript, les aides restent masquées et
+  le champ fonctionne comme les autres.
+{% endcomment %}
+<div class="champ-groupe assistant-message" data-url-reformuler="{% url 'pages:reformuler' %}">
+  <div class="assistant-message__entete">
+    <label for="{{ champ.id_for_label }}">
+      {{ champ.label }}{% if not champ.field.required %} <span class="facultatif">(facultatif)</span>{% endif %}
+    </label>
+    <div class="outils-message" hidden>
+      <button class="outil" type="button" data-action="dicter" aria-pressed="false" hidden
+        title="Dictée par la reconnaissance vocale de votre navigateur">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 11a7 7 0 01-14 0m7 7v4m-4 0h8m-4-7a3 3 0 003-3V6a3 3 0 00-6 0v6a3 3 0 003 3z"/></svg>
+        <span data-libelle>Dicter</span>
+      </button>
+      <button class="outil" type="button" data-action="reformuler"
+        title="Votre message est transmis au service d'IA Claude, d'Anthropic">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 3l14 9-14 9V3z"/></svg>
+        <span data-libelle>✦ Reformuler avec l'IA</span>
+      </button>
+    </div>
+  </div>
+  {% if champ.errors %}
+    <p class="erreur" id="{{ champ.auto_id }}-erreur">{{ champ.errors|join:" " }}</p>
+  {% endif %}
+  {{ champ }}
+  <p class="outils-message__etat" role="status"></p>
+</div>

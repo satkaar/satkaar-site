@@ -1,0 +1,62 @@
+{% comment %}
+  Illustration décorative du premier écran : des données traversent un modèle et deviennent une
+  prévision. Dessinée pour le site, aux couleurs de la charte ; animations coupées pour les
+  visiteurs qui limitent les mouvements.
+{% endcomment %}
+<svg class="illustration-ia" viewBox="0 0 460 400" aria-hidden="true" focusable="false">
+  <rect x="10" y="10" width="440" height="380" rx="22" fill="#ffffff" fill-opacity="0.03" stroke="#24486e"/>
+
+  <g stroke="#cadaea" stroke-opacity="0.16" stroke-width="1">
+    <path d="M90 90 230 70M90 90 230 135M90 90 230 200M90 90 230 265M90 90 230 330"/>
+    <path d="M90 160 230 70M90 160 230 135M90 160 230 200M90 160 230 265M90 160 230 330"/>
+    <path d="M90 230 230 70M90 230 230 135M90 230 230 200M90 230 230 265M90 230 230 330"/>
+    <path d="M90 300 230 70M90 300 230 135M90 300 230 200M90 300 230 265M90 300 230 330"/>
+    <path d="M230 70 370 100M230 135 370 100M230 200 370 100M230 265 370 100M230 330 370 100"/>
+    <path d="M230 70 370 165M230 135 370 165M230 200 370 165M230 265 370 165M230 330 370 165"/>
+  </g>
+
+  <g fill="none" stroke="#d96a34" stroke-width="2" stroke-linecap="round">
+    <path class="ia-flux" d="M90 160 230 135 370 100"/>
+    <path class="ia-flux ia-flux--lent" d="M90 230 230 200 370 165"/>
+    <path class="ia-flux ia-flux--decale" d="M90 90 230 265 370 165"/>
+  </g>
+
+  <g fill="#0e2c4b" stroke="#cadaea" stroke-width="1.5">
+    <circle cx="90" cy="90" r="7"/>
+    <circle cx="90" cy="300" r="7"/>
+    <circle cx="230" cy="70" r="7"/>
+    <circle cx="230" cy="330" r="7"/>
+  </g>
+
+  <g fill="#d96a34">
+    <circle class="ia-halo" cx="230" cy="135" r="12" fill-opacity="0.35"/>
+    <circle class="ia-halo ia-halo--decale" cx="370" cy="165" r="12" fill-opacity="0.35"/>
+    <circle cx="90" cy="160" r="7"/>
+    <circle cx="90" cy="230" r="7"/>
+    <circle cx="230" cy="135" r="8"/>
+    <circle cx="230" cy="200" r="7"/>
+    <circle cx="230" cy="265" r="7"/>
+    <circle cx="370" cy="100" r="7"/>
+    <circle cx="370" cy="165" r="8"/>
+  </g>
+
+  <g>
+    <rect x="300" y="218" width="136" height="122" rx="12" fill="#1a3f66" stroke="#24486e"/>
+    <text x="314" y="240" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1" fill="#8fa6bf">PRÉVISION</text>
+    <g fill="#cadaea" fill-opacity="0.55">
+      <rect class="ia-barre" x="316" y="298" width="14" height="24" rx="3"/>
+      <rect class="ia-barre" x="338" y="286" width="14" height="36" rx="3" style="animation-delay:-0.6s"/>
+      <rect class="ia-barre" x="360" y="292" width="14" height="30" rx="3" style="animation-delay:-1.2s"/>
+    </g>
+    <g fill="#d96a34">
+      <rect class="ia-barre" x="382" y="274" width="14" height="48" rx="3" style="animation-delay:-1.8s"/>
+      <rect class="ia-barre" x="404" y="260" width="14" height="62" rx="3" style="animation-delay:-2.4s"/>
+    </g>
+    <path d="M318 290 345 278 367 284 389 266 411 252" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="3 4" stroke-opacity="0.7"/>
+  </g>
+
+  <g font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="1.2" fill="#8fa6bf" text-anchor="middle">
+    <text x="90" y="366">DONNÉES</text>
+    <text x="230" y="366">MODÈLE</text>
+  </g>
+</svg>

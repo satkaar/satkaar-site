@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block titre %}Formation certifiée Qualiopi — Satkaar{% endblock %}
+{% block description %}Satkaar forme vos équipes à l'intelligence artificielle, à la data et à ses logiciels métier. Organisme de formation certifié Qualiopi.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil"><a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span>Formation</p>
+    <p class="surtitre">Formation — certifiée Qualiopi</p>
+    <h1>Former vos équipes à l'IA, à la data et à nos outils</h1>
+    <p class="chapo">
+      Nos formations transmettent ce que nous pratiquons chaque jour en conseil et dans nos
+      logiciels. Des contenus concrets, adaptés à votre métier, pour que vos équipes deviennent
+      autonomes.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <p class="surtitre">Nos formations</p>
+    <h2>Trois parcours, du terrain à la décision</h2>
+
+    <div class="grille grille--3 espace-t">
+      <article class="carte carte--pilier">
+        <p class="carte__numero">01 — Équipes</p>
+        <h3>IA et data au quotidien</h3>
+        <p>
+          Comprendre ce que l'IA peut faire, et ce qu'elle ne peut pas faire, pour votre métier.
+          L'utiliser au quotidien, en sécurité et dans le respect du RGPD et du règlement
+          européen sur l'IA.
+        </p>
+      </article>
+
+      <article class="carte carte--pilier">
+        <p class="carte__numero">02 — Dirigeants et managers</p>
+        <h3>Piloter un projet IA ou data</h3>
+        <p>
+          Choisir les bons cas d'usage, cadrer un projet, en mesurer le retour et accompagner
+          les équipes dans le changement.
+        </p>
+      </article>
+
+      <article class="carte carte--pilier">
+        <p class="carte__numero">03 — Utilisateurs</p>
+        <h3>Prise en main de nos logiciels</h3>
+        <p>
+          Isidor, Katarina, Vanessa ou Bernard&nbsp;: une formation en petits groupes, avec vos
+          vrais dossiers, pour être autonome dès la fin de la séance.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--nuit">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Qualité certifiée</p>
+      <h2>Un organisme de formation certifié Qualiopi</h2>
+      <p class="chapo">
+        Qualiopi est la certification nationale de qualité des organismes de formation. Elle
+        permet la prise en charge de nos formations par les financements publics et mutualisés,
+        notamment ceux des opérateurs de compétences (OPCO).
+      </p>
+      <p class="mention-qualiopi">
+        La certification qualité a été délivrée au titre de la catégorie d'actions suivante&nbsp;:
+        actions de formation.
+      </p>
+    </div>
+
+    <ul class="etapes">
+      <li>
+        <span class="etapes__numero" aria-hidden="true">01</span>
+        <div>
+          <h3>Analyse du besoin</h3>
+          <p>Nous partons de votre métier, de vos outils et du niveau de chacun.</p>
+        </div>
+      </li>
+      <li>
+        <span class="etapes__numero" aria-hidden="true">02</span>
+        <div>
+          <h3>Programme sur mesure</h3>
+          <p>Objectifs, contenus et durée adaptés, sur site ou à distance.</p>
+        </div>
+      </li>
+      <li>
+        <span class="etapes__numero" aria-hidden="true">03</span>
+        <div>
+          <h3>Formation</h3>
+          <p>En petits groupes, à partir de cas réels plutôt que d'exemples théoriques.</p>
+        </div>
+      </li>
+      <li>
+        <span class="etapes__numero" aria-hidden="true">04</span>
+        <div>
+          <h3>Évaluation</h3>
+          <p>Acquis vérifiés en fin de formation, et bilan partagé avec vous.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Accessibilité</p>
+      <h2>Des formations ouvertes à tous</h2>
+    </div>
+    <div>
+      <p class="sans-marge">
+        Nos formations sont accessibles aux personnes en situation de handicap. Parlez-nous de
+        vos besoins avant la formation&nbsp;: nous adaptons les supports, le rythme et les
+        modalités.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Construisons la formation de vos équipes</h2>
+        <p>Trente minutes pour définir vos besoins, sans engagement.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}?sujet=formation">Nous contacter</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

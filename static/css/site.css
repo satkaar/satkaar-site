@@ -60,6 +60,7 @@ html {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
@@ -302,6 +303,45 @@ hr {
   color: var(--blanc);
 }
 
+/* Photo d'un lieu, avec légende et crédit (licences libres). */
+.photo-lieu {
+  margin: 1.75rem 0 0;
+}
+
+.photo-lieu img {
+  display: block;
+  width: 100%;
+  border-radius: var(--rayon-carte);
+}
+
+.photo-lieu figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: #c8d6e4;
+}
+
+.photo-lieu__credit {
+  display: block;
+  font-size: 0.75rem;
+  color: #8fa6bf;
+}
+
+.photo-lieu__credit a {
+  color: inherit;
+}
+
+/* Lien dans un texte sur fond bleu nuit. */
+.lien-clair {
+  color: var(--blanc);
+  text-decoration: underline;
+  text-decoration-color: var(--terre);
+  text-decoration-thickness: 2px;
+}
+
+.lien-clair:hover {
+  color: #f0c9b3;
+}
+
 /* --- 6. En-tête ------------------------------------------------------- */
 
 .entete {
@@ -366,7 +406,7 @@ hr {
   color: var(--bleu-nuit);
 }
 
-.nav__lien[aria-current="page"] {
+.nav__lien[aria-current] {
   border-bottom-color: var(--terre);
   font-weight: 600;
 }
@@ -427,7 +467,7 @@ hr {
     border-bottom: 1px solid var(--pierre-ombree);
   }
 
-  .nav__lien[aria-current="page"] {
+  .nav__lien[aria-current] {
     border-bottom-color: var(--terre);
   }
 
@@ -460,6 +500,91 @@ hr {
 
 .heros__interieur {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.heros__illustration .illustration-ia {
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  margin-left: auto;
+}
+
+@media (max-width: 900px) {
+  .heros__interieur {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heros__illustration {
+    display: none;
+  }
+}
+
+/* Illustration IA : flux de données, nœuds actifs, barres de prévision. */
+.ia-flux {
+  stroke-dasharray: 6 14;
+  animation: ia-flux 1.6s linear infinite;
+}
+
+.ia-flux--lent {
+  animation-duration: 2.4s;
+}
+
+.ia-flux--decale {
+  animation-duration: 2s;
+  animation-delay: -0.8s;
+  stroke-opacity: 0.6;
+}
+
+.ia-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ia-halo 2.4s ease-out infinite;
+}
+
+.ia-halo--decale {
+  animation-delay: -1.2s;
+}
+
+.ia-barre {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: ia-barre 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes ia-flux {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+@keyframes ia-halo {
+  from {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes ia-barre {
+  from {
+    transform: scaleY(0.55);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .illustration-ia * {
+    animation: none !important;
+  }
 }
 
 .heros h1 {
@@ -478,38 +603,6 @@ hr {
   margin-bottom: 1.75rem;
 }
 
-/* --- 8. Bandeau de preuve --------------------------------------------- */
-
-.bandeau-preuve {
-  list-style: none;
-  padding: 0;
-  border-top: 1px solid var(--trait-sombre);
-  margin-top: clamp(2.5rem, 6vw, 4rem);
-  padding-top: 1.75rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 2.5rem;
-}
-
-.preuve {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--police-mono);
-  font-size: 0.83rem;
-  letter-spacing: 0.04em;
-  color: #c8d6e4;
-}
-
-.preuve::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--olivier);
-  flex: none;
-}
-
 /* --- 9. Cartes et grilles --------------------------------------------- */
 
 .grille {
@@ -519,6 +612,10 @@ hr {
 
 .grille--3 {
   grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.grille--4 {
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
 }
 
 .grille--2 {
@@ -587,6 +684,737 @@ hr {
   color: #c8d6e4;
 }
 
+/* Étapes numérotées (accompagnement), sur fond bleu nuit. */
+.etapes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.etapes li {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: 1rem;
+  padding-block: 1.15rem;
+  border-top: 1px solid var(--trait-sombre);
+}
+
+.etapes li:last-child {
+  border-bottom: 1px solid var(--trait-sombre);
+}
+
+.etapes__numero {
+  font-family: var(--police-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--terre);
+  padding-top: 0.3rem;
+}
+
+.etapes h3 {
+  font-size: 1.12rem;
+  margin: 0 0 0.3rem;
+}
+
+.etapes p {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.etiquettes-liste {
+  list-style: none;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.etiquettes-liste li {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--bleu-nuit);
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+}
+
+/* Bandeau défilant « Ils nous font confiance ». */
+.confiance {
+  padding-block: clamp(2.25rem, 5vw, 3.5rem);
+  border-bottom: 1px solid var(--trait);
+  overflow: hidden;
+}
+
+.confiance__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+.confiance__titre {
+  font-family: var(--police-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ardoise);
+  margin: 0;
+}
+
+.confiance__pause {
+  font-family: var(--police-texte);
+  font-size: 0.75rem;
+  color: var(--ardoise);
+  background: none;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+}
+
+.confiance__pause:hover {
+  color: var(--bleu-nuit);
+  border-color: var(--bleu-nuit);
+}
+
+.defilement {
+  display: flex;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.defilement__piste {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  animation: defiler 75s linear infinite;
+}
+
+.defilement__piste li {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: var(--police-titre);
+  font-size: clamp(1.9rem, 4.6vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--bleu-nuit);
+}
+
+.defilement__logo img {
+  display: block;
+  width: auto;
+  height: clamp(3.2rem, 6.5vw, 5rem);
+}
+
+/* Logos en longueur (mots-symboles) : moins hauts pour garder le même poids visuel. */
+.defilement__logo--horizontal img {
+  height: clamp(1.8rem, 3.4vw, 2.6rem);
+}
+
+/* Logo fourni en blanc : posé tel quel sur une pastille bleu nuit, sans retouche. */
+.defilement__logo--sombre img {
+  box-sizing: content-box;
+  padding: 0.75rem 1.1rem;
+  border-radius: 12px;
+  background: var(--bleu-nuit);
+}
+
+/* Logo accompagné de son nom complet, en petit dessous. */
+.defilement__marque {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.defilement__legende {
+  font-family: var(--police-texte);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.3;
+  color: var(--ardoise);
+  white-space: nowrap;
+}
+
+/* Séparateur après chaque nom : la boucle reste régulière d'une piste à l'autre. */
+.defilement__piste li::after {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline: clamp(1.5rem, 4vw, 3rem);
+  border-radius: 50%;
+  background: var(--terre);
+}
+
+.defilement:hover .defilement__piste,
+.defilement--pause .defilement__piste {
+  animation-play-state: paused;
+}
+
+@keyframes defiler {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .defilement {
+    mask-image: none;
+  }
+
+  .defilement__piste {
+    animation: none !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-shrink: 1;
+    gap: 0.4rem 2.5rem;
+    padding-inline: var(--gouttiere);
+  }
+
+  .defilement__piste li::after {
+    display: none;
+  }
+
+  .defilement__piste[aria-hidden="true"],
+  .defilement__piste li[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+/* Grille « bento » des deux métiers : cases de tailles variées. */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.bento__case {
+  display: flex;
+  flex-direction: column;
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: 14px;
+  padding: clamp(1.4rem, 2.6vw, 2rem);
+}
+
+.bento__case h3 {
+  font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+}
+
+.bento__case .lien-fleche {
+  margin-top: auto;
+}
+
+.bento__case--conseil {
+  grid-column: 1 / span 6;
+  grid-row: 1 / span 3;
+  background: var(--bleu-nuit);
+  border-color: var(--bleu-nuit);
+  color: var(--blanc);
+}
+
+.bento__case--conseil .carte__numero {
+  color: var(--terre);
+}
+
+.bento__case--conseil p {
+  color: #c8d6e4;
+}
+
+.bento__case--conseil .etiquettes-liste li {
+  color: var(--blanc);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--trait-sombre);
+}
+
+.bento__case--conseil .lien-fleche {
+  color: var(--blanc);
+}
+
+.bento__case--edition {
+  grid-column: 7 / span 6;
+  background: var(--pierre);
+}
+
+.bento__case--edition > p:not(.carte__numero) {
+  color: var(--ardoise);
+}
+
+.bento__produit {
+  position: relative;
+  grid-column: span 3;
+  min-height: 7.5rem;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--bleu-nuit);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bento__produit:hover {
+  color: var(--bleu-nuit);
+  transform: translateY(-3px);
+  box-shadow: var(--ombre-carte);
+}
+
+.bento__produit strong {
+  font-family: var(--police-titre);
+  font-size: 1.4rem;
+  line-height: 1.1;
+}
+
+.bento__secteur {
+  font-family: var(--police-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.bento__fleche {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 1rem;
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.bento__produit:hover .bento__fleche {
+  transform: translateX(3px);
+}
+
+.bento__produit--isidor {
+  background: linear-gradient(135deg, #dfe9f4, #f4f7fb);
+  border-color: #cfdcea;
+}
+
+.bento__produit--katarina {
+  background: linear-gradient(135deg, #dcebd8, #f3f8f1);
+  border-color: #cfe0ca;
+}
+
+.bento__produit--vanessa {
+  background: linear-gradient(135deg, #ece7de, #f8f6f2);
+}
+
+.bento__produit--bernard {
+  background: linear-gradient(135deg, #13263a, #1f4a3c);
+  border-color: #1f4a3c;
+  color: var(--blanc);
+}
+
+.bento__produit--bernard:hover {
+  color: var(--blanc);
+}
+
+/* Troisième métier : bandeau pleine largeur sous les deux premiers. */
+.bento__case--formation {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(1.25rem, 4vw, 3rem);
+  background: linear-gradient(120deg, var(--pierre), var(--blanc));
+  border-left: 4px solid var(--terre);
+}
+
+.bento__case--formation > div:first-child p:last-child {
+  color: var(--ardoise);
+  margin-bottom: 0;
+}
+
+.bento__case--formation h3 {
+  margin-bottom: 0.4rem;
+}
+
+.bento__formation-pied {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: none;
+}
+
+.bento__formation-pied .lien-fleche {
+  margin-top: 0;
+}
+
+.badge-qualiopi {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--bleu-nuit);
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem 0.45rem 0.7rem;
+}
+
+.badge-qualiopi svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: var(--olivier-fonce);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 760px) {
+  .bento__case--formation {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.mention-qualiopi {
+  font-size: 0.88rem;
+}
+
+.bento__chiffre {
+  grid-column: span 4;
+  justify-content: flex-end;
+}
+
+.bento__chiffre p:last-child {
+  color: var(--ardoise);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.chiffre {
+  font-family: var(--police-titre);
+  font-size: clamp(2.6rem, 5vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--bleu-nuit);
+  margin: 0 0 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.chiffre small {
+  font-size: 0.45em;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--terre-fonce);
+}
+
+@media (max-width: 900px) {
+  .bento {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .bento__case--conseil,
+  .bento__case--edition {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .bento__produit {
+    grid-column: span 3;
+  }
+
+  .bento__chiffre {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 560px) {
+  .bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bento__produit,
+  .bento__chiffre {
+    grid-column: 1 / -1;
+  }
+
+  .bento__produit {
+    min-height: 6rem;
+  }
+}
+
+/* Les dix expertises du conseil : cinq par ligne, la dernière ligne centrée si incomplète. */
+.expertises {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.expertise {
+  flex: 0 1 calc((100% - 4rem) / 5);
+  min-width: 0;
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+  padding: 1.25rem 1.15rem;
+}
+
+.expertise__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.expertise__icone {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  background: var(--pierre);
+  color: var(--terre-fonce);
+}
+
+.expertise__icone svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.expertise__numero {
+  font-family: var(--police-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--ardoise);
+  margin: 0;
+}
+
+.expertise h3 {
+  font-size: 1.08rem;
+  margin: 0 0 0.4rem;
+}
+
+.expertise p:last-child {
+  font-size: 0.95rem;
+  color: var(--ardoise);
+  margin: 0;
+}
+
+@media (max-width: 1080px) {
+  .expertise {
+    flex-basis: calc((100% - 1rem) / 2);
+  }
+}
+
+@media (max-width: 560px) {
+  .expertise {
+    flex-basis: 100%;
+  }
+}
+
+.section--nuit .expertise {
+  background: var(--bleu-nuit-clair);
+  border-color: var(--trait-sombre);
+}
+
+.section--nuit .expertise__numero {
+  color: #8fa6bf;
+}
+
+.section--nuit .expertise__icone {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--terre);
+}
+
+.section--nuit .expertise p:last-child {
+  color: #c8d6e4;
+}
+
+/* Vitrine : l'écran d'un logiciel posé sur un fond aux couleurs du produit. */
+.vitrine {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  padding: 1rem;
+  margin-bottom: 1.4rem;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.vitrine img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+a.vitrine:hover img {
+  transform: scale(1.04);
+}
+
+.vitrine--isidor {
+  background: linear-gradient(135deg, #dfe9f4, #f4f7fb);
+}
+
+.vitrine--katarina {
+  background: linear-gradient(135deg, #dcebd8, #f3f8f1);
+}
+
+.vitrine--vanessa {
+  background: linear-gradient(135deg, #ece7de, #f8f6f2);
+}
+
+.vitrine--bernard {
+  background: linear-gradient(135deg, #13263a, #1f4a3c);
+}
+
+.vitrine--grande {
+  aspect-ratio: auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  margin: 0;
+  border-radius: var(--rayon-carte);
+}
+
+/* Comparaison avant / après (Katarina, saisie). */
+.cartes-saisie {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.carte-saisie {
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+  padding: 1.2rem 1.3rem;
+  background: var(--pierre);
+}
+
+.carte-saisie p:last-child {
+  margin: 0;
+  color: var(--ardoise);
+}
+
+.carte-saisie__avant {
+  font-family: var(--police-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ardoise);
+  margin: 0 0 0.35rem;
+}
+
+.carte-saisie--apres {
+  background: var(--bleu-nuit);
+  border-color: var(--bleu-nuit);
+}
+
+.carte-saisie--apres .carte-saisie__avant {
+  color: var(--terre);
+}
+
+.carte-saisie--apres p:last-child {
+  color: var(--blanc);
+  font-family: var(--police-titre);
+  font-size: 1.1rem;
+}
+
+/* Liste de domaines ou de publics (Isidor, Bernard). */
+.domaines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  gap: 0.75rem;
+}
+
+.domaines li {
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+  padding: 1rem 1.1rem;
+  font-size: 0.93rem;
+  color: var(--ardoise);
+}
+
+.domaines strong {
+  display: block;
+  font-family: var(--police-titre);
+  font-size: 1.02rem;
+  color: var(--bleu-nuit);
+  margin-bottom: 0.15rem;
+}
+
+.domaines--colonne {
+  grid-template-columns: 1fr;
+}
+
+/* Bloc tarif (Isidor). */
+.tarif {
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-top: 3px solid var(--terre);
+  border-radius: var(--rayon-carte);
+  padding: clamp(1.5rem, 3vw, 2rem);
+}
+
+.tarif__titre {
+  font-family: var(--police-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ardoise);
+  margin: 0 0 0.5rem;
+}
+
+.tarif__prix {
+  font-family: var(--police-titre);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.tarif__prix span {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ardoise);
+}
+
+.tarif__detail {
+  color: var(--ardoise);
+  margin: 0.3rem 0 0;
+}
+
+/* Carte d'un logiciel (accueil, page Logiciels). */
+.carte--produit h3 {
+  font-size: 1.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.carte--produit .produit__nom h3 {
+  margin-bottom: 0;
+}
+
+.carte .accroche-carte {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  color: var(--bleu-nuit);
+}
+
+.heros .surtitre {
+  color: #a9bdd2;
+}
+
 /* --- 11. Duo produit -------------------------------------------------- */
 
 .produit {
@@ -602,6 +1430,10 @@ hr {
   border-top: 1px solid var(--trait);
 }
 
+.produit--seul {
+  grid-template-columns: minmax(0, 48rem);
+}
+
 .produit__nom {
   display: flex;
   align-items: baseline;
@@ -614,22 +1446,7 @@ hr {
   margin: 0;
 }
 
-.etiquette {
-  font-family: var(--police-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.6rem;
-  border-radius: 3px;
-  background: var(--pierre-ombree);
-  color: var(--ardoise);
-  white-space: nowrap;
-}
 
-.etiquette--production {
-  background: rgba(63, 143, 122, 0.16);
-  color: var(--olivier-fonce);
-}
 
 .accroche {
   font-family: var(--police-titre);
@@ -768,8 +1585,40 @@ hr {
 
 .verbatim figcaption {
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
   font-size: 0.9rem;
+  line-height: 1.4;
   color: var(--ardoise);
+}
+
+.verbatim__type {
+  font-family: var(--police-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terre-fonce);
+  margin: 0 0 0.9rem;
+}
+
+.verbatim__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--bleu-nuit);
+  color: var(--blanc);
+  font-family: var(--police-titre);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.verbatim__statut {
+  margin: 1rem 0 0;
 }
 
 .verbatim figcaption strong {
@@ -970,40 +1819,104 @@ hr {
 
 /* --- 19. Équipe ------------------------------------------------------- */
 
-.membre {
-  border-top: 3px solid var(--bleu-institution);
-  padding-top: 1rem;
+
+/* Fondateur : portrait, présentation et parcours. */
+.fondateur {
+  display: grid;
+  grid-template-columns: 16.5rem minmax(0, 1fr);
+  gap: clamp(1.75rem, 4vw, 3rem);
+  align-items: center;
 }
 
-.membre h3 {
+.fondateur__photo {
+  width: 16.5rem;
+  height: 16.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.fondateur__nom {
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
   margin-bottom: 0.2rem;
 }
 
-.membre p {
-  color: var(--ardoise);
-  margin: 0;
-  font-size: 0.98rem;
-}
-
-.labels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 1.25rem;
-  padding: 0;
-  list-style: none;
-}
-
-.labels li {
+.fondateur__titre {
   font-family: var(--police-mono);
   font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  padding: 0.45rem 0.8rem;
-  border: 1px solid var(--trait);
-  border-radius: 3px;
-  background: var(--blanc);
-  color: var(--bleu-nuit);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terre-fonce);
+  margin-bottom: 1rem;
 }
+
+.fondateur p:not(.fondateur__titre) {
+  color: var(--ardoise);
+}
+
+@media (max-width: 720px) {
+  .fondateur {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fondateur__photo {
+    width: min(16.5rem, 70vw);
+    height: min(16.5rem, 70vw);
+  }
+}
+
+.parcours {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+.parcours__titre {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.parcours__liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.parcours__liste li {
+  display: grid;
+  grid-template-columns: 8rem 15rem minmax(0, 1fr);
+  gap: 0.25rem 1.25rem;
+  align-items: baseline;
+  padding-block: 0.8rem;
+  border-top: 1px solid var(--trait);
+}
+
+.parcours__liste li:last-child {
+  border-bottom: 1px solid var(--trait);
+}
+
+.parcours__annees {
+  font-family: var(--police-mono);
+  font-size: 0.8rem;
+  color: var(--terre-fonce);
+}
+
+.parcours__liste strong {
+  font-family: var(--police-titre);
+  font-weight: 600;
+}
+
+.parcours__liste li > span:last-child {
+  color: var(--ardoise);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 720px) {
+  .parcours__liste li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+
+
 
 /* --- 20. Formulaire --------------------------------------------------- */
 
@@ -1121,6 +2034,302 @@ hr {
 .coordonnees dd {
   margin: 0;
   font-size: 1.02rem;
+}
+
+.coordonnees .espace-dd {
+  margin-top: 0.75rem;
+}
+
+/* Téléphone et moment de rappel, réunis dans un seul bloc. */
+.bloc-rappel {
+  display: grid;
+  gap: 1.1rem;
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+  padding: 1.25rem;
+  background: var(--blanc);
+  box-shadow: var(--ombre-carte);
+}
+
+.bloc-rappel__aide {
+  font-size: 0.88rem;
+  color: var(--ardoise);
+  margin: -0.75rem 0 0;
+}
+
+.creneaux {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0; /* sinon le fieldset s'élargit au lieu de laisser défiler les jours */
+}
+
+.creneaux__question {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-size: 0.94rem;
+  padding: 0;
+  margin-bottom: 0.6rem;
+}
+
+.creneaux__moment {
+  font-family: var(--police-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ardoise);
+  margin: 1rem 0 0.45rem;
+}
+
+.creneaux__cadre {
+  position: relative;
+}
+
+.creneaux__defilement {
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  padding: 0.35rem 0.15rem 0.6rem;
+}
+
+.creneaux__defilement::-webkit-scrollbar {
+  display: none;
+}
+
+.creneaux__cadre--droite .creneaux__defilement {
+  mask-image: linear-gradient(to right, #000 82%, transparent);
+}
+
+.creneaux__cadre--gauche .creneaux__defilement {
+  mask-image: linear-gradient(to right, transparent, #000 18%);
+}
+
+.creneaux__cadre--gauche.creneaux__cadre--droite .creneaux__defilement {
+  mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+}
+
+.creneaux__jours {
+  display: flex;
+  gap: 0.5rem;
+  width: max-content;
+}
+
+.creneaux__heures {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+  gap: 0.5rem;
+}
+
+.creneaux__fleche {
+  position: absolute;
+  top: calc(50% - 0.15rem);
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--bleu-nuit);
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(14, 44, 75, 0.15);
+  cursor: pointer;
+}
+
+.creneaux__fleche--precedent {
+  left: -0.5rem;
+}
+
+.creneaux__fleche--suivant {
+  right: -0.5rem;
+}
+
+.creneaux__fleche:hover {
+  border-color: var(--bleu-nuit);
+  color: var(--bleu-nuit);
+}
+
+/* Pastille : un bouton radio caché, et son habillage. */
+.puce {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+
+.puce--texte {
+  display: inline-block;
+}
+
+.puce__radio {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.puce__corps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--bleu-nuit);
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.puce--jour .puce__corps {
+  width: 3.9rem;
+  height: 4.2rem;
+  line-height: 1.15;
+}
+
+.puce--heure .puce__corps,
+.puce--texte .puce__corps {
+  height: 2.6rem;
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.puce--texte .puce__corps {
+  padding-inline: 1.15rem;
+}
+
+.puce__petit {
+  font-size: 0.7rem;
+  color: var(--ardoise);
+}
+
+.puce__grand {
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.puce:hover .puce__corps {
+  border-color: var(--bleu-nuit);
+}
+
+.puce__radio:checked + .puce__corps {
+  background: var(--bleu-nuit);
+  border-color: var(--bleu-nuit);
+  color: var(--blanc);
+  box-shadow: 0 6px 14px -6px rgba(14, 44, 75, 0.7);
+}
+
+.puce__radio:checked + .puce__corps .puce__petit {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.puce__radio:focus-visible + .puce__corps {
+  outline: 3px solid rgba(30, 99, 168, 0.45);
+  outline-offset: 2px;
+}
+
+/* Aides à la rédaction du message (dictée, reformulation), sur le modèle du CRM :
+   deux pastilles fines, en haut à droite du champ, sur la ligne du libellé. */
+.assistant-message__entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.outils-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.outil {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  font-family: var(--police-texte);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+  color: #475569;
+  background: var(--blanc);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  padding: 0.25rem 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.outil svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.outil:hover {
+  border-color: var(--bleu-nuit);
+  color: var(--bleu-nuit);
+}
+
+.outil:focus-visible {
+  outline: 3px solid rgba(30, 99, 168, 0.35);
+  outline-offset: 1px;
+}
+
+.outil:disabled {
+  opacity: 0.4;
+  cursor: progress;
+}
+
+/* Dictée en cours : pastille rouge qui pulse. */
+.outil[aria-pressed="true"] {
+  background: #fce8e6;
+  border-color: #c5221f;
+  color: #c5221f;
+  animation: pulsation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulsation {
+  50% { opacity: 0.5; }
+}
+
+.outils-message__etat {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ardoise);
+}
+
+.outils-message__etat:empty {
+  display: none;
+}
+
+.outils-message__etat--erreur {
+  color: #a3231b;
+}
+
+.outils-message__annuler {
+  font: inherit;
+  color: var(--bleu-institution);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* --- 21. Pages légales ------------------------------------------------ */
@@ -1312,6 +2521,11 @@ hr {
   margin-inline: auto;
 }
 
+/* L'attribut hidden doit l'emporter sur les display posés par les composants. */
+[hidden] {
+  display: none !important;
+}
+
 .visuellement-cache {
   position: absolute;
   width: 1px;
@@ -1325,4 +2539,48 @@ hr {
 /* Le signe de marque sur fond bleu nuit : le carré doit rester lisible. */
 .pied .marque__signe rect {
   fill: var(--bleu-nuit-clair);
+}
+
+/* Labels et réseaux : tuiles, avec logo quand il est disponible. */
+.labels-tuiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+  gap: 0.75rem;
+}
+
+.labels-tuiles li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-height: 8.5rem;
+  padding: 1rem;
+  text-align: center;
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+}
+
+.labels-tuiles__logo img {
+  width: auto;
+  height: 6rem;
+  object-fit: contain;
+}
+
+.labels-tuiles strong {
+  font-family: var(--police-titre);
+  font-size: 1.15rem;
+  color: var(--bleu-nuit);
+}
+
+.labels-tuiles span {
+  font-family: var(--police-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ardoise);
 }

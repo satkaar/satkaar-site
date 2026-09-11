@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titre %}Bernard, la gestion immobilière — Satkaar{% endblock %}
+{% block description %}Bernard réunit vos biens, vos mandats et vos locataires dans un seul outil, avec un espace par métier : gestion locative, quittances, annonces et espace client.{% endblock %}
+
+{% block contenu %}
+
+<section class="entete-page">
+  <div class="contenant">
+    <p class="fil">
+      <a href="{% url 'pages:accueil' %}">Accueil</a><span>/</span><a href="{% url 'pages:logiciels' %}">Logiciels</a><span>/</span>Bernard
+    </p>
+    <p class="surtitre">Immobilier</p>
+    <h1>Bernard, votre portefeuille immobilier au complet</h1>
+    <p class="chapo">
+      La gestion immobilière, du mandat à la quittance. Un seul outil pour suivre vos biens, vos
+      mandats et vos locataires, et donner à vos clients un espace où tout retrouver.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="contenant">
+    <article class="produit">
+      <div>
+        <div class="produit__nom">
+          <h2>Portefeuille</h2>
+        </div>
+        <p class="accroche">Tous vos biens dans une seule vue</p>
+        <p>
+          Fini les dossiers éparpillés entre le tableur, la boîte courriel et le disque partagé.
+          Chaque bien porte sa fiche, son historique et ses pièces jointes.
+        </p>
+        <ul class="liste-cles">
+          <li>Fiche détaillée&nbsp;: surface, pièces, adresse, diagnostics</li>
+          <li>Statut à jour&nbsp;: disponible, sous compromis, loué</li>
+          <li>Documents rattachés au bien, pas à une conversation</li>
+        </ul>
+      </div>
+      <div class="vitrine vitrine--bernard vitrine--grande">
+        <img src="{% static 'img/produits/bernard-portefeuille.webp' %}" width="1088" height="508"
+          alt="Portefeuille dans Bernard : un appartement à Lyon loué, une maison à Villeurbanne disponible, un studio sous compromis.">
+      </div>
+    </article>
+
+    <article class="produit">
+      <div class="vitrine vitrine--bernard vitrine--grande">
+        <img src="{% static 'img/produits/bernard-loyers.webp' %}" width="1088" height="508" loading="lazy"
+          alt="Gestion locative dans Bernard : loyer d'août encaissé, 750 €, un loyer en attente, quittance de juillet envoyée.">
+      </div>
+      <div>
+        <h2>Gestion locative</h2>
+        <p class="accroche">Les loyers suivis, les quittances prêtes</p>
+        <p>
+          Le bail, le loyer, les charges et les échéances vivent au même endroit que le bien. Vous
+          voyez d'un coup d'œil ce qui est encaissé et ce qui ne l'est pas.
+        </p>
+        <ul class="liste-cles">
+          <li>Baux reliés au bien et au locataire</li>
+          <li>Suivi des loyers perçus et des retards</li>
+          <li>Quittances générées à partir des données du bail</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section--nuit">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Aux origines de Bernard</p>
+      <h2>Né d'une rencontre avec le terrain</h2>
+      <figure class="photo-lieu">
+        <img src="{% static 'img/lieux/simiane-collongue-pilon-du-roi.webp' %}" width="1200" height="725" loading="lazy"
+          alt="Le Pilon du Roi, rocher calcaire qui domine Simiane-Collongue, au sommet d'une crête du massif de l'Étoile, sous un ciel bleu.">
+        <figcaption>
+          Le Pilon du Roi, qui domine Simiane-Collongue.
+          <span class="photo-lieu__credit">Photo&nbsp;:
+            <a href="https://commons.wikimedia.org/wiki/File:Pilon-du-Roi-Massif-de-l-Etoile.jpg" rel="noopener">Lu-xin</a>,
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" rel="noopener license">CC BY-SA 4.0</a>, recadrée.</span>
+        </figcaption>
+      </figure>
+    </div>
+    <div>
+      <p class="chapo">
+        Bernard est né de la rencontre entre Damien, fondateur de Satkaar, et
+        <a class="lien-clair" href="https://www.net-patrimoine-capitaux.fr/" rel="noopener">Net Patrimoine &amp; Capitaux</a>,
+        cabinet de gestion de patrimoine installé à Simiane-Collongue, dans les Bouches-du-Rhône,
+        qui réunit l'immobilier, les placements financiers et le financement.
+      </p>
+      <p class="sans-marge">
+        L'immobilier traverse une crise profonde. Il fallait trouver des solutions pour gagner
+        du temps, et surtout pour faire parler des produits complètement différents. Les réunir
+        d'abord&nbsp;: un bien, un bail, un placement, un financement, qui vivaient jusque-là
+        dans des outils séparés. Leur donner de la visibilité ensuite, du studio à louer au
+        local commercial, de l'immeuble au viager, grâce aux annonces publiées depuis Bernard.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Un espace par métier</p>
+      <h2>Chacun ne voit que ce qui le concerne</h2>
+      <p>
+        Locataires et propriétaires retrouvent leurs biens, leurs baux, leurs quittances et leurs
+        diagnostics, et mettent à jour leurs coordonnées sans passer par vous. Les comptes
+        professionnels sont ouverts par l'agence&nbsp;: pas d'inscription libre.
+      </p>
+      <p class="sans-marge">
+        Les biens à louer et à vendre sont publiés dans un moteur d'annonces, avec filtres par
+        type, surface, budget et performance énergétique.
+      </p>
+    </div>
+    <div>
+      <ul class="domaines domaines--colonne">
+        <li><strong>Particuliers</strong> Locataire ou acquéreur, propriétaire bailleur</li>
+        <li><strong>Gestion et transaction</strong> Cabinet de gestion, cabinet de transaction, agent immobilier</li>
+        <li><strong>Partenaires</strong> Comptable, syndic, notaire, gestion de patrimoine, mandataire état des lieux</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Voir Bernard sur votre activité</h2>
+        <p>Une démonstration de trente minutes, sans engagement.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}?sujet=bernard">Demander une démonstration</a></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
