@@ -132,8 +132,8 @@
         <p>logiciels métier édités et maintenus</p>
       </div>
       <div class="bento__case bento__chiffre">
-        <p class="chiffre"><span data-compteur="2" aria-hidden="true">2</span><span class="visuellement-cache">2</span></p>
-        <p>communes équipées de Vanessa, en production</p>
+        <p class="chiffre"><span data-compteur="5" aria-hidden="true">5</span><span class="visuellement-cache">5</span></p>
+        <p>communes qui adoptent Vanessa</p>
       </div>
     </div>
   </div>
@@ -209,58 +209,10 @@
     <p class="surtitre">Ce qu'ils en disent</p>
     <h2>La parole de nos clients</h2>
 
-    {% comment %}
-      Témoignages : textes rédigés par Satkaar. À ne mettre en ligne qu'après accord écrit de
-      chaque personne citée.
-    {% endcomment %}
     <div class="grille grille--3 espace-t">
-      <figure class="verbatim">
-        <p class="verbatim__type">Conseil — relation client</p>
-        <blockquote>
-          « Satkaar a compris très vite les enjeux de la relation client dans le luxe, puis les a
-          traduits en solutions concrètes, fondées sur la donnée et l'IA. Une équipe exigeante,
-          pédagogue, qui tient ses engagements jusqu'à la mise en production. »
-        </blockquote>
-        <figcaption>
-          <span class="verbatim__avatar" aria-hidden="true">MC</span>
-          <span>
-            <strong>Matthieu Caron</strong>
-            Global Customer Care &amp; Experience Director, L'Oréal Luxe
-          </span>
-        </figcaption>
-      </figure>
-
-      <figure class="verbatim">
-        <p class="verbatim__type">Conseil — stratégie et opérations</p>
-        <blockquote>
-          « Avec Satkaar, on a en face de soi des experts de la data et de l'IA qui parlent aussi
-          le langage des opérations. Leur rigueur et leur capacité à rendre simple ce qui est
-          complexe en font des partenaires précieux sur nos missions. »
-        </blockquote>
-        <figcaption>
-          <span class="verbatim__avatar" aria-hidden="true">CL</span>
-          <span>
-            <strong>Clément Lundqvist</strong>
-            Manager, TNP Consultants — Strategy &amp; Ops, Industry &amp; Service
-          </span>
-        </figcaption>
-      </figure>
-
-      <figure class="verbatim">
-        <p class="verbatim__type">Logiciel — Bernard</p>
-        <blockquote>
-          « Nos biens, nos baux et nos clients sont enfin réunis au même endroit, et nous gagnons
-          un temps précieux au quotidien. Surtout, Satkaar a construit Bernard avec nous, à
-          l'écoute de notre métier. »
-        </blockquote>
-        <figcaption>
-          <span class="verbatim__avatar" aria-hidden="true">BD</span>
-          <span>
-            <strong>Bernard Desmar</strong>
-            Fondateur et CEO, Net Patrimoine &amp; Capitaux
-          </span>
-        </figcaption>
-      </figure>
+      {% include "partials/temoignages/matthieu_caron.html" %}
+      {% include "partials/temoignages/clement_lundqvist.html" %}
+      {% include "partials/temoignages/bernard_desmar.html" %}
     </div>
   </div>
 </section>

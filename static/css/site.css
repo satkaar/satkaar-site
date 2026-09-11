@@ -358,15 +358,15 @@ hr {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  min-height: 4.5rem;
+  min-height: 5rem;
 }
 
 .marque {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.8rem;
   font-family: var(--police-titre);
-  font-size: 1.3rem;
+  font-size: clamp(1.4rem, 2.4vw, 1.6rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--bleu-nuit);
@@ -375,8 +375,8 @@ hr {
 }
 
 .marque__signe {
-  width: 1.85rem;
-  height: 1.85rem;
+  width: clamp(2.5rem, 4.5vw, 3rem);
+  height: clamp(2.5rem, 4.5vw, 3rem);
   flex: none;
 }
 
@@ -1658,9 +1658,76 @@ a.vitrine:hover img {
 /* --- 16. En-tête de page intérieure ----------------------------------- */
 
 .entete-page {
-  background: var(--pierre);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  text-align: center;
+  background:
+    radial-gradient(38rem 26rem at 12% 0%, rgba(217, 106, 52, 0.16), transparent 70%),
+    radial-gradient(34rem 24rem at 92% 100%, rgba(30, 99, 168, 0.14), transparent 70%),
+    var(--pierre);
   border-bottom: 1px solid var(--trait);
-  padding-block: clamp(3rem, 7vw, 5rem);
+  padding-block: clamp(4rem, 9vw, 6.5rem);
+}
+
+/* Trame de points, visible au centre et fondue sur les bords. */
+.entete-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(rgba(14, 44, 75, 0.1) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 60% 70% at 50% 45%, #000 20%, transparent 75%);
+}
+
+/* Halo qui dérive lentement derrière le titre. */
+.entete-page::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 30rem;
+  height: 30rem;
+  top: -10rem;
+  left: 55%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(63, 143, 122, 0.14), transparent 65%);
+  animation: aurore 22s ease-in-out infinite alternate;
+}
+
+@keyframes aurore {
+  to {
+    transform: translate(-28rem, 9rem) scale(1.25);
+  }
+}
+
+.entete-page h1,
+.entete-page .chapo,
+.entete-page > .contenant > p {
+  margin-inline: auto;
+}
+
+.entete-page h1 {
+  max-width: 22ch;
+}
+
+.entete-page .surtitre {
+  justify-content: center;
+}
+
+/* Mot clé du titre, en dégradé terre → bleu institution. */
+.accent {
+  background: linear-gradient(95deg, var(--terre-fonce) 10%, var(--bleu-institution) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (forced-colors: active) {
+  .accent {
+    color: CanvasText;
+    background: none;
+  }
 }
 
 .fil {
@@ -2583,4 +2650,106 @@ a.vitrine:hover img {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ardoise);
+}
+
+/* --- Effets de mouvement (inspirés des sites de 2026) ------------------ */
+
+/* Apparition au défilement : posée par apparitions.js, retirée une fois l'élément arrivé. */
+.a-apparaitre {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--delai, 0ms),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1) var(--delai, 0ms);
+}
+
+.a-apparaitre.apparu {
+  opacity: 1;
+  transform: none;
+}
+
+/* Cartes qui se soulèvent au survol. */
+.carte,
+.expertise,
+.domaines li,
+.labels-tuiles li,
+.reference,
+.verbatim {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.carte:hover,
+.expertise:hover,
+.domaines li:hover,
+.labels-tuiles li:hover,
+.reference:hover,
+.verbatim:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 4px rgba(14, 44, 75, 0.04), 0 18px 36px -18px rgba(14, 44, 75, 0.35);
+  border-color: rgba(217, 106, 52, 0.45);
+}
+
+.section--nuit .expertise:hover {
+  box-shadow: 0 18px 36px -18px rgba(0, 0, 0, 0.6);
+}
+
+.expertise__icone {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.expertise:hover .expertise__icone {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+/* En-tête du site en verre dépoli. */
+.entete {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+}
+
+/* Appel à l'action : halo lumineux qui respire doucement. */
+.cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 26rem;
+  height: 26rem;
+  right: -8rem;
+  top: -12rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(217, 106, 52, 0.38), transparent 65%);
+  animation: halo-cta 9s ease-in-out infinite alternate;
+}
+
+@keyframes halo-cta {
+  to {
+    transform: translate(-6rem, 5rem) scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entete-page::after,
+  .cta::before {
+    animation: none !important;
+  }
+
+  .carte:hover,
+  .expertise:hover,
+  .domaines li:hover,
+  .labels-tuiles li:hover,
+  .reference:hover,
+  .verbatim:hover {
+    transform: none;
+  }
 }
