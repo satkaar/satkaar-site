@@ -1,0 +1,8 @@
+{% for champ in form %}
+  <div class="champ-groupe">
+    <label for="{{ champ.id_for_label }}">{{ champ.label }}</label>
+    {% if champ.errors %}<p class="erreur" id="{{ champ.auto_id }}-erreur">{{ champ.errors|join:" " }}</p>{% endif %}
+    {{ champ }}
+    {% if champ.help_text %}<div class="aide-champ">{{ champ.help_text|safe }}</div>{% endif %}
+  </div>
+{% endfor %}

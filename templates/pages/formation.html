@@ -1,7 +1,6 @@
 {% extends "base.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Formation IA et data certifiée Qualiopi | Satkaar" description="Formations en intelligence artificielle et data pour équipes et dirigeants, certifiées Qualiopi et finançables par les OPCO. Manosque et Aix-en-Provence." %}{% endblock %}
 
-{% block titre %}Formation certifiée Qualiopi — Satkaar{% endblock %}
-{% block description %}Satkaar forme vos équipes à l'intelligence artificielle, à la data et à ses logiciels métier. Organisme de formation certifié Qualiopi.{% endblock %}
 
 {% block contenu %}
 
@@ -119,6 +118,8 @@
     </div>
   </div>
 </section>
+
+{% include "partials/faq.html" %}
 
 <section class="section section--serre">
   <div class="contenant">

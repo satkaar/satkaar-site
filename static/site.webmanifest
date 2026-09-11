@@ -1,0 +1,14 @@
+{
+  "name": "Satkaar",
+  "short_name": "Satkaar",
+  "description": "Conseil en IA et data, logiciels métier et formation certifiée Qualiopi.",
+  "lang": "fr",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#ffffff",
+  "theme_color": "#0e2c4b",
+  "icons": [
+    {"src": "/static/img/partage/icone-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/img/partage/logo-satkaar.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

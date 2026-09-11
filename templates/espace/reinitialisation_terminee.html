@@ -1,0 +1,11 @@
+{% extends "espace/base_acces.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Mot de passe enregistré — Satkaar" %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block carte %}
+  <p class="surtitre">Espace client</p>
+  <h1>C'est enregistré</h1>
+  <p class="acces__intro">Votre nouveau mot de passe est actif.</p>
+  <a class="bouton bouton--primaire acces__bouton" href="{% url 'espace:connexion' %}">Se connecter</a>
+{% endblock %}

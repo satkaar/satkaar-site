@@ -1,0 +1,14 @@
+{% extends "espace/base_acces.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Lien envoyé — Satkaar" %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block carte %}
+  <p class="surtitre">Espace client</p>
+  <h1>Vérifiez votre boîte courriel</h1>
+  <p class="acces__intro">
+    Si un compte correspond à cette adresse, vous allez recevoir un lien pour choisir un nouveau
+    mot de passe. Pensez à regarder dans les indésirables.
+  </p>
+  <p class="acces__liens"><a href="{% url 'espace:connexion' %}">Retour à la connexion</a></p>
+{% endblock %}

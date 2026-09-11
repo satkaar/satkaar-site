@@ -1,10 +1,12 @@
 from django.core.cache import cache
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import formats
 from django.views.decorators.http import require_POST
 
+from . import seo
 from .forms import DemandeDemonstrationForm
 from .ia import ReformulationIndisponible, reformuler_message
 from .models import DemandeDemonstration
@@ -15,26 +17,42 @@ REFORMULATION_APPELS_MAX = 10
 REFORMULATION_FENETRE = 10 * 60  # secondes
 
 
-def _page(gabarit):
-    """Vue de contenu statique : le texte vit dans le gabarit."""
+def _page(gabarit, contexte=None):
+    """Vue de contenu statique : le texte vit dans le gabarit. `contexte(request)` fournit les
+    données de référencement propres à la page (FAQ, fil d'Ariane, fiches schema.org)."""
 
     def vue(request):
-        return render(request, gabarit)
+        return render(request, gabarit, contexte(request) if contexte else {})
 
     return vue
 
 
-accueil = _page("pages/accueil.html")
-conseil = _page("pages/conseil.html")
-formation = _page("pages/formation.html")
-logiciels = _page("pages/logiciels.html")
-isidor = _page("pages/isidor.html")
-katarina = _page("pages/katarina.html")
-vanessa = _page("pages/vanessa.html")
-bernard = _page("pages/bernard.html")
-souverainete = _page("pages/souverainete.html")
-references = _page("pages/references.html")
-a_propos = _page("pages/a_propos.html")
+def _seo(fil=(), faq=None, logiciel=None):
+    def contexte(request):
+        donnees = {"jsonld": []}
+        if fil:
+            donnees["jsonld"].append(seo.fil_ariane(request, fil))
+        if logiciel:
+            donnees["jsonld"].append(seo.logiciel(request, logiciel))
+        if faq:
+            donnees["faq"] = seo.faq(request, faq)
+            donnees["jsonld"].append(donnees["faq"]["jsonld"])
+        return donnees
+
+    return contexte
+
+
+accueil = _page("pages/accueil.html", _seo(faq="accueil"))
+conseil = _page("pages/conseil.html", _seo([("Conseil", "pages:conseil")], faq="conseil"))
+formation = _page("pages/formation.html", _seo([("Formation", "pages:formation")], faq="formation"))
+logiciels = _page("pages/logiciels.html", _seo([("Logiciels", "pages:logiciels")], faq="logiciels"))
+isidor = _page("pages/isidor.html", _seo([("Logiciels", "pages:logiciels"), ("Isidor", "pages:isidor")], logiciel="isidor"))
+katarina = _page("pages/katarina.html", _seo([("Logiciels", "pages:logiciels"), ("Katarina", "pages:katarina")], logiciel="katarina"))
+vanessa = _page("pages/vanessa.html", _seo([("Logiciels", "pages:logiciels"), ("Vanessa", "pages:vanessa")], logiciel="vanessa"))
+bernard = _page("pages/bernard.html", _seo([("Logiciels", "pages:logiciels"), ("Bernard", "pages:bernard")], logiciel="bernard"))
+souverainete = _page("pages/souverainete.html", _seo([("Souveraineté et conformité", "pages:souverainete")]))
+references = _page("pages/references.html", _seo([("Références", "pages:references")]))
+a_propos = _page("pages/a_propos.html", _seo([("À propos", "pages:a_propos")]))
 
 mentions_legales = _page("legal/mentions_legales.html")
 confidentialite = _page("legal/confidentialite.html")
@@ -109,3 +127,18 @@ def reformuler(request):
             status=503,
         )
     return JsonResponse({"texte": texte})
+
+
+def _texte(gabarit, request, **contexte):
+    contexte.setdefault("racine", request.build_absolute_uri("/"))
+    corps = render_to_string(gabarit, contexte, request=request).strip() + "\n"
+    return HttpResponse(corps, content_type="text/plain; charset=utf-8")
+
+
+def robots(request):
+    return _texte("robots.txt", request)
+
+
+def llms(request):
+    """Résumé du site pour les assistants IA (convention llms.txt)."""
+    return _texte("llms.txt", request, faq=seo.FAQ, courriel=seo.COURRIEL)

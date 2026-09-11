@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Mon espace — Satkaar" %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block contenu %}
+<section class="entete-page">
+  <div class="contenant">
+    <p class="surtitre">Espace client</p>
+    <h1>Bonjour <span class="accent">{{ user.first_name|default:user.email }}</span></h1>
+    <p class="chapo">Vos projets avec Satkaar, et tous vos documents au même endroit.</p>
+  </div>
+</section>
+
+{% include "espace/_barre.html" %}
+
+<section class="section">
+  <div class="contenant">
+    <p class="surtitre">Vos projets</p>
+    <h2>En cours et à venir</h2>
+    {% if projets_actifs %}
+      <div class="grille grille--2 espace-t">
+        {% for projet in projets_actifs %}{% include "espace/_projet.html" %}{% endfor %}
+      </div>
+    {% else %}
+      <p class="vide espace-t">Aucun projet en cours pour le moment.</p>
+    {% endif %}
+
+    {% if projets_termines %}
+      <details class="termines">
+        <summary>Projets terminés ({{ projets_termines|length }})</summary>
+        <div class="grille grille--2">
+          {% for projet in projets_termines %}{% include "espace/_projet.html" %}{% endfor %}
+        </div>
+      </details>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section section--pierre">
+  <div class="contenant">
+    <div class="entete-bloc">
+      <div>
+        <p class="surtitre">Vos documents</p>
+        <h2>Derniers documents</h2>
+      </div>
+      {% if nb_documents > 5 %}
+        <a class="lien-fleche" href="{% url 'espace:documents' %}">Voir les {{ nb_documents }} documents</a>
+      {% endif %}
+    </div>
+    {% if documents %}
+      <ul class="docs espace-t">
+        {% for document in documents %}{% include "espace/_document.html" %}{% endfor %}
+      </ul>
+    {% else %}
+      <p class="vide espace-t">Aucun document pour le moment.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section section--serre">
+  <div class="contenant">
+    <div class="cta">
+      <div>
+        <h2>Une question sur votre projet&nbsp;?</h2>
+        <p>Écrivez-nous ou appelez le 06&nbsp;34&nbsp;61&nbsp;86&nbsp;97.</p>
+      </div>
+      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Nous contacter</a></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

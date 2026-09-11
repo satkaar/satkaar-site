@@ -1,0 +1,15 @@
+{% extends "espace/base_acces.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Changer mon mot de passe — Satkaar" %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block carte %}
+  <p class="surtitre">Espace client</p>
+  <h1>Changer mon mot de passe</h1>
+  <form class="formulaire" method="post" novalidate>
+    {% csrf_token %}
+    {% include "espace/_champs.html" %}
+    <button class="bouton bouton--primaire acces__bouton" type="submit">Enregistrer</button>
+  </form>
+  <p class="acces__liens"><a href="{% url 'espace:tableau' %}">Retour à mon espace</a></p>
+{% endblock %}

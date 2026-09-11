@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Mes documents — Satkaar" %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block contenu %}
+<section class="entete-page">
+  <div class="contenant">
+    <p class="surtitre">Espace client</p>
+    <h1>Mes <span class="accent">documents</span></h1>
+    <p class="chapo">Factures, livrables et attestations, à télécharger à tout moment.</p>
+  </div>
+</section>
+
+{% include "espace/_barre.html" %}
+
+<section class="section">
+  <div class="contenant">
+    <nav class="filtres" aria-label="Filtrer par catégorie">
+      <a class="filtre" href="{% url 'espace:documents' %}"{% if not categorie %} aria-current="true"{% endif %}>Tous</a>
+      {% for valeur, libelle in categories %}
+        <a class="filtre" href="?categorie={{ valeur }}"{% if categorie == valeur %} aria-current="true"{% endif %}>{{ libelle }}</a>
+      {% endfor %}
+    </nav>
+
+    {% if documents %}
+      <ul class="docs espace-t">
+        {% for document in documents %}{% include "espace/_document.html" %}{% endfor %}
+      </ul>
+    {% else %}
+      <p class="vide espace-t">Aucun document dans cette catégorie.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

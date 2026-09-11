@@ -1,16 +1,22 @@
-{% load static %}<!DOCTYPE html>
+{% load static referencement %}<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titre %}Satkaar{% endblock %}</title>
-  <meta name="description" content="{% block description %}Satkaar réunit trois métiers : le conseil en intelligence artificielle, data et systèmes d'information, l'édition de logiciels métier et la formation, certifiée Qualiopi.{% endblock %}">
+  {% block seo %}{% include "partials/meta.html" with titre="Satkaar" %}{% endblock %}
+  <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large, max-snippet:-1{% endblock %}">
   <meta name="theme-color" content="#0e2c4b">
   <link rel="preload" href="{% static 'fonts/instrument-sans-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/inter-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
   <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'img/partage/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'site.webmanifest' %}">
+  <link rel="alternate" type="text/markdown" title="Satkaar pour les assistants IA" href="/llms.txt">
+  <script type="application/ld+json">{{ jsonld_organisation|jsonld }}</script>
+  {% for donnees in jsonld %}<script type="application/ld+json">{{ donnees|jsonld }}</script>
+  {% endfor %}
   <script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
@@ -33,6 +39,17 @@
         {% url 'pages:logiciels' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% elif u in request.path %}aria-current="true"{% endif %}>Logiciels</a>
         {% url 'pages:references' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>Références</a>
         {% url 'pages:a_propos' as u %}<a class="nav__lien" href="{{ u }}" {% if request.path == u %}aria-current="page"{% endif %}>À propos</a>
+        {% if user.is_authenticated %}
+          <a class="nav__compte" href="{% url 'espace:tableau' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            Mon espace
+          </a>
+        {% else %}
+          <a class="nav__compte" href="{% url 'espace:connexion' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            Connexion
+          </a>
+        {% endif %}
         <a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Nous contacter</a>
       </nav>
     </div>

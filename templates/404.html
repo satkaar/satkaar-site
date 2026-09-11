@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Page introuvable — Satkaar" %}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+
+{% block contenu %}
+<section class="entete-page">
+  <div class="contenant">
+    <p class="surtitre">Erreur 404</p>
+    <h1>Cette page <span class="accent">n'existe pas</span></h1>
+    <p class="chapo">Elle a peut-être été déplacée. Voici où trouver ce que vous cherchez.</p>
+    <div class="groupe-boutons" style="justify-content:center">
+      <a class="bouton bouton--primaire" href="{% url 'pages:accueil' %}">Retour à l'accueil</a>
+      <a class="bouton bouton--contour" href="{% url 'pages:contact' %}">Nous contacter</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -2753,3 +2753,436 @@ a.vitrine:hover img {
     transform: none;
   }
 }
+
+/* --- Espace client ------------------------------------------------------ */
+
+.nav__compte {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--bleu-nuit);
+  text-decoration: none;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  background: rgba(255, 255, 255, 0.6);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.nav__compte svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.nav__compte:hover {
+  border-color: var(--bleu-nuit);
+  color: var(--bleu-nuit);
+}
+
+/* Écrans d'accès : une carte centrée sur le fond « aurore ». */
+.acces {
+  text-align: left;
+  min-height: calc(100vh - 5rem);
+  display: grid;
+  align-items: center;
+}
+
+.acces__carte {
+  max-width: 28rem;
+  margin-inline: auto;
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--trait);
+  border-radius: 16px;
+  box-shadow: 0 30px 60px -30px rgba(14, 44, 75, 0.35);
+}
+
+.acces__carte .surtitre {
+  justify-content: flex-start;
+}
+
+.acces__carte h1 {
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  margin-bottom: 0.4rem;
+}
+
+.acces__intro {
+  color: var(--ardoise);
+  margin-bottom: 1.5rem;
+}
+
+.acces__bouton {
+  width: 100%;
+  justify-content: center;
+}
+
+.acces__liens {
+  margin: 1.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+.acces__note {
+  margin: 1.25rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--trait);
+  font-size: 0.88rem;
+  color: var(--ardoise);
+}
+
+.aide-champ {
+  font-size: 0.8rem;
+  color: var(--ardoise);
+}
+
+.aide-champ ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.1rem;
+}
+
+/* Barre de navigation de l'espace client. */
+.barre-espace {
+  border-bottom: 1px solid var(--trait);
+  background: var(--blanc);
+}
+
+.barre-espace__interieur {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+}
+
+.barre-espace__lien {
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ardoise);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.95rem 0;
+  cursor: pointer;
+}
+
+.barre-espace__lien:hover,
+.barre-espace__lien[aria-current] {
+  color: var(--bleu-nuit);
+  border-bottom-color: var(--terre);
+}
+
+.barre-espace__sortie {
+  margin-left: auto;
+}
+
+/* Projets du client. */
+.projet-client {
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.projet-client__haut {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.projet-client__type {
+  font-family: var(--police-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terre-fonce);
+}
+
+.statut {
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+}
+
+.statut--en_cours {
+  background: rgba(30, 99, 168, 0.1);
+  color: var(--bleu-institution);
+}
+
+.statut--a_venir {
+  background: rgba(217, 106, 52, 0.12);
+  color: var(--terre-appui);
+}
+
+.statut--termine {
+  background: rgba(63, 143, 122, 0.12);
+  color: var(--olivier-fonce);
+}
+
+.projet-client h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.avancement {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avancement__barre {
+  flex: 1;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--pierre-ombree);
+  overflow: hidden;
+}
+
+.avancement__barre span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--terre), var(--bleu-institution));
+}
+
+.avancement__valeur {
+  font-family: var(--police-mono);
+  font-size: 0.82rem;
+  color: var(--bleu-nuit);
+}
+
+.projet-client__etape {
+  margin: 1rem 0 0;
+  font-size: 0.95rem;
+}
+
+.projet-client__etape span {
+  display: block;
+  font-family: var(--police-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ardoise);
+}
+
+.projet-client__dates {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ardoise);
+}
+
+.termines {
+  margin-top: 2rem;
+}
+
+.termines summary {
+  cursor: pointer;
+  font-family: var(--police-titre);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.vide {
+  color: var(--ardoise);
+}
+
+.entete-bloc {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+/* Documents du client. */
+.docs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.doc {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+  padding: 0.9rem 1.1rem;
+}
+
+.doc__icone {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  background: var(--pierre);
+  color: var(--ardoise);
+}
+
+.doc__icone svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.doc__icone--facture {
+  color: var(--terre-fonce);
+  background: rgba(217, 106, 52, 0.1);
+}
+
+.doc__icone--livrable {
+  color: var(--bleu-institution);
+  background: rgba(30, 99, 168, 0.1);
+}
+
+.doc__icone--attestation {
+  color: var(--olivier-fonce);
+  background: rgba(63, 143, 122, 0.12);
+}
+
+.doc__texte {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+.doc__texte span {
+  font-size: 0.85rem;
+  color: var(--ardoise);
+}
+
+.doc__telecharger {
+  flex: none;
+  font-family: var(--police-titre);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+}
+
+.doc__telecharger:hover {
+  border-color: var(--bleu-institution);
+}
+
+@media (max-width: 560px) {
+  .doc {
+    flex-wrap: wrap;
+  }
+}
+
+.filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filtre {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--bleu-nuit);
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+}
+
+.filtre[aria-current] {
+  background: var(--bleu-nuit);
+  border-color: var(--bleu-nuit);
+  color: var(--blanc);
+}
+
+/* --- Questions fréquentes --------------------------------------------- */
+
+.faq-grille {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .faq-grille {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.faq-grille__note {
+  color: var(--ardoise);
+}
+
+.faq {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.faq__item {
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon-carte);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.faq__item[open] {
+  border-color: rgba(217, 106, 52, 0.45);
+  box-shadow: 0 14px 30px -20px rgba(14, 44, 75, 0.35);
+}
+
+.faq__item summary {
+  position: relative;
+  list-style: none;
+  cursor: pointer;
+  padding: 1.05rem 3rem 1.05rem 1.2rem;
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: var(--bleu-nuit);
+}
+
+.faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq__item summary::after {
+  content: "+";
+  position: absolute;
+  right: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--terre-fonce);
+  transition: transform 0.25s ease;
+}
+
+.faq__item[open] summary::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.faq__item p {
+  margin: 0;
+  padding: 0 1.2rem 1.15rem;
+  color: var(--ardoise);
+}

@@ -1,0 +1,21 @@
+<article class="projet-client">
+  <div class="projet-client__haut">
+    <span class="projet-client__type">{{ projet.get_type_display }}</span>
+    <span class="statut statut--{{ projet.statut }}">{{ projet.get_statut_display }}</span>
+  </div>
+  <h3>{{ projet.titre }}</h3>
+  <div class="avancement">
+    <div class="avancement__barre" role="progressbar" aria-valuenow="{{ projet.avancement }}" aria-valuemin="0" aria-valuemax="100" aria-label="Avancement de {{ projet.titre }}">
+      <span style="width: {{ projet.avancement }}%"></span>
+    </div>
+    <span class="avancement__valeur">{{ projet.avancement }}&nbsp;%</span>
+  </div>
+  {% if projet.prochaine_etape %}
+    <p class="projet-client__etape"><span>Prochaine étape</span>{{ projet.prochaine_etape }}</p>
+  {% endif %}
+  {% if projet.debut or projet.fin %}
+    <p class="projet-client__dates">
+      {% if projet.debut %}{% if projet.statut == "a_venir" %}Début le{% else %}Depuis le{% endif %} {{ projet.debut|date:"j F Y" }}{% endif %}{% if projet.debut and projet.fin %} · {% endif %}{% if projet.fin %}fin prévue le {{ projet.fin|date:"j F Y" }}{% endif %}
+    </p>
+  {% endif %}
+</article>

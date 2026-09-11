@@ -1,0 +1,31 @@
+{% extends "espace/base_acces.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Connexion à votre espace client — Satkaar" description="Connexion à l'espace client Satkaar : vos projets, vos documents, vos factures." %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block carte %}
+  <p class="surtitre">Espace client</p>
+  <h1>Connexion</h1>
+  <p class="acces__intro">Retrouvez vos projets, vos documents et vos factures.</p>
+
+  {% if form.non_field_errors %}
+    <div class="confirmation confirmation--erreur" role="alert">
+      <p class="sans-marge">{{ form.non_field_errors|join:" " }}</p>
+    </div>
+  {% endif %}
+
+  <form class="formulaire" method="post" novalidate>
+    {% csrf_token %}
+    {% include "espace/_champs.html" %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="bouton bouton--primaire acces__bouton" type="submit">Se connecter</button>
+  </form>
+
+  <p class="acces__liens">
+    <a href="{% url 'espace:reinitialisation' %}">Mot de passe oublié&nbsp;?</a>
+  </p>
+  <p class="acces__note">
+    Pas encore de compte&nbsp;? Les accès sont ouverts par Satkaar à ses clients.
+    <a href="{% url 'pages:contact' %}">Contactez-nous</a>.
+  </p>
+{% endblock %}

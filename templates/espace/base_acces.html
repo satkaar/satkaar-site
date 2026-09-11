@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% comment %}Écrans de connexion et de mot de passe : une carte centrée sur fond « aurore ».{% endcomment %}
+
+{% block contenu %}
+<section class="entete-page acces">
+  <div class="contenant">
+    <div class="acces__carte">
+      {% block carte %}{% endblock %}
+    </div>
+  </div>
+</section>
+{% endblock %}

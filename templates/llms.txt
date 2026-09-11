@@ -1,0 +1,36 @@
+{% autoescape off %}
+# Satkaar
+
+> Satkaar est un groupe français présent à Manosque (Alpes-de-Haute-Provence) et à Aix-en-Provence (Bouches-du-Rhône). Il réunit trois métiers : le conseil en intelligence artificielle, data et systèmes d'information ; l'édition de quatre logiciels métier (Isidor, Katarina, Vanessa, Bernard) ; et la formation, certifiée Qualiopi.
+
+Fondateur : Damien Marque, ingénieur Grenoble INP – Ensimag.
+Contact : {{ courriel }} · 06 34 61 86 97 · 67 chemin Auguste Girard, 04100 Manosque.
+
+## Conseil
+
+- [Conseil en IA, data et systèmes d'information]({{ racine }}conseil/) : dix expertises — stratégie et feuille de route, intelligence artificielle, data, architecture SI, tech, ML engineering, prédiction, gouvernance et conformité (RGPD, règlement européen sur l'IA), cybersécurité, conduite du changement.
+
+## Formation
+
+- [Formation certifiée Qualiopi]({{ racine }}formation/) : IA et data au quotidien, pilotage de projet IA ou data, prise en main des logiciels. Finançable notamment par les OPCO. Sur site ou à distance.
+
+## Logiciels
+
+- [Isidor]({{ racine }}logiciels/isidor/) : assistant agricole à la voix pour les agriculteurs (irrigation, charges, traçabilité, équipe, conformité). 29,90 € HT par mois et par exploitation + 0,33 € HT par hectare et par mois. Données hébergées en France.
+- [Katarina]({{ racine }}logiciels/katarina/) : logiciel des chambres d'agriculture (suivi des tâches, saisie optimisée).
+- [Vanessa]({{ racine }}logiciels/vanessa/) : application des mairies (signalements, réservation de salle, suivi des démarches). En finalisation de tests à Forcalquier et Manosque, en déploiement à Pierrevert, Villeneuve et Sisteron.
+- [Bernard]({{ racine }}logiciels/bernard/) : gestion immobilière du mandat à la quittance (portefeuille, gestion locative, annonces, espace par métier).
+
+## Questions fréquentes
+{% for cle, questions in faq.items %}{% for question, reponse in questions %}
+### {{ question }}
+
+{{ reponse }}
+{% endfor %}{% endfor %}
+## Pages
+
+- [Accueil]({{ racine }})
+- [Références]({{ racine }}references/)
+- [À propos]({{ racine }}a-propos/)
+- [Contact]({{ racine }}contact/)
+{% endautoescape %}

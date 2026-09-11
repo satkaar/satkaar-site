@@ -91,3 +91,60 @@ class PagesDuGroupeTests(TestCase):
     def test_sujet_inconnu_ignore(self):
         page = self.client.get(reverse("pages:contact") + "?sujet=pirate")
         self.assertContains(page, '<option value="" selected>')
+
+
+class ReferencementTests(TestCase):
+    PAGES = ["accueil", "conseil", "formation", "logiciels", "isidor", "katarina", "vanessa",
+             "bernard", "references", "a_propos", "contact"]
+
+    def html(self, nom):
+        return self.client.get(reverse(f"pages:{nom}")).content.decode()
+
+    def test_titres_uniques_et_balises_essentielles(self):
+        import re
+        titres = set()
+        for nom in self.PAGES:
+            with self.subTest(page=nom):
+                html = self.html(nom)
+                titres.add(re.search(r"<title>(.*?)</title>", html, re.S).group(1))
+                self.assertEqual(len(re.findall(r"<h1[ >]", html)), 1)
+                self.assertIn('<link rel="canonical"', html)
+                self.assertIn('<meta property="og:image"', html)
+                self.assertIn('name="description"', html)
+        self.assertEqual(len(titres), len(self.PAGES))
+
+    def test_donnees_structurees_valides(self):
+        import json
+        import re
+        attendus = {"accueil": "FAQPage", "conseil": "FAQPage", "isidor": "SoftwareApplication",
+                    "vanessa": "SoftwareApplication", "a_propos": "BreadcrumbList"}
+        for nom, type_attendu in attendus.items():
+            with self.subTest(page=nom):
+                blocs = re.findall(r'<script type="application/ld\+json">(.*?)</script>', self.html(nom), re.S)
+                donnees = [json.loads(b) for b in blocs]
+                types = {d.get("@type") for d in donnees} | {g["@type"] for d in donnees for g in d.get("@graph", [])}
+                self.assertIn("Organization", types)
+                self.assertIn(type_attendu, types)
+
+    def test_faq_affichee_correspond_aux_donnees_structurees(self):
+        from . import seo
+        html = self.html("formation")
+        for question, reponse in seo.FAQ["formation"]:
+            self.assertIn(question.replace("'", "&#x27;"), html)
+
+    def test_robots_sitemap_llms(self):
+        robots = self.client.get("/robots.txt").content.decode()
+        self.assertIn("Disallow: /espace/", robots)
+        self.assertIn("User-agent: GPTBot", robots)
+        self.assertIn("sitemap.xml", robots)
+        sitemap = self.client.get("/sitemap.xml").content.decode()
+        self.assertIn("/logiciels/isidor/", sitemap)
+        self.assertNotIn("/espace/", sitemap)
+        llms = self.client.get("/llms.txt").content.decode()
+        self.assertTrue(llms.startswith("# Satkaar"))
+        self.assertIn("Qualiopi", llms)
+        self.assertNotIn("&#x27;", llms)
+
+    def test_espace_client_hors_index(self):
+        html = self.client.get(reverse("espace:connexion")).content.decode()
+        self.assertIn('content="noindex, nofollow"', html)

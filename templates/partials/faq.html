@@ -1,0 +1,18 @@
+{% comment %}FAQ visible de la page. Les mêmes questions sont déclarées en FAQPage (schema.org) : source unique, pages/seo.py.{% endcomment %}
+<section class="section faq-section" aria-labelledby="titre-faq">
+  <div class="contenant faq-grille">
+    <div>
+      <p class="surtitre">Questions fréquentes</p>
+      <h2 id="titre-faq">Vos questions, nos réponses</h2>
+      <p class="faq-grille__note">Une autre question&nbsp;? <a href="{% url 'pages:contact' %}">Écrivez-nous</a>.</p>
+    </div>
+    <div class="faq">
+      {% for question, reponse in faq.questions %}
+        <details class="faq__item"{% if forloop.first %} open{% endif %}>
+          <summary>{{ question }}</summary>
+          <p>{{ reponse }}</p>
+        </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>

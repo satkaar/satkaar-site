@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     'pages',
+    'espace',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'pages.context_processors.referencement',
             ],
         },
     },
@@ -131,3 +134,22 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# --- Espace client -----------------------------------------------------------
+# Connexion par courriel ; le ModelBackend reste pour l'administration (nom d'utilisateur).
+AUTHENTICATION_BACKENDS = [
+    'espace.backends.ConnexionParCourriel',
+    'django.contrib.auth.backends.ModelBackend',
+]
+LOGIN_URL = 'espace:connexion'
+LOGIN_REDIRECT_URL = 'espace:tableau'
+
+# Documents des clients : hors de tout dossier servi publiquement.
+ESPACE_DOCUMENTS_ROOT = BASE_DIR / 'documents_prives'
+
+DEFAULT_FROM_EMAIL = 'Satkaar <contact@satkaar.io>'
+
+# En production, les cookies de session ne circulent qu'en HTTPS.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True

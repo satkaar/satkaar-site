@@ -1,0 +1,20 @@
+{% extends "espace/base_acces.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Nouveau mot de passe — Satkaar" %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block carte %}
+  <p class="surtitre">Espace client</p>
+  {% if validlink %}
+    <h1>Nouveau mot de passe</h1>
+    <form class="formulaire" method="post" novalidate>
+      {% csrf_token %}
+      {% include "espace/_champs.html" %}
+      <button class="bouton bouton--primaire acces__bouton" type="submit">Enregistrer</button>
+    </form>
+  {% else %}
+    <h1>Lien expiré</h1>
+    <p class="acces__intro">Ce lien a déjà servi ou n'est plus valable. Demandez-en un nouveau.</p>
+    <p class="acces__liens"><a href="{% url 'espace:reinitialisation' %}">Recevoir un nouveau lien</a></p>
+  {% endif %}
+{% endblock %}

@@ -1,7 +1,6 @@
 {% extends "base.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Logiciels métier : Isidor, Katarina, Vanessa, Bernard | Satkaar" description="Quatre logiciels métier : Isidor pour les agriculteurs, Katarina pour les chambres d'agriculture, Vanessa pour les mairies, Bernard pour l'immobilier." %}{% endblock %}
 
-{% block titre %}Nos logiciels — Satkaar{% endblock %}
-{% block description %}Quatre logiciels métier édités par Satkaar : Isidor pour les agriculteurs, Katarina pour les chambres d'agriculture, Vanessa pour les mairies, Bernard pour l'immobilier.{% endblock %}
 
 {% block contenu %}
 
@@ -40,6 +39,8 @@
     </div>
   </div>
 </section>
+
+{% include "partials/faq.html" %}
 
 <section class="section section--serre">
   <div class="contenant">

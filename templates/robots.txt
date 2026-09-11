@@ -1,0 +1,27 @@
+{% autoescape off %}
+# Satkaar — tous les robots sont les bienvenus sur les pages publiques,
+# y compris ceux des moteurs de réponse par IA.
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /espace/
+Disallow: /contact/reformuler/
+
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bingbot
+User-agent: MistralAI-User
+Allow: /
+Disallow: /admin/
+Disallow: /espace/
+
+Sitemap: {{ racine }}sitemap.xml
+{% endautoescape %}

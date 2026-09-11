@@ -1,0 +1,16 @@
+{% extends "espace/base_acces.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Mot de passe oublié — Satkaar" %}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+
+{% block carte %}
+  <p class="surtitre">Espace client</p>
+  <h1>Mot de passe oublié</h1>
+  <p class="acces__intro">Indiquez votre courriel : nous vous envoyons un lien pour choisir un nouveau mot de passe.</p>
+  <form class="formulaire" method="post" novalidate>
+    {% csrf_token %}
+    {% include "espace/_champs.html" %}
+    <button class="bouton bouton--primaire acces__bouton" type="submit">Recevoir le lien</button>
+  </form>
+  <p class="acces__liens"><a href="{% url 'espace:connexion' %}">Retour à la connexion</a></p>
+{% endblock %}

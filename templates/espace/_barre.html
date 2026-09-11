@@ -1,0 +1,12 @@
+{% comment %}Navigation de l'espace client, sous l'en-tête de page.{% endcomment %}
+<nav class="barre-espace" aria-label="Espace client">
+  <div class="contenant barre-espace__interieur">
+    {% url 'espace:tableau' as u %}<a class="barre-espace__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>Tableau de bord</a>
+    {% url 'espace:documents' as u %}<a class="barre-espace__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>Documents</a>
+    <a class="barre-espace__lien" href="{% url 'espace:mot_de_passe' %}">Mot de passe</a>
+    <form class="barre-espace__sortie" method="post" action="{% url 'espace:deconnexion' %}">
+      {% csrf_token %}
+      <button class="barre-espace__lien" type="submit">Se déconnecter</button>
+    </form>
+  </div>
+</nav>

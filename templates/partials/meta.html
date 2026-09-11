@@ -1,0 +1,24 @@
+{% comment %}
+  Balises de référencement d'une page, à partir d'un seul titre et d'une seule description :
+  titre, description, adresse canonique, aperçus de partage (Open Graph, X).
+  Paramètres : titre, description, et en option image (chemin statique, 1200 × 630).
+{% endcomment %}
+{% load static %}
+{% static image|default:"img/partage/satkaar-partage.png" as chemin_image %}
+<title>{{ titre }}</title>
+<meta name="description" content="{{ description|default:'Satkaar : conseil en IA et data, logiciels métier et formation certifiée Qualiopi, à Manosque et Aix-en-Provence.' }}">
+<link rel="canonical" href="{{ url_canonique }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Satkaar">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="{{ titre }}">
+<meta property="og:description" content="{{ description|default:'Conseil en IA et data, logiciels métier et formation certifiée Qualiopi.' }}">
+<meta property="og:url" content="{{ url_canonique }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ chemin_image }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Satkaar — conseil en IA et data, logiciels métier, formation">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ titre }}">
+<meta name="twitter:description" content="{{ description|default:'Conseil en IA et data, logiciels métier et formation certifiée Qualiopi.' }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ chemin_image }}">

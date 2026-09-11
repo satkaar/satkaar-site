@@ -1,7 +1,6 @@
 {% extends "base.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Conseil en IA et data à Manosque et Aix-en-Provence | Satkaar" description="Cabinet de conseil en intelligence artificielle, data et systèmes d'information à Manosque et Aix-en-Provence : stratégie, MLOps, prédiction, conformité IA." %}{% endblock %}
 
-{% block titre %}Conseil en IA, data et systèmes d'information — Satkaar{% endblock %}
-{% block description %}Stratégie, intelligence artificielle, data, architecture SI, tech, ML engineering, prédiction, gouvernance et conformité, cybersécurité, conduite du changement : dix ans de projets data et IA en grande entreprise.{% endblock %}
 
 {% block contenu %}
 
@@ -73,6 +72,28 @@
     </ol>
   </div>
 </section>
+
+<section class="section section--pierre">
+  <div class="contenant territoire territoire--haut">
+    <div>
+      <p class="surtitre">Près de chez vous</p>
+      <h2>Conseil en IA à Manosque, Aix-en-Provence et en Provence</h2>
+    </div>
+    <div>
+      <p>
+        Nos consultants travaillent depuis Manosque, dans les Alpes-de-Haute-Provence, et depuis
+        Aix-en-Provence, dans les Bouches-du-Rhône. Nous accompagnons les entreprises, les
+        collectivités et les exploitations de la région Sud, dans nos bureaux ou directement chez
+        vous.
+      </p>
+      <p class="sans-marge">
+        <a class="lien-fleche" href="{% url 'pages:contact' %}?sujet=conseil">Prendre rendez-vous</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+{% include "partials/faq.html" %}
 
 <section class="section section--serre">
   <div class="contenant">

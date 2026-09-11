@@ -1,0 +1,12 @@
+<li class="doc">
+  <span class="doc__icone doc__icone--{{ document.categorie }}" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+  </span>
+  <span class="doc__texte">
+    <strong>{{ document.titre }}</strong>
+    <span>{{ document.get_categorie_display }}{% if document.projet %} · {{ document.projet.titre }}{% endif %} · {{ document.ajoute_le|date:"j F Y" }}</span>
+  </span>
+  <a class="doc__telecharger" href="{% url 'espace:telecharger' document.pk %}">
+    Télécharger<span class="visuellement-cache"> {{ document.titre }}</span>
+  </a>
+</li>

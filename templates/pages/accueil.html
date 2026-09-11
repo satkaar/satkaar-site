@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
+{% block seo %}{% include "partials/meta.html" with titre="Satkaar | Conseil en IA et data, logiciels métier, formation" description="Satkaar, à Manosque et Aix-en-Provence : conseil en IA et data, logiciels métier (Isidor, Katarina, Vanessa, Bernard) et formation certifiée Qualiopi." %}{% endblock %}
 
-{% block titre %}Satkaar — conseil en IA et data, édition de logiciels métier{% endblock %}
-{% block description %}Le groupe Satkaar réunit trois métiers : le conseil en intelligence artificielle, data et architecture des systèmes d'information, la formation certifiée Qualiopi, et l'édition de quatre logiciels métier : Isidor, Katarina, Vanessa et Bernard.{% endblock %}
 
 {% block contenu %}
 
@@ -216,6 +215,8 @@
     </div>
   </div>
 </section>
+
+{% include "partials/faq.html" %}
 
 <section class="section section--serre">
   <div class="contenant">
