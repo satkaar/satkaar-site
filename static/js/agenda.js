@@ -32,3 +32,15 @@
     borner();
   }
 })();
+
+// Grille semaine / jour : elle s'ouvre deux heures avant l'heure actuelle (aujourd'hui),
+// sinon au début des heures de bureau, comme dans le CRM.
+(function () {
+  var defilement = document.querySelector(".agenda__defilement");
+  if (!defilement) return;
+  var creneau = defilement.querySelector(".agenda__creneau");
+  var hauteurHeure = creneau ? creneau.getBoundingClientRect().height : 48;
+  var maintenant = defilement.querySelector("[data-maintenant]");
+  var ouverture = parseInt(defilement.dataset.ouverture || "7", 10) * hauteurHeure;
+  defilement.scrollTop = maintenant ? Math.max(0, maintenant.offsetTop - 2 * hauteurHeure) : ouverture;
+})();

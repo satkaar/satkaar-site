@@ -1,6 +1,7 @@
 {% extends "agenda/base_agenda.html" %}
 
 {% block agenda %}
+<div class="agenda__page">
 <header class="courriel__entete">
   <div><h2>{% if instance %}Modifier l'événement{% else %}Nouvel événement{% endif %}</h2></div>
 </header>
@@ -45,4 +46,5 @@
     <a class="courriel__bouton courriel__bouton--discret" href="{% if instance %}{% url 'agenda:evenement' instance.pk %}{% else %}{% url 'agenda:semaine' %}{% endif %}">Annuler</a>
   </div>
 </form>
+</div>
 {% endblock %}

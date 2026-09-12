@@ -23,48 +23,71 @@ def _jour(annee, mois, jour=1):
         raise Http404 from None
 
 
-def _colonne(reference, lundi=None):
-    """Colonne de gauche : mini-calendrier du mois, légende et prochains rendez-vous."""
+def _aware(jour):
+    return timezone.make_aware(datetime.combine(jour, time(0)))
+
+
+def _colonne(reference, vue):
+    """Colonne de gauche (comme le CRM) : nouvel événement, mini-calendrier et légende.
+    La référence sert aussi au sélecteur Mois / Semaine / Jour du bandeau."""
     maintenant = timezone.localtime()
     premier = reference.replace(day=1)
     precedent, suivant = calendrier.mois_voisins(premier.year, premier.month)
-    debut = timezone.make_aware(datetime.combine(calendrier.lundi_de(premier), time(0)))
-    trouves = calendrier.elements(debut, debut + timedelta(days=42))
-    prochains = [e for e in calendrier.elements(maintenant, maintenant + timedelta(days=60))
-                 if e.fin > maintenant and not e.fait][:6]
+    debut = _aware(calendrier.lundi_de(premier))
     return {
-        "mini": calendrier.grille_mois(premier.year, premier.month, trouves, maintenant.date(), lundi),
+        "mini": calendrier.grille_mois(premier.year, premier.month, calendrier.elements(debut, debut + timedelta(days=42)),
+                                       maintenant.date()),
         "mini_mois": premier, "mini_precedent": precedent, "mini_suivant": suivant,
-        "categories": calendrier.CATEGORIES, "prochains": prochains, "aujourdhui": maintenant.date(),
+        "categories": calendrier.CATEGORIES, "aujourdhui": maintenant.date(), "reference": reference, "vue": vue,
     }
-
-
-@equipe
-def semaine(request, annee=None, mois=None, jour=None):
-    maintenant = timezone.localtime()
-    reference = _jour(annee, mois, jour) if annee else maintenant.date()
-    lundi = calendrier.lundi_de(reference)
-    debut = timezone.make_aware(datetime.combine(lundi, time(0)))
-    jours = calendrier.semaine(lundi, calendrier.elements(debut, debut + timedelta(days=7)), maintenant)
-    return render(request, "agenda/semaine.html", {
-        **_colonne(reference, lundi), "vue": "semaine", "jours": jours, "lundi": lundi, "dimanche": lundi + timedelta(days=6),
-        "precedente": lundi - timedelta(days=7), "suivante": lundi + timedelta(days=7),
-        "heures": range(calendrier.HEURE_DEBUT, calendrier.HEURE_FIN),
-        "a_journee": any(j["journee"] for j in jours),
-    })
 
 
 @equipe
 def mois(request, annee=None, mois=None):
     maintenant = timezone.localtime()
     premier = _jour(annee, mois) if annee else maintenant.date().replace(day=1)
-    debut = timezone.make_aware(datetime.combine(calendrier.lundi_de(premier), time(0)))
-    trouves = calendrier.elements(debut, debut + timedelta(days=42))
+    debut = _aware(calendrier.lundi_de(premier))
     precedent, suivant = calendrier.mois_voisins(premier.year, premier.month)
+    reference = maintenant.date() if (premier.year, premier.month) == (maintenant.year, maintenant.month) else premier
     return render(request, "agenda/mois.html", {
-        **_colonne(premier), "vue": "mois", "premier": premier, "precedent": precedent, "suivant": suivant,
-        "semaines": calendrier.grille_mois(premier.year, premier.month, trouves, maintenant.date()),
+        **_colonne(reference, "mois"), "premier": premier, "precedent": precedent, "suivant": suivant,
+        "semaines": calendrier.grille_mois(premier.year, premier.month,
+                                           calendrier.elements(debut, debut + timedelta(days=42)), maintenant.date()),
     })
+
+
+def _grille(request, vue, reference):
+    """Vue semaine (7 colonnes) ou jour (1 colonne), heure par heure."""
+    maintenant = timezone.localtime()
+    nb = 7 if vue == "semaine" else 1
+    premier = calendrier.lundi_de(reference) if nb == 7 else reference
+    debut = _aware(premier)
+    jours = calendrier.colonnes(premier, nb, calendrier.elements(debut, debut + timedelta(days=nb)), maintenant)
+    dernier = premier + timedelta(days=nb - 1)
+    if nb == 1:
+        titre = formater_date(premier, "l j F Y")
+    elif premier.month == dernier.month:
+        titre = f"{premier.day} – {formater_date(dernier, 'j F Y')}"
+    else:
+        titre = f"{formater_date(premier, 'j F')} – {formater_date(dernier, 'j F Y')}"
+    return render(request, "agenda/grille.html", {
+        **_colonne(reference, vue), "jours": jours, "titre": titre, "nb_jours": nb,
+        "precedent": premier - timedelta(days=nb), "suivant": premier + timedelta(days=nb),
+        "navigation": "agenda:semaine_du" if nb == 7 else "agenda:jour_du",
+        "heures": range(calendrier.HEURE_DEBUT, calendrier.HEURE_FIN), "ouverture": calendrier.HEURE_OUVERTURE,
+        "a_journee": any(j["journee"] for j in jours),
+        "fuseau": "GMT" + formater_date(maintenant, "O")[:3],
+    })
+
+
+@equipe
+def semaine(request, annee=None, mois=None, jour=None):
+    return _grille(request, "semaine", _jour(annee, mois, jour) if annee else timezone.localdate())
+
+
+@equipe
+def jour(request, annee=None, mois=None, jour=None):
+    return _grille(request, "jour", _jour(annee, mois, jour) if annee else timezone.localdate())
 
 
 def _invitation(evenement):
@@ -91,7 +114,7 @@ def evenement(request, pk):
     element = get_object_or_404(Evenement.objects.prefetch_related("participants"), pk=pk)
     debut = timezone.localtime(element.debut)
     return render(request, "agenda/evenement.html", {
-        **_colonne(debut.date(), calendrier.lundi_de(debut.date())), "vue": "semaine", "evenement": element,
+        **_colonne(debut.date(), "jour"), "evenement": element,
         "invitation": _invitation(element), "debut": debut, "fin": timezone.localtime(element.fin),
         "fin_affichee": timezone.localtime(element.fin) - (timedelta(days=1) if element.journee_entiere else timedelta()),
     })
@@ -124,18 +147,18 @@ def editer(request, pk=None):
             initial.update({"heure_debut": heure, "heure_fin": (datetime.combine(date.today(), heure) + timedelta(hours=1)).time(),
                             "participants": [request.user.pk]})
         form = EvenementForm(instance=instance, initial=initial)
-    reference = timezone.localtime(instance.debut).date() if instance else timezone.localdate()
-    return render(request, "agenda/editer.html", {**_colonne(reference), "vue": "semaine", "form": form, "instance": instance})
+    reference = timezone.localtime(instance.debut).date() if instance else form.initial.get("date_debut", timezone.localdate())
+    return render(request, "agenda/editer.html", {**_colonne(reference, "jour"), "form": form, "instance": instance})
 
 
 @equipe
 @require_POST
 def supprimer(request, pk):
     element = get_object_or_404(Evenement, pk=pk)
-    jour = timezone.localtime(element.debut).date()
+    jour_evenement = timezone.localtime(element.debut).date()
     element.delete()
     messages.success(request, f"« {element.titre} » a été retiré de l'agenda.")
-    return redirect("agenda:semaine_du", jour.year, jour.month, jour.day)
+    return redirect("agenda:semaine_du", jour_evenement.year, jour_evenement.month, jour_evenement.day)
 
 
 @equipe

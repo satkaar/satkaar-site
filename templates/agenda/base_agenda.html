@@ -1,78 +1,56 @@
 {% extends "espace/base_app.html" %}
 {% comment %}
-  Agenda partagé de l'équipe, sur le modèle du CRM : colonne à gauche (nouvel événement,
-  mini-calendrier, légende, à venir), semaine ou mois à droite.
+  Agenda partagé de l'équipe, calqué sur l'agenda du CRM Vanessa : sélecteur Mois / Semaine / Jour
+  dans le bandeau, colonne plate à gauche (nouvel événement, mini-calendrier), grille pleine hauteur.
 {% endcomment %}
 {% block seo %}{% include "partials/meta.html" with titre="Agenda — Satkaar" %}{% endblock %}
 {% block classe_app %} app--stats app--agenda{% endblock %}
 {% block titre_page %}Agenda{% endblock %}
 {% block sous_titre_page %}Agenda partagé de l'équipe et rappels demandés sur le site{% endblock %}
+{% block actions_page %}
+  <nav class="agenda__vues" aria-label="Affichage de l'agenda">
+    <a href="{% url 'agenda:mois_de' reference.year reference.month %}"{% if vue == "mois" %} aria-current="true"{% endif %}>Mois</a>
+    <a href="{% url 'agenda:semaine_du' reference.year reference.month reference.day %}"{% if vue == "semaine" %} aria-current="true"{% endif %}>Semaine</a>
+    <a href="{% url 'agenda:jour_du' reference.year reference.month reference.day %}"{% if vue == "jour" %} aria-current="true"{% endif %}>Jour</a>
+  </nav>
+{% endblock %}
 
 {% block contenu %}
 <div class="agenda">
   <aside class="agenda__colonne" aria-label="Navigation de l'agenda">
-    <a class="courriel__ecrire" href="{% url 'agenda:ajouter' %}">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>
+    <a class="agenda__nouveau" href="{% url 'agenda:ajouter' %}?date={{ reference|date:'Y-m-d' }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v16M4 12h16"/></svg>
       Nouvel événement
     </a>
 
     <section class="mini" aria-label="Calendrier de {{ mini_mois|date:'F Y' }}">
       <div class="mini__tete">
-        <a href="{% url 'agenda:semaine_du' mini_precedent.year mini_precedent.month 1 %}" aria-label="Mois précédent">‹</a>
+        <a href="{% url 'agenda:mois_de' mini_precedent.year mini_precedent.month %}" aria-label="Mois précédent"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg></a>
         <strong>{{ mini_mois|date:"F Y"|capfirst }}</strong>
-        <a href="{% url 'agenda:semaine_du' mini_suivant.year mini_suivant.month 1 %}" aria-label="Mois suivant">›</a>
+        <a href="{% url 'agenda:mois_de' mini_suivant.year mini_suivant.month %}" aria-label="Mois suivant"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 6 6 6-6 6"/></svg></a>
       </div>
-      <table>
-        <thead><tr>{% for j in "LMMJVSD" %}<th scope="col" aria-hidden="true">{{ j }}</th>{% endfor %}</tr></thead>
-        <tbody>
-          {% for sem in mini %}
-            <tr>
-              {% for j in sem %}
-                <td class="{% if j.hors_mois %}mini__hors{% endif %}{% if j.dans_semaine %} mini__semaine{% endif %}">
-                  <a href="{% url 'agenda:semaine_du' j.date.year j.date.month j.date.day %}"{% if j.aujourdhui %} class="mini__aujourdhui" aria-current="date"{% endif %}
-                     aria-label="{{ j.date|date:'l j F' }}{% if j.elements %}, {{ j.elements|length }} élément{{ j.elements|length|pluralize }}{% endif %}">
-                    {{ j.date.day }}{% if j.elements %}<span class="mini__point" aria-hidden="true"></span>{% endif %}
-                  </a>
-                </td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="mini__grille">
+        {% for j in "LMMJVSD" %}<span class="mini__jour-semaine" aria-hidden="true">{{ j }}</span>{% endfor %}
+        {% for sem in mini %}{% for j in sem %}
+          <a class="mini__jour{% if j.hors_mois %} mini__jour--hors{% endif %}{% if j.aujourdhui %} mini__jour--aujourdhui{% endif %}{% if j.date == reference and vue != 'mois' %} mini__jour--choisi{% endif %}"
+             href="{% url 'agenda:jour_du' j.date.year j.date.month j.date.day %}"{% if j.aujourdhui %} aria-current="date"{% endif %}
+             aria-label="{{ j.date|date:'l j F' }}{% if j.elements %}, {{ j.elements|length }} élément{{ j.elements|length|pluralize }}{% endif %}">{{ j.date.day }}{% if j.elements %}<span class="mini__point" aria-hidden="true"></span>{% endif %}</a>
+        {% endfor %}{% endfor %}
+      </div>
     </section>
 
-    <section class="agenda__legende" aria-label="Légende">
-      <h2>Catégories</h2>
+    <section class="agenda__legende" aria-label="Catégories">
       <ul>
         {% for cle, valeur in categories.items %}
           <li><span class="agenda__pastille agenda--{{ cle }}" aria-hidden="true"></span>{{ valeur.0 }}</li>
         {% endfor %}
       </ul>
     </section>
-
-    <section class="agenda__prochains" aria-label="À venir">
-      <h2>À venir</h2>
-      {% if prochains %}
-        <ul>
-          {% for e in prochains %}
-            <li>
-              <a class="agenda--{{ e.categorie }}" href="{{ e.url }}">
-                <span class="agenda__prochain-date">{% if e.debut.date == aujourdhui %}Aujourd'hui{% else %}{{ e.debut|date:"D j M"|capfirst }}{% endif %} · {{ e.horaire }}</span>
-                <strong>{{ e.titre }}</strong>
-                {% if e.detail %}<span>{{ e.detail }}</span>{% endif %}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>Rien de prévu dans les 60 prochains jours.</p>
-      {% endif %}
-    </section>
   </aside>
 
   <div class="agenda__principal">
     {% if messages %}
-      <div class="courriel__messages" role="status">
+      <div class="agenda__messages" role="status">
         {% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}
       </div>
     {% endif %}

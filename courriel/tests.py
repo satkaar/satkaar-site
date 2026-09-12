@@ -276,6 +276,11 @@ class VuesTests(Base):
         self.client.force_login(self.equipe)
         reponse = self.client.get(reverse("espace:tableau"))
         self.assertContains(reponse, reverse("courriel:boite"))
-        self.assertContains(reponse, '<span class="app__compteur">1</span>')
+        self.assertContains(reponse, '<span class="app__compteur">1<span class="visuellement-cache"> non lu</span></span>', html=False)
         self.client.force_login(self.client_site)
         self.assertNotContains(self.client.get(reverse("espace:tableau")), reverse("courriel:boite"))
+
+    def test_ancienne_adresse_redirigee(self):
+        self.client.force_login(self.equipe)
+        reponse = self.client.get(f"/espace/courriels/{self.recu.pk}/?images=1")
+        self.assertRedirects(reponse, f"/espace/mail/{self.recu.pk}/?images=1", status_code=301)

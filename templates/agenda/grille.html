@@ -1,0 +1,61 @@
+{% extends "agenda/base_agenda.html" %}
+{% load l10n %}
+
+{% block agenda %}
+{% url navigation precedent.year precedent.month precedent.day as url_precedent %}
+{% url navigation suivant.year suivant.month suivant.day as url_suivant %}
+{% if nb_jours == 7 %}{% url 'agenda:semaine' as url_aujourdhui %}{% else %}{% url 'agenda:jour' as url_aujourdhui %}{% endif %}
+{% if nb_jours == 7 %}
+  {% include "agenda/_navigation.html" with libelle_precedent="Semaine précédente" libelle_suivant="Semaine suivante" %}
+{% else %}
+  {% include "agenda/_navigation.html" with libelle_precedent="Jour précédent" libelle_suivant="Jour suivant" %}
+{% endif %}
+
+<div class="agenda__grille" style="--nb-jours: {{ nb_jours }}">
+  <div class="agenda__tetes">
+    <a class="agenda__coin agenda__coin--ajout" href="{% url 'agenda:ajouter' %}?date={{ jours.0.date|date:'Y-m-d' }}" title="Nouvel événement" aria-label="Nouvel événement">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v16M4 12h16"/></svg>
+    </a>
+    {% for j in jours %}
+      <a class="agenda__tete{% if j.aujourdhui %} agenda__tete--aujourdhui{% endif %}" href="{% url 'agenda:jour_du' j.date.year j.date.month j.date.day %}" aria-label="Voir le {{ j.date|date:'l j F' }}">
+        <span>{{ j.date|date:"D" }}.</span><strong>{{ j.date.day }}</strong>
+      </a>
+    {% endfor %}
+  </div>
+
+  <div class="agenda__rangee-journee">
+    <span class="agenda__coin">{{ fuseau }}</span>
+    {% for j in jours %}
+      <div>
+        {% for e in j.journee %}
+          <a class="agenda__puce agenda--{{ e.categorie }}{% if e.fait %} agenda__evt--fait{% endif %}" href="{{ e.url }}" title="{{ e.categorie_libelle }} · {{ e.titre }}"><span>{{ e.titre }}</span></a>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="agenda__defilement" data-ouverture="{{ ouverture }}">
+    {% localize off %}
+    <div class="agenda__corps" style="--nb-heures: {{ heures|length }}">
+      <div class="agenda__heures" aria-hidden="true">
+        {% for h in heures %}<span>{% if h %}{{ h|stringformat:"02d" }}:00{% endif %}</span>{% endfor %}
+      </div>
+      {% for j in jours %}
+        <div class="agenda__jour{% if j.aujourdhui %} agenda__jour--aujourdhui{% endif %}">
+          {% for h in heures %}<a class="agenda__creneau" href="{% url 'agenda:ajouter' %}?date={{ j.date|date:'Y-m-d' }}&amp;heure={{ h|stringformat:'02d' }}:00" tabindex="-1" aria-hidden="true"></a>{% endfor %}
+          {% for p in j.placements %}
+            <a class="agenda__evt agenda--{{ p.element.categorie }}{% if p.element.fait %} agenda__evt--fait{% endif %}{% if p.hauteur_pct < 2.2 %} agenda__evt--court{% endif %}" href="{{ p.element.url }}"
+               style="top: {{ p.haut_pct }}%; height: calc({{ p.hauteur_pct }}% - 2px); left: calc({{ p.gauche_pct }}% + 3px); width: calc({{ p.largeur_pct }}% - 6px)"
+               title="{{ p.element.categorie_libelle }} · {{ p.debut|time:'H:i' }} – {{ p.fin|time:'H:i' }} · {{ p.element.titre }}">
+              <strong>{{ p.element.titre }}</strong>
+              <span>De {{ p.debut|time:"H:i" }} à {{ p.fin|time:"H:i" }}{% if p.element.lieu %} · {{ p.element.lieu }}{% elif p.element.detail %} · {{ p.element.detail }}{% endif %}{% if p.element.visio %} · Visio{% endif %}</span>
+            </a>
+          {% endfor %}
+          {% if j.repere is not None %}<div class="agenda__maintenant" style="top: {{ j.repere }}%" data-maintenant><span class="visuellement-cache">Maintenant</span></div>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    {% endlocalize %}
+  </div>
+</div>
+{% endblock %}

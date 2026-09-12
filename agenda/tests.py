@@ -27,7 +27,8 @@ class AgendaTests(TestCase):
     def test_reserve_a_l_equipe(self):
         self.assertEqual(self.client.get(reverse("agenda:semaine")).status_code, 302)
         self.client.force_login(self.client_site)
-        for url in (reverse("agenda:semaine"), reverse("agenda:mois"), reverse("agenda:evenement", args=[self.rdv.pk])):
+        for url in (reverse("agenda:semaine"), reverse("agenda:mois"), reverse("agenda:jour"),
+                    reverse("agenda:evenement", args=[self.rdv.pk])):
             self.assertEqual(self.client.get(url).status_code, 404)
 
     def test_semaine_affiche_evenements_et_rappels(self):
@@ -37,7 +38,7 @@ class AgendaTests(TestCase):
         page = self.client.get(reverse("agenda:semaine"))
         self.assertContains(page, "Comité de pilotage Vanessa")
         self.assertContains(page, "Rappeler Claire Robin")
-        self.assertContains(page, "10:00 – 11:30")
+        self.assertContains(page, "De 10:00 à 11:30")
 
     def test_chevauchements_cote_a_cote(self):
         a = calendrier.Element("A", "interne", moment(self.lundi, 9), moment(self.lundi, 11), "/a")
@@ -45,7 +46,7 @@ class AgendaTests(TestCase):
         c = calendrier.Element("C", "interne", moment(self.lundi, 13), moment(self.lundi, 14), "/c")
         places = calendrier._placer([(e, e.debut, e.fin) for e in (a, b, c)], moment(self.lundi, 0))
         self.assertEqual([(p["voie"], p["voies"]) for p in places], [(0, 2), (1, 2), (0, 1)])
-        self.assertEqual(places[0]["haut_pct"], round(2 * 60 / (14 * 60) * 100, 3))
+        self.assertEqual(places[0]["haut_pct"], 37.5)  # 9 h sur une grille de 24 h
 
     def test_creation_avec_visio_et_participants(self):
         self.client.force_login(self.equipe)
@@ -100,6 +101,16 @@ class AgendaTests(TestCase):
     def test_liens_dans_la_barre_laterale(self):
         self.client.force_login(self.equipe)
         page = self.client.get(reverse("espace:tableau"))
-        self.assertContains(page, reverse("agenda:semaine"))
+        self.assertContains(page, reverse("agenda:mois"))
         self.assertContains(page, "<span>Mail</span>")
-        self.assertContains(page, "Communication")
+        for libelle in ("Tableau de bord", "Statistiques", "<span>Agenda</span>"):
+            self.assertContains(page, libelle)
+        self.assertNotContains(page, "Communication")
+
+    def test_vue_jour_et_selecteur(self):
+        self.client.force_login(self.equipe)
+        page = self.client.get(reverse("agenda:jour_du", args=[self.lundi.year, self.lundi.month, self.lundi.day]))
+        self.assertContains(page, "Comité de pilotage Vanessa")
+        self.assertContains(page, "--nb-jours: 1")
+        self.assertContains(page, 'aria-current="true">Jour</a>')
+        self.assertContains(self.client.get(reverse("agenda:mois")), 'aria-current="true">Mois</a>')

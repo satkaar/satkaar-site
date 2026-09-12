@@ -1,6 +1,7 @@
 {% extends "agenda/base_agenda.html" %}
 
 {% block agenda %}
+<div class="agenda__page">
 <div class="courriel__barre-outils">
   <a class="courriel__bouton courriel__bouton--discret" href="{% url 'agenda:semaine_du' debut.year debut.month debut.day %}">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Semaine
@@ -51,4 +52,5 @@
 
   <p class="agenda__trace">Ajouté{% if evenement.cree_par %} par {{ evenement.cree_par.get_full_name|default:evenement.cree_par.email }}{% endif %} le {{ evenement.cree_le|date:"j F Y" }}.</p>
 </article>
+</div>
 {% endblock %}

@@ -12,7 +12,8 @@ from pages.models import DemandeDemonstration
 
 from .models import Evenement
 
-HEURE_DEBUT, HEURE_FIN = 7, 21  # plage affichée dans la grille de la semaine
+HEURE_DEBUT, HEURE_FIN = 0, 24  # la grille couvre la journée ; elle s'ouvre sur les heures de bureau
+HEURE_OUVERTURE = 7
 DUREE_MIN = 30  # minutes : un créneau plus court reste lisible
 
 # Une couleur par catégorie ; la catégorie est toujours écrite à côté (légende, info-bulle, détail).
@@ -117,10 +118,13 @@ def _placer(creneaux, debut_jour):
     return places
 
 
-def semaine(lundi, trouves, maintenant):
+def colonnes(premier, nb_jours, trouves, maintenant):
+    """Colonnes de la vue semaine (7 jours) ou jour (1 jour) : journées entières à part,
+    créneaux positionnés sur 24 heures, repère de l'heure actuelle."""
+    maintenant_local = timezone.localtime(maintenant)
     jours = []
-    for i in range(7):
-        jour = lundi + timedelta(days=i)
+    for i in range(nb_jours):
+        jour = premier + timedelta(days=i)
         debut_jour, fin_jour = _aware(jour), _aware(jour + timedelta(days=1))
         journee, creneaux = [], []
         for e in trouves:
@@ -130,7 +134,6 @@ def semaine(lundi, trouves, maintenant):
                 journee.append(e)
             else:
                 creneaux.append((e, max(e.debut, debut_jour), min(e.fin, fin_jour)))
-        maintenant_local = timezone.localtime(maintenant)
         repere = None
         if jour == maintenant_local.date() and HEURE_DEBUT <= maintenant_local.hour < HEURE_FIN:
             minutes = (maintenant_local.hour - HEURE_DEBUT) * 60 + maintenant_local.minute
