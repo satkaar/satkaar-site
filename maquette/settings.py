@@ -47,6 +47,9 @@ ALLOWED_HOSTS = [
 SITE_URL = _env('SITE_URL').rstrip('/')
 CSRF_TRUSTED_ORIGINS = [o for o in [SITE_URL, *_env('CSRF_TRUSTED_ORIGINS').split(',')] if o.startswith('http')]
 
+# Préproduction (preprod.satkaar.io) : interdite aux moteurs, pour ne pas doubler satkaar.io.
+NOINDEX = _vrai(_env('DJANGO_NOINDEX', defaut='false'))
+
 
 # Application definition
 
@@ -70,6 +73,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # Fichiers statiques servis par l'application elle-même (compressés, en cache longue durée).
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'maquette.middleware.pas_d_indexation',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

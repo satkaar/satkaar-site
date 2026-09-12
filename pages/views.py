@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -139,6 +140,8 @@ def _texte(gabarit, request, **contexte):
 
 
 def robots(request):
+    if settings.NOINDEX:
+        return HttpResponse("User-agent: *\nDisallow: /\n", content_type="text/plain; charset=utf-8")
     return _texte("robots.txt", request)
 
 

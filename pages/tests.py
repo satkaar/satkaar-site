@@ -196,3 +196,17 @@ class CreneauxBranchesSurLAgendaTests(TestCase):
         reponse = self.envoyer("11:00")
         self.assertRedirects(reponse, f"{self.url}?envoye=1", fetch_redirect_response=False)
         self.assertContains(self.envoyer("11:00"), "Ce créneau vient d&#x27;être réservé")
+
+
+class PreproductionTests(TestCase):
+    def test_indexation_autorisee_par_defaut(self):
+        reponse = self.client.get(reverse("robots"))
+        self.assertNotIn("Disallow: /\n", reponse.content.decode())
+        self.assertNotIn("X-Robots-Tag", reponse.headers)
+
+    def test_preproduction_interdite_aux_moteurs(self):
+        from django.test import override_settings
+
+        with override_settings(NOINDEX=True):
+            self.assertEqual(self.client.get(reverse("robots")).content.decode(), "User-agent: *\nDisallow: /\n")
+            self.assertEqual(self.client.get(reverse("pages:accueil"))["X-Robots-Tag"], "noindex, nofollow")
