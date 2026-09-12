@@ -1,0 +1,22 @@
+# Rien de local ni de secret dans l'image : la production démarre sur ses propres
+# données (volume persistant /data) et reçoit ses secrets par l'environnement.
+.git
+.github
+.gitignore
+.dockerignore
+.env
+.env.*
+.venv
+venv/
+__pycache__/
+*.py[cod]
+db.sqlite3
+db.sqlite3-*
+documents_prives/
+staticfiles/
+media/
+.idea/
+.vscode/
+.DS_Store
+*.log
+Dockerfile

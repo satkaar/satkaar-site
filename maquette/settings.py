@@ -17,18 +17,35 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
+def _env(*noms, defaut=''):
+    """Première variable d'environnement définie parmi `noms` (ex. DJANGO_DEBUG puis DEBUG,
+    le nom utilisé par le chart Helm de la plateforme Kapsule)."""
+    return next((os.environ[n] for n in noms if os.environ.get(n) not in (None, '')), defaut)
 
-# En développement, une clé de repli est utilisée. En production, définir
-# DJANGO_SECRET_KEY et DJANGO_DEBUG=0 dans l'environnement.
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or 'django-insecure-ft==8jo7myn=o_bbxuu_8q!jeek_a__tw8pe=b3bp6!vqfx5n('
 
-DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
+def _vrai(valeur):
+    return str(valeur).strip().lower() in ('1', 'true', 'yes', 'on', 'oui')
+
+
+# En développement, une clé de repli est utilisée. En production (conteneur), la clé et
+# DEBUG=False viennent de l'environnement ; sans clé, le conteneur refuse de démarrer.
+DEBUG = _vrai(_env('DJANGO_DEBUG', 'DEBUG', defaut='1'))
+
+SECRET_KEY = _env('DJANGO_SECRET_KEY', 'SECRET_KEY')
+if not SECRET_KEY:
+    if not DEBUG:
+        from django.core.exceptions import ImproperlyConfigured
+
+        raise ImproperlyConfigured('DJANGO_SECRET_KEY est obligatoire quand DEBUG est désactivé.')
+    SECRET_KEY = 'django-insecure-ft==8jo7myn=o_bbxuu_8q!jeek_a__tw8pe=b3bp6!vqfx5n('
 
 ALLOWED_HOSTS = [
-    h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if h
+    h.strip() for h in _env('DJANGO_ALLOWED_HOSTS', 'ALLOWED_HOSTS').split(',') if h.strip()
 ] or (['localhost', '127.0.0.1'] if DEBUG else [])
+
+# Adresse publique (https://satkaar.io) : origine de confiance pour les formulaires POST.
+SITE_URL = _env('SITE_URL').rstrip('/')
+CSRF_TRUSTED_ORIGINS = [o for o in [SITE_URL, *_env('CSRF_TRUSTED_ORIGINS').split(',')] if o.startswith('http')]
 
 
 # Application definition
@@ -51,6 +68,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Fichiers statiques servis par l'application elle-même (compressés, en cache longue durée).
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,12 +103,24 @@ WSGI_APPLICATION = 'maquette.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# SQLite par défaut ; en production, le fichier vit sur le volume persistant (DJANGO_DB_PATH,
+# ex. /data/db.sqlite3). DATABASE_URL (Postgres de la plateforme) prend le pas s'il est défini.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': _env('DJANGO_DB_PATH', defaut=str(BASE_DIR / 'db.sqlite3')),
+        'OPTIONS': {
+            # WAL : lectures et écritures simultanées (site + relève du mail) sans « database is locked ».
+            'init_command': 'PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;',
+            'transaction_mode': 'IMMEDIATE',
+            'timeout': 20,
+        },
     }
 }
+if _env('DATABASE_URL'):
+    import dj_database_url
+
+    DATABASES['default'] = dj_database_url.parse(_env('DATABASE_URL'), conn_max_age=600, conn_health_checks=True)
 
 
 # Password validation
@@ -130,15 +161,42 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# En production, noms de fichiers versionnés (cache d'un an) et versions compressées.
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
+        else 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# Envoi réel (mots de passe oubliés…) dès qu'un serveur SMTP est configuré, sinon console.
+# Pour la boîte OVH : EMAIL_HOST=ssl0.ovh.net, EMAIL_PORT=465, EMAIL_USE_SSL=true.
+if _env('EMAIL_HOST'):
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+            'OPTIONS': {
+                'host': _env('EMAIL_HOST'),
+                'port': int(_env('EMAIL_PORT', defaut='465')),
+                'username': _env('EMAIL_HOST_USER'),
+                'password': _env('EMAIL_HOST_PASSWORD'),
+                'use_ssl': _vrai(_env('EMAIL_USE_SSL', defaut='true')),
+                'use_tls': _vrai(_env('EMAIL_USE_TLS', defaut='false')),
+                'timeout': 20,
+            },
+        },
+    }
+else:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        },
+    }
 
 # --- Espace client -----------------------------------------------------------
 # Connexion par courriel ; le ModelBackend reste pour l'administration (nom d'utilisateur).
@@ -149,15 +207,32 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = 'espace:connexion'
 LOGIN_REDIRECT_URL = 'espace:tableau'
 
-# Documents des clients : hors de tout dossier servi publiquement.
-ESPACE_DOCUMENTS_ROOT = BASE_DIR / 'documents_prives'
+# Documents des clients et pièces jointes du Mail : hors de tout dossier servi publiquement.
+# En production, sur le volume persistant (ex. /data/documents_prives).
+ESPACE_DOCUMENTS_ROOT = Path(_env('ESPACE_DOCUMENTS_ROOT', defaut=str(BASE_DIR / 'documents_prives')))
 
-DEFAULT_FROM_EMAIL = 'Satkaar <contact@satkaar.io>'
+DEFAULT_FROM_EMAIL = _env('DEFAULT_FROM_EMAIL', defaut='Satkaar <contact@satkaar.io>')
 
 # Chiffrement des mots de passe des boîtes mail (clé Fernet). Sans elle, clé dérivée de SECRET_KEY.
 COURRIEL_CLE = os.environ.get('COURRIEL_CLE', '')
 
-# En production, les cookies de session ne circulent qu'en HTTPS.
+# --- Production (derrière l'Ingress NGINX qui termine le HTTPS) ------------------------------
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    # L'Ingress transmet le protocole d'origine : Django sait que la requête est en HTTPS.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = _vrai(_env('SECURE_SSL_REDIRECT', defaut='true'))
+    SECURE_HSTS_SECONDS = int(_env('SECURE_HSTS_SECONDS', defaut='31536000'))
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Journaux sur la sortie standard (lus par kubectl logs).
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {'simple': {'format': '{levelname} {name} {message}', 'style': '{'}},
+    'handlers': {'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'}},
+    'root': {'handlers': ['console'], 'level': 'INFO' if not DEBUG else 'WARNING'},
+    'loggers': {'django': {'handlers': ['console'], 'level': 'INFO', 'propagate': False}},
+}

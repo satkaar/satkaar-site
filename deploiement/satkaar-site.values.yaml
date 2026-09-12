@@ -1,0 +1,65 @@
+# Valeurs Helm proposées pour satkaar/platform › helm/values/satkaar-site.yaml.
+# Différence avec la version actuelle (« SQLite éphémère ») : le site porte désormais des
+# données à garder (espace client, contacts, mail, agenda, statistiques) → volume persistant.
+
+nameOverride: satkaar-site
+fullnameOverride: satkaar-site
+
+image:
+  repository: rg.fr-par.scw.cloud/mairie-agglo-platform/satkaar-site
+  tag: latest
+
+# Un seul pod : le volume ReadWriteOnce ne se monte pas sur deux pods à la fois.
+replicaCount: 1
+strategy:
+  type: Recreate
+
+# La base SQLite et les fichiers privés vivent sur /data (volume persistant).
+persistence:
+  enabled: true
+  size: 5Gi
+  mountPath: /data
+
+# L'image tourne en utilisateur 1001 : le volume doit lui être accessible en écriture.
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: OnRootMismatch
+
+ingress:
+  host: satkaar.io
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    # Pièces jointes du Mail (20 Mo au total par envoi).
+    nginx.ingress.kubernetes.io/proxy-body-size: "25m"
+
+env:
+  DEBUG: "False"
+  ALLOWED_HOSTS: "satkaar.io"
+  SITE_URL: "https://satkaar.io"
+  GUNICORN_WORKERS: "2"
+  PORT: "8080"
+  DJANGO_DB_PATH: "/data/db.sqlite3"
+  ESPACE_DOCUMENTS_ROOT: "/data/documents_prives"
+  # Envoi des mails du site (mot de passe oublié…) par la boîte OVH.
+  EMAIL_HOST: "ssl0.ovh.net"
+  EMAIL_PORT: "465"
+  EMAIL_USE_SSL: "true"
+  EMAIL_HOST_USER: "contact@satkaar.io"
+  DEFAULT_FROM_EMAIL: "Satkaar <contact@satkaar.io>"
+
+# Pas de Postgres : pas de DATABASE_URL.
+envFromSecrets: null
+
+# Secret applicatif (voir DEPLOIEMENT.md) : DJANGO_SECRET_KEY, COURRIEL_CLE,
+# ANTHROPIC_API_KEY, EMAIL_HOST_PASSWORD.
+envFromSecretRefs:
+  - name: satkaar-site-secrets
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

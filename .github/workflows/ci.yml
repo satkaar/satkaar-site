@@ -1,0 +1,86 @@
+# Intégration continue du site Satkaar : à chaque push et pull request, on vérifie
+# la configuration Django, les migrations, les tests et la syntaxe des scripts.
+name: CI
+
+on:
+  push:
+    branches: [main, maquette-satkaar]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Un nouveau push sur la même branche annule la vérification précédente, devenue inutile.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  django:
+    name: Django (vérifications et tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DJANGO_SECRET_KEY: cle-de-test-uniquement-pour-la-ci
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+
+      - name: Vérifier la configuration
+        run: python manage.py check
+
+      - name: Vérifier qu'aucune migration ne manque
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Lancer les tests
+        run: python manage.py test --verbosity 2
+
+  javascript:
+    name: JavaScript (syntaxe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Vérifier la syntaxe des scripts
+        run: |
+          for fichier in static/js/*.js; do
+            node --check "$fichier"
+          done
+
+  docker:
+    name: Image Docker (construction et démarrage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Construire l'image
+        run: docker build -t satkaar-site:ci .
+
+      - name: Démarrer le conteneur et tester la page d'accueil
+        run: |
+          docker run -d --name site -p 8080:8080 \
+            -e ALLOWED_HOSTS=satkaar.io -e SITE_URL=https://satkaar.io \
+            -e DJANGO_SECRET_KEY=cle-de-test-uniquement-pour-la-ci satkaar-site:ci
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: satkaar.io" -H "X-Forwarded-Proto: https" http://127.0.0.1:8080/ || true)
+            [ "$code" = "200" ] && { echo "Page d'accueil : HTTP 200"; exit 0; }
+            sleep 2
+          done
+          docker logs site
+          exit 1

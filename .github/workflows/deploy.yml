@@ -1,0 +1,34 @@
+# Construction de l'image et déploiement sur la plateforme Kapsule (satkaar/platform).
+#   - branche preprod          → https://preprod.satkaar.io (automatique)
+#   - lancement manuel « prod » → https://satkaar.io
+# Prérequis dans ce dépôt (Settings › Secrets and variables › Actions) : voir DEPLOIEMENT.md.
+
+name: Déploiement (Kapsule)
+
+on:
+  push:
+    branches: [preprod]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environnement cible
+        type: choice
+        options: [preprod, prod]
+        default: preprod
+
+permissions:
+  contents: read
+  security-events: write  # rapport Trivy du job de scan
+
+jobs:
+  deploy:
+    uses: satkaar/platform/.github/workflows/reusable-deploy.yml@main
+    secrets: inherit
+    with:
+      app-name: satkaar-site
+      # Le workflow commun transmet toujours ce build-arg : le laisser vide casserait gunicorn.
+      wsgi-module: maquette.wsgi
+      prod-host: satkaar.io
+      preprod-host: preprod.satkaar.io
+      smoke-path: "/"
+      require-db: false
