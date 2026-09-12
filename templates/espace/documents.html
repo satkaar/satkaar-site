@@ -1,35 +1,30 @@
-{% extends "base.html" %}
+{% extends "espace/base_app.html" %}
 {% block seo %}{% include "partials/meta.html" with titre="Mes documents — Satkaar" %}{% endblock %}
-{% block robots %}noindex, nofollow{% endblock %}
-
 
 {% block contenu %}
-<section class="entete-page">
-  <div class="contenant">
-    <p class="surtitre">Espace client</p>
-    <h1>Mes <span class="accent">documents</span></h1>
-    <p class="chapo">Factures, livrables et attestations, à télécharger à tout moment.</p>
-  </div>
-</section>
+<header class="app__entete">
+  <p class="app__surtitre">Documents</p>
+  <h1>Mes documents</h1>
+  <p>Factures, livrables et attestations, à télécharger à tout moment.</p>
+</header>
 
-{% include "espace/_barre.html" %}
+<section class="app__section">
+  <nav class="filtres" aria-label="Filtrer par catégorie">
+    <a class="filtre" href="{% url 'espace:documents' %}"{% if not categorie %} aria-current="true"{% endif %}>Tous</a>
+    {% for valeur, libelle in categories %}
+      <a class="filtre" href="?categorie={{ valeur }}"{% if categorie == valeur %} aria-current="true"{% endif %}>{{ libelle }}</a>
+    {% endfor %}
+  </nav>
 
-<section class="section">
-  <div class="contenant">
-    <nav class="filtres" aria-label="Filtrer par catégorie">
-      <a class="filtre" href="{% url 'espace:documents' %}"{% if not categorie %} aria-current="true"{% endif %}>Tous</a>
-      {% for valeur, libelle in categories %}
-        <a class="filtre" href="?categorie={{ valeur }}"{% if categorie == valeur %} aria-current="true"{% endif %}>{{ libelle }}</a>
-      {% endfor %}
-    </nav>
-
-    {% if documents %}
-      <ul class="docs espace-t">
-        {% for document in documents %}{% include "espace/_document.html" %}{% endfor %}
-      </ul>
-    {% else %}
-      <p class="vide espace-t">Aucun document dans cette catégorie.</p>
-    {% endif %}
-  </div>
+  {% if documents %}
+    <ul class="docs espace-t">
+      {% for document in documents %}{% include "espace/_document.html" %}{% endfor %}
+    </ul>
+  {% else %}
+    <div class="app__vide espace-t">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+      <p>Aucun document dans cette catégorie.</p>
+    </div>
+  {% endif %}
 </section>
 {% endblock %}

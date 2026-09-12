@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% comment %}
+  Gabarit des pages connectées de l'espace client : barre latérale bleu nuit à gauche, contenu
+  aéré à droite. L'en-tête et le pied de page du site ne s'affichent pas ici.
+{% endcomment %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block page %}
+<div class="app">
+  <aside class="app__barre">
+    <a class="app__marque" href="{% url 'espace:tableau' %}">
+      {% include "partials/signe.html" %}
+      <span>Satkaar<small>Espace client</small></span>
+    </a>
+
+    <nav class="app__nav" aria-label="Espace client">
+      {% url 'espace:tableau' as u %}
+      <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/></svg>
+        Tableau de bord
+      </a>
+      {% url 'espace:documents' as u %}
+      <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+        Documents
+      </a>
+      {% if user.is_staff %}
+        {% url 'espace:statistiques' as u %}
+        <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+          Statistiques
+        </a>
+      {% endif %}
+      {% url 'espace:mot_de_passe' as u %}
+      <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M16 6l3 3M18.5 3.5l2 2"/></svg>
+        Mot de passe
+      </a>
+    </nav>
+
+    <details class="app__compte">
+      <summary class="app__utilisateur" aria-label="Menu du compte de {{ user.get_full_name|default:user.email }}">
+        <span class="app__initiales" aria-hidden="true">{{ user.first_name|first|default:"?" }}{{ user.last_name|first }}</span>
+        <span class="app__identite">
+          <strong>{{ user.get_full_name|default:user.email }}</strong>
+          <span>{{ user.email }}</span>
+        </span>
+        <svg class="app__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 15 5-5 5 5"/></svg>
+      </summary>
+      <div class="app__menu">
+        <form method="post" action="{% url 'espace:deconnexion' %}">
+          {% csrf_token %}
+          <button class="app__menu-action" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>
+            Se déconnecter
+          </button>
+        </form>
+      </div>
+    </details>
+  </aside>
+
+  <main class="app__contenu" id="contenu">
+    {% block contenu %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {% load static %}
+  <script src="{% static 'js/espace.js' %}" defer></script>
+{% endblock %}

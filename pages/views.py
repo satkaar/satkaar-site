@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils import formats
 from django.views.decorators.http import require_POST
 
+from mesure.models import Evenement
+
 from . import seo
 from .forms import DemandeDemonstrationForm
 from .ia import ReformulationIndisponible, reformuler_message
@@ -126,6 +128,7 @@ def reformuler(request):
             {"erreur": "La reformulation est indisponible pour le moment. Votre message est conservé."},
             status=503,
         )
+    Evenement.objects.create(type=Evenement.Type.REFORMULATION, chemin=reverse("pages:contact"))
     return JsonResponse({"texte": texte})
 
 

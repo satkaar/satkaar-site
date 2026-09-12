@@ -4,6 +4,8 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 
+from mesure.models import Evenement
+
 from .forms import ChangementMotDePasseForm, ConnexionForm, NouveauMotDePasseForm, ReinitialisationForm
 from .models import Document, Projet
 
@@ -52,6 +54,7 @@ def documents(request):
 def telecharger(request, pk):
     # Le filtre sur le client fait qu'un document d'autrui répond « introuvable ».
     document = get_object_or_404(Document, pk=pk, client=request.user)
+    Evenement.objects.create(type=Evenement.Type.TELECHARGEMENT, chemin=request.path, cible=document.get_categorie_display())
     return FileResponse(document.fichier.open("rb"), as_attachment=True, filename=document.nom_fichier)
 
 

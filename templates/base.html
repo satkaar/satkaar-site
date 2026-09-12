@@ -22,6 +22,7 @@
 <body>
   <a class="lien-evitement" href="#contenu">Aller au contenu principal</a>
 
+  {% block page %}
   <header class="entete">
     <div class="contenant entete__interieur">
       <a class="marque" href="{% url 'pages:accueil' %}">
@@ -60,9 +61,11 @@
   </main>
 
   {% include "partials/pied.html" %}
+  {% endblock %}
 
   <script src="{% static 'js/menu.js' %}" defer></script>
   <script src="{% static 'js/apparitions.js' %}" defer></script>
+  <script src="{% static 'js/mesure.js' %}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

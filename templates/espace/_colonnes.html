@@ -1,0 +1,27 @@
+{% comment %}Colonnes d'une seule série (une couleur). Chaque colonne a sa zone de survol et se lit aussi au clavier.{% endcomment %}
+{% load l10n statistiques %}
+<div class="stats__carte graphe" data-graphe="colonnes">
+  <h3>{{ titre }}</h3>
+  {% localize off %}
+  <svg class="graphe__svg" viewBox="0 0 {{ graphe.largeur }} {{ graphe.hauteur }}" role="img" aria-label="{{ titre }}. Le tableau ci-dessous reprend toutes les valeurs.">
+    {% for g in graphe.graduations %}
+      <line x1="{{ graphe.gauche }}" x2="{{ graphe.droite }}" y1="{{ g.y }}" y2="{{ g.y }}" class="graphe__grille"/>
+      <text x="{{ graphe.gauche|add:'-8' }}" y="{{ g.y }}" class="graphe__graduation" text-anchor="end" dominant-baseline="middle">{{ g.valeur|nombre }}</text>
+    {% endfor %}
+    {% for b in graphe.barres %}
+      <g class="colonne" tabindex="0" data-libelle="{{ b.libelle }}" data-valeur="{{ b.valeur|nombre }}" aria-label="{{ b.libelle }} : {{ b.valeur }}">
+        <rect x="{{ b.zone_x }}" y="{{ graphe.haut_zone }}" width="{{ b.zone_l }}" height="{{ graphe.hauteur_zone }}" fill="transparent"/>
+        {% if b.chemin %}<path d="{{ b.chemin }}" class="colonne__barre"/>{% endif %}
+        {% if b.etiquette %}<text x="{{ b.centre }}" y="{{ graphe.hauteur|add:'-8' }}" class="graphe__graduation" text-anchor="middle">{{ b.court }}</text>{% endif %}
+      </g>
+    {% endfor %}
+  </svg>
+  {% endlocalize %}
+  <div class="graphe__infobulle" role="status" hidden></div>
+  <details class="stats__donnees">
+    <summary>Voir les données</summary>
+    <table class="stats__tableau stats__tableau--simple">
+      <tbody>{% for b in graphe.barres %}<tr><th scope="row">{{ b.libelle }}</th><td>{{ b.valeur|nombre }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </details>
+</div>

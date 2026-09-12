@@ -1,5 +1,7 @@
 from django.urls import path
 
+from mesure.views import statistiques
+
 from . import views
 
 app_name = "espace"
@@ -7,6 +9,7 @@ app_name = "espace"
 urlpatterns = [
     path("", views.tableau, name="tableau"),
     path("documents/", views.documents, name="documents"),
+    path("statistiques/", statistiques, name="statistiques"),
     path("documents/<int:pk>/telecharger/", views.telecharger, name="telecharger"),
     path("connexion/", views.Connexion.as_view(), name="connexion"),
     path("deconnexion/", views.Deconnexion.as_view(), name="deconnexion"),

@@ -1,0 +1,294 @@
+{% extends "espace/base_app.html" %}
+{% load l10n statistiques %}
+{% block seo %}{% include "partials/meta.html" with titre="Statistiques du site — Satkaar" %}{% endblock %}
+
+{% block contenu %}
+<header class="app__entete stats__entete">
+  <div>
+    <p class="app__surtitre">Statistiques</p>
+    <h1>Audience du site</h1>
+    <p>Du {{ r.debut|date:"j F Y" }} au {{ r.fin|date:"j F Y" }}, comparé aux {{ r.jours }} jours précédents.</p>
+  </div>
+  <p class="stats__direct"><span class="stats__pouls" aria-hidden="true"></span>{{ r.temps_reel }} visiteur{{ r.temps_reel|pluralize }} en ce moment</p>
+</header>
+
+<nav class="filtres stats__filtres" aria-label="Période">
+  {% for cle, libelle in periodes.items %}
+    <a class="filtre" href="?periode={{ cle }}"{% if cle == periode %} aria-current="true"{% endif %}>{{ libelle }}</a>
+  {% endfor %}
+</nav>
+
+{# 1. Chiffres clés #}
+<section class="app__section" aria-labelledby="t-cles">
+  <h2 class="app__titre" id="t-cles">Chiffres clés</h2>
+  <div class="tuiles">
+    {% for tuile in r.kpi %}
+      <article class="tuile">
+        <p class="tuile__libelle">{{ tuile.libelle }}</p>
+        <p class="tuile__valeur">{{ tuile|valeur_kpi }}</p>
+        <p class="tuile__delta">
+          {% if tuile.variation is None %}
+            <span class="delta delta--neutre">Pas de comparaison</span>
+          {% else %}
+            <span class="delta {% if tuile.favorable %}delta--bon{% elif tuile.favorable is False %}delta--mauvais{% else %}delta--neutre{% endif %}">
+              <span class="delta__fleche" aria-hidden="true">{% if tuile.variation > 0 %}↑{% elif tuile.variation < 0 %}↓{% else %}→{% endif %}</span>
+              {{ tuile.variation|variation }}
+            </span>
+            <span class="tuile__periode">vs période précédente</span>
+          {% endif %}
+        </p>
+        {% if tuile.mini %}
+          {% localize off %}
+          <svg class="tuile__mini" viewBox="0 0 {{ tuile.mini.largeur }} {{ tuile.mini.hauteur }}" aria-hidden="true" focusable="false">
+            <path d="{{ tuile.mini.trace }}" fill="none" stroke="#b9b2a7" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="{{ tuile.mini.dernier.0 }}" cy="{{ tuile.mini.dernier.1 }}" r="3" fill="#1e63a8"/>
+          </svg>
+          {% endlocalize %}
+        {% endif %}
+        {% if tuile.aide %}<p class="tuile__aide">{{ tuile.aide }}</p>{% endif %}
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+{# 2. Évolution #}
+<section class="app__section" aria-labelledby="t-evolution">
+  <h2 class="app__titre" id="t-evolution">Visites par jour</h2>
+  <div class="graphe" data-graphe="courbe">
+    {% localize off %}
+    <svg class="graphe__svg" viewBox="0 0 {{ courbe.largeur }} {{ courbe.hauteur }}" role="img" tabindex="0"
+      aria-label="Visites par jour. Survolez ou utilisez les flèches pour lire chaque valeur ; le tableau ci-dessous reprend toutes les données.">
+      {% for g in courbe.graduations %}
+        <line x1="{{ courbe.gauche }}" x2="{{ courbe.droite }}" y1="{{ g.y }}" y2="{{ g.y }}" class="graphe__grille"/>
+        <text x="{{ courbe.gauche|add:'-8' }}" y="{{ g.y }}" class="graphe__graduation" text-anchor="end" dominant-baseline="middle">{{ g.valeur|nombre }}</text>
+      {% endfor %}
+      {% for e in courbe.etiquettes %}
+        <text x="{{ e.x }}" y="{{ courbe.hauteur|add:'-6' }}" class="graphe__graduation" text-anchor="middle">{{ e.texte }}</text>
+      {% endfor %}
+      <path d="{{ courbe.aire }}" class="graphe__aire"/>
+      <path d="{{ courbe.trace }}" class="graphe__ligne"/>
+      {% if courbe.dernier %}
+        <circle cx="{{ courbe.dernier.x }}" cy="{{ courbe.dernier.y }}" r="4.5" class="graphe__point"/>
+      {% endif %}
+      <line class="graphe__viseur" x1="0" x2="0" y1="12" y2="{{ courbe.base }}" hidden/>
+      <circle class="graphe__curseur" r="5" cx="0" cy="0" hidden/>
+      <rect class="graphe__zone" x="{{ courbe.gauche }}" y="0" width="{{ courbe.droite|add:'-40' }}" height="{{ courbe.base }}" fill="transparent"/>
+    </svg>
+    {% endlocalize %}
+    <div class="graphe__infobulle" role="status" hidden></div>
+    {{ points_courbe|json_script:"points-courbe" }}
+  </div>
+  <details class="stats__donnees">
+    <summary>Voir les données</summary>
+    <div class="stats__tableau-defilant">
+      <table class="stats__tableau">
+        <thead><tr><th scope="col">Jour</th><th scope="col">Visites</th><th scope="col">Visiteurs</th><th scope="col">Pages vues</th></tr></thead>
+        <tbody>{% for p in r.serie %}<tr><td>{{ p.jour|date:"D j F" }}</td><td>{{ p.visites|nombre }}</td><td>{{ p.visiteurs|nombre }}</td><td>{{ p.pages_vues|nombre }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+{# 3. Moments #}
+<section class="app__section" aria-labelledby="t-moments">
+  <h2 class="app__titre" id="t-moments">Quand les visiteurs viennent-ils&nbsp;?</h2>
+  <div class="stats__deux">
+    {% include "espace/_colonnes.html" with graphe=colonnes_heures titre="Visites par heure" %}
+    {% include "espace/_colonnes.html" with graphe=colonnes_jours titre="Visites par jour de la semaine" %}
+  </div>
+</section>
+
+{# 4. Sources #}
+<section class="app__section" aria-labelledby="t-sources">
+  <h2 class="app__titre" id="t-sources">D'où viennent les visiteurs&nbsp;?</h2>
+  <div class="stats__grille">
+    <div class="stats__carte"><h3>Sources de trafic</h3>{% include "espace/_barres.html" with lignes=r.sources %}</div>
+    <div class="stats__carte"><h3>Assistants IA</h3>{% include "espace/_barres.html" with lignes=r.assistants_ia vide="Aucune visite venue d'un assistant IA sur la période." %}</div>
+    <div class="stats__carte"><h3>Moteurs de recherche</h3>{% include "espace/_barres.html" with lignes=r.moteurs vide="Aucune visite venue d'un moteur de recherche." %}</div>
+    <div class="stats__carte"><h3>Réseaux sociaux</h3>{% include "espace/_barres.html" with lignes=r.reseaux vide="Aucune visite venue d'un réseau social." %}</div>
+    <div class="stats__carte"><h3>Sites référents</h3>{% include "espace/_barres.html" with lignes=r.referents vide="Aucun site référent." %}</div>
+    <div class="stats__carte"><h3>Campagnes (UTM)</h3>{% include "espace/_barres.html" with lignes=r.campagnes vide="Aucune campagne suivie. Ajoutez ?utm_source=… à vos liens pour les mesurer." %}</div>
+  </div>
+</section>
+
+{# 5. Pages #}
+<section class="app__section" aria-labelledby="t-pages">
+  <h2 class="app__titre" id="t-pages">Pages</h2>
+  {% if r.pages %}
+    <div class="stats__tableau-defilant">
+      <table class="stats__tableau">
+        <thead>
+          <tr><th scope="col">Page</th><th scope="col">Vues</th><th scope="col">Visiteurs</th><th scope="col">Temps actif moyen</th><th scope="col">Défilement moyen</th><th scope="col">Taux de sortie</th></tr>
+        </thead>
+        <tbody>
+          {% for p in r.pages %}
+            <tr>
+              <th scope="row">{{ p.titre|default:p.chemin }}<small>{{ p.chemin }}</small></th>
+              <td>{{ p.vues|nombre }}</td><td>{{ p.visiteurs|nombre }}</td>
+              <td>{{ p.temps_actif|duree }}</td>
+              <td>{% if p.defilement is not None %}{{ p.defilement }} %{% else %}—{% endif %}</td>
+              <td>{{ p.taux_sortie|nombre }} %</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="stats__vide">Pas encore de page vue sur la période.</p>
+  {% endif %}
+  <div class="stats__grille espace-t">
+    <div class="stats__carte"><h3>Pages d'entrée</h3>{% include "espace/_barres.html" with lignes=r.entrees %}</div>
+    <div class="stats__carte"><h3>Pages de sortie</h3>{% include "espace/_barres.html" with lignes=r.sorties %}</div>
+    <div class="stats__carte"><h3>Pages introuvables (404)</h3>{% include "espace/_barres.html" with lignes=r.erreurs_404 vide="Aucune erreur 404 sur la période." %}</div>
+  </div>
+</section>
+
+{# 6. Engagement #}
+<section class="app__section" aria-labelledby="t-engagement">
+  <h2 class="app__titre" id="t-engagement">Engagement</h2>
+  <div class="tuiles tuiles--compactes">
+    <article class="tuile"><p class="tuile__libelle">Temps actif moyen par page</p><p class="tuile__valeur">{{ r.engagement.temps_actif_moyen|duree }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Défilement moyen</p><p class="tuile__valeur">{{ r.engagement.defilement_moyen }} %</p></article>
+    <article class="tuile"><p class="tuile__libelle">Pages lues aux trois quarts</p><p class="tuile__valeur">{{ r.engagement.lecture_complete|nombre }} %</p></article>
+    <article class="tuile"><p class="tuile__libelle">Pages mesurées</p><p class="tuile__valeur">{{ r.engagement.echantillons|nombre }}</p><p class="tuile__aide">Visites dont le navigateur a renvoyé ses mesures.</p></article>
+  </div>
+</section>
+
+{# 7. Conversions #}
+<section class="app__section" aria-labelledby="t-conversions">
+  <h2 class="app__titre" id="t-conversions">Conversions et interactions</h2>
+  <div class="tuiles tuiles--compactes">
+    <article class="tuile"><p class="tuile__libelle">Demandes de contact</p><p class="tuile__valeur">{{ r.conversions.demandes|nombre }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Dont rappels demandés</p><p class="tuile__valeur">{{ r.conversions.rappels|nombre }}</p></article>
+  </div>
+  <div class="stats__grille espace-t">
+    <div class="stats__carte"><h3>Demandes par sujet</h3>{% include "espace/_barres.html" with lignes=r.conversions.par_sujet vide="Aucune demande sur la période." %}</div>
+    <div class="stats__carte">
+      <h3>Interactions</h3>
+      <table class="stats__tableau stats__tableau--simple">
+        <tbody>{% for e in r.conversions.evenements %}<tr><th scope="row">{{ e.libelle }}</th><td>{{ e.nombre|nombre }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    <div class="stats__carte"><h3>Questions de FAQ ouvertes</h3>{% include "espace/_barres.html" with lignes=r.conversions.faq vide="Aucune question ouverte." %}</div>
+    <div class="stats__carte"><h3>Appels à l'action cliqués</h3>{% include "espace/_barres.html" with lignes=r.conversions.appels_action vide="Aucun clic sur un appel à l'action." %}</div>
+    <div class="stats__carte"><h3>Liens sortants</h3>{% include "espace/_barres.html" with lignes=r.conversions.sortants vide="Aucun lien sortant cliqué." %}</div>
+  </div>
+</section>
+
+{# 8. Technologies #}
+<section class="app__section" aria-labelledby="t-techno">
+  <h2 class="app__titre" id="t-techno">Appareils et technologies</h2>
+  <div class="stats__grille">
+    <div class="stats__carte"><h3>Appareils</h3>{% include "espace/_barres.html" with lignes=r.appareils %}</div>
+    <div class="stats__carte"><h3>Navigateurs</h3>{% include "espace/_barres.html" with lignes=r.navigateurs %}</div>
+    <div class="stats__carte"><h3>Systèmes</h3>{% include "espace/_barres.html" with lignes=r.systemes %}</div>
+    <div class="stats__carte"><h3>Langues</h3>{% include "espace/_barres.html" with lignes=r.langues %}</div>
+  </div>
+</section>
+
+{# 9. Robots #}
+<section class="app__section" aria-labelledby="t-robots">
+  <h2 class="app__titre" id="t-robots">Robots des moteurs et des IA</h2>
+  <p class="stats__intro">Qui lit le site pour le référencer (SEO) ou le citer dans ses réponses (GEO).</p>
+  <div class="tuiles tuiles--compactes">
+    <article class="tuile"><p class="tuile__libelle">Passages de robots</p><p class="tuile__valeur">{{ r.robots.total|nombre }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Lectures de robots.txt</p><p class="tuile__valeur">{{ r.robots.fichiers|get_item:"/robots.txt"|nombre }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Lectures de llms.txt</p><p class="tuile__valeur">{{ r.robots.fichiers|get_item:"/llms.txt"|nombre }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Lectures du sitemap</p><p class="tuile__valeur">{{ r.robots.fichiers|get_item:"/sitemap.xml"|nombre }}</p></article>
+  </div>
+  <div class="stats__grille espace-t">
+    <div class="stats__carte"><h3>Par famille</h3>{% include "espace/_barres.html" with lignes=r.robots.par_famille vide="Aucun robot sur la période." %}</div>
+    <div class="stats__carte"><h3>Pages lues par les robots d'IA</h3>{% include "espace/_barres.html" with lignes=r.robots.pages_ia vide="Aucun robot d'IA n'est encore passé." %}</div>
+  </div>
+  {% if r.robots.liste %}
+    <div class="stats__tableau-defilant espace-t">
+      <table class="stats__tableau">
+        <thead><tr><th scope="col">Robot</th><th scope="col">Famille</th><th scope="col">Passages</th><th scope="col">Dernier passage</th></tr></thead>
+        <tbody>{% for b in r.robots.liste %}<tr><th scope="row">{{ b.robot }}</th><td>{{ b.famille }}</td><td>{{ b.passages|nombre }}</td><td>{{ b.dernier|date:"j F Y, H:i" }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  {% endif %}
+</section>
+
+{# 10. Performance #}
+<section class="app__section" aria-labelledby="t-perf">
+  <h2 class="app__titre" id="t-perf">Performance ressentie</h2>
+  <p class="stats__intro">Valeurs au 75<sup>e</sup> centile, mesurées chez les vrais visiteurs, comparées aux seuils de Google.</p>
+  <div class="tuiles">
+    {% for v in r.web_vitals %}
+      <article class="tuile">
+        <p class="tuile__libelle">{{ v.libelle }}</p>
+        <p class="tuile__valeur">{{ v|valeur_vitals }}</p>
+        <p class="tuile__delta">
+          {% if v.statut == "bon" %}<span class="statut-perf statut-perf--bon"><span aria-hidden="true">✓</span> Bon</span>
+          {% elif v.statut == "moyen" %}<span class="statut-perf statut-perf--moyen"><span aria-hidden="true">!</span> À améliorer</span>
+          {% elif v.statut == "mauvais" %}<span class="statut-perf statut-perf--mauvais"><span aria-hidden="true">✕</span> Mauvais</span>
+          {% else %}<span class="delta delta--neutre">Pas encore mesuré</span>{% endif %}
+        </p>
+        <p class="tuile__aide">{{ v.echantillons|nombre }} mesure{{ v.echantillons|pluralize }}</p>
+      </article>
+    {% endfor %}
+    <article class="tuile">
+      <p class="tuile__libelle">Génération des pages (serveur)</p>
+      <p class="tuile__valeur">{{ r.serveur.moyenne|millisecondes }}</p>
+      <p class="tuile__aide">En moyenne ; 95 % des pages en moins de {{ r.serveur.p95|millisecondes }}.</p>
+    </article>
+  </div>
+</section>
+
+{# 11. Santé technique #}
+<section class="app__section" aria-labelledby="t-sante">
+  <div class="app__titre-ligne">
+    <h2 class="app__titre" id="t-sante">Santé technique du site</h2>
+    <a class="lien-fleche" href="?periode={{ periode }}&amp;audit=1">Relancer l'audit</a>
+  </div>
+  <p class="stats__intro">Les {{ sante.nb_pages }} pages du plan du site, contrôlées une à une.</p>
+  <div class="tuiles tuiles--compactes">
+    <article class="tuile"><p class="tuile__libelle">Titres conformes</p><p class="tuile__valeur">{{ sante.titres_ok }} / {{ sante.nb_pages }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Descriptions conformes</p><p class="tuile__valeur">{{ sante.descriptions_ok }} / {{ sante.nb_pages }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Un seul titre principal (h1)</p><p class="tuile__valeur">{{ sante.h1_ok }} / {{ sante.nb_pages }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Données structurées</p><p class="tuile__valeur">{{ sante.avec_jsonld }} / {{ sante.nb_pages }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Adresses canoniques</p><p class="tuile__valeur">{{ sante.canoniques }} / {{ sante.nb_pages }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Pages indexables</p><p class="tuile__valeur">{{ sante.indexables }} / {{ sante.nb_pages }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Images sans texte alternatif</p><p class="tuile__valeur">{{ sante.images_sans_alt|nombre }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Liens internes cassés</p><p class="tuile__valeur">{{ sante.liens_casses|length }} / {{ sante.liens_verifies }}</p></article>
+    <article class="tuile"><p class="tuile__libelle">Poids moyen d'une page</p><p class="tuile__valeur">{{ sante.poids_moyen_ko|nombre }} Ko</p><p class="tuile__aide">HTML seul, hors images.</p></article>
+    <article class="tuile"><p class="tuile__libelle">Temps de génération moyen</p><p class="tuile__valeur">{{ sante.duree_moyenne_ms|millisecondes }}</p></article>
+  </div>
+  <details class="stats__donnees">
+    <summary>Détail par page</summary>
+    <div class="stats__tableau-defilant">
+      <table class="stats__tableau">
+        <thead><tr><th scope="col">Page</th><th scope="col">Statut</th><th scope="col">Titre</th><th scope="col">Description</th><th scope="col">h1</th><th scope="col">Données</th><th scope="col">Poids</th><th scope="col">Génération</th></tr></thead>
+        <tbody>
+          {% for p in sante.pages %}
+            <tr>
+              <th scope="row">{{ p.titre|truncatechars:48 }}<small>{{ p.chemin }}</small></th>
+              <td>{{ p.statut }}</td>
+              <td>{% if p.titre_ok %}<span class="ok">✓</span>{% else %}<span class="ko">✕</span>{% endif %}</td>
+              <td>{% if p.description_ok %}<span class="ok">✓</span>{% else %}<span class="ko">✕</span>{% endif %}</td>
+              <td>{% if p.h1_ok %}<span class="ok">✓</span>{% else %}<span class="ko">✕</span>{% endif %}</td>
+              <td>{{ p.jsonld }}</td>
+              <td>{{ p.poids_ko|nombre }} Ko</td>
+              <td>{{ p.duree_ms|millisecondes }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if sante.liens_casses %}<p class="stats__alerte">Liens cassés : {{ sante.liens_casses|join:", " }}</p>{% endif %}
+  </details>
+</section>
+
+<p class="stats__note">
+  Mesure sans cookie ni service tiers : aucune adresse IP n'est conservée, chaque visiteur est une
+  empreinte qui change chaque jour, et les navigateurs qui refusent le suivi ne sont pas comptés.
+  Les visites de l'équipe Satkaar sont exclues. Données conservées 13 mois.
+</p>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% load static %}
+  <script src="{% static 'js/statistiques.js' %}" defer></script>
+{% endblock %}

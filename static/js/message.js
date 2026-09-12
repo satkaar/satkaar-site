@@ -83,6 +83,7 @@
     try {
       reconnaissance.start();
       ecoute(true);
+      if (window.satkaarMesure) window.satkaarMesure("dictee");
     } catch (e) {
       reconnaissance = null;
       annoncer("Impossible de démarrer la dictée. Autorisez l'accès au micro.", true);

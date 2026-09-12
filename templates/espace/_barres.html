@@ -1,0 +1,15 @@
+{% comment %}Barres horizontales d'une seule série (une couleur), valeur au bout. Paramètres : lignes, vide.{% endcomment %}
+{% load statistiques %}
+{% if lignes %}
+  <ul class="barres">
+    {% for ligne in lignes %}
+      <li class="barres__ligne">
+        <span class="barres__libelle" title="{{ ligne.titre|default:ligne.libelle }}">{% if ligne.titre %}{{ ligne.titre }} <small>{{ ligne.libelle }}</small>{% else %}{{ ligne.libelle }}{% endif %}</span>
+        <span class="barres__piste"><span class="barres__barre" style="width: {{ ligne.largeur|stringformat:'s' }}%"></span></span>
+        <span class="barres__valeur">{{ ligne.nombre|nombre }}{% if ligne.part %} <small>{{ ligne.part|nombre }} %</small>{% endif %}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="stats__vide">{{ vide|default:"Pas encore de données sur la période." }}</p>
+{% endif %}

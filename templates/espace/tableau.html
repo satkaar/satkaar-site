@@ -1,72 +1,52 @@
-{% extends "base.html" %}
+{% extends "espace/base_app.html" %}
 {% block seo %}{% include "partials/meta.html" with titre="Mon espace — Satkaar" %}{% endblock %}
-{% block robots %}noindex, nofollow{% endblock %}
-
 
 {% block contenu %}
-<section class="entete-page">
-  <div class="contenant">
-    <p class="surtitre">Espace client</p>
-    <h1>Bonjour <span class="accent">{{ user.first_name|default:user.email }}</span></h1>
-    <p class="chapo">Vos projets avec Satkaar, et tous vos documents au même endroit.</p>
-  </div>
-</section>
+<header class="app__entete">
+  <p class="app__surtitre">Tableau de bord</p>
+  <h1>Bonjour {{ user.first_name|default:user.email }}</h1>
+  <p>Vos projets avec Satkaar, et tous vos documents au même endroit.</p>
+</header>
 
-{% include "espace/_barre.html" %}
-
-<section class="section">
-  <div class="contenant">
-    <p class="surtitre">Vos projets</p>
-    <h2>En cours et à venir</h2>
-    {% if projets_actifs %}
-      <div class="grille grille--2 espace-t">
-        {% for projet in projets_actifs %}{% include "espace/_projet.html" %}{% endfor %}
-      </div>
-    {% else %}
-      <p class="vide espace-t">Aucun projet en cours pour le moment.</p>
-    {% endif %}
-
-    {% if projets_termines %}
-      <details class="termines">
-        <summary>Projets terminés ({{ projets_termines|length }})</summary>
-        <div class="grille grille--2">
-          {% for projet in projets_termines %}{% include "espace/_projet.html" %}{% endfor %}
-        </div>
-      </details>
-    {% endif %}
-  </div>
-</section>
-
-<section class="section section--pierre">
-  <div class="contenant">
-    <div class="entete-bloc">
-      <div>
-        <p class="surtitre">Vos documents</p>
-        <h2>Derniers documents</h2>
-      </div>
-      {% if nb_documents > 5 %}
-        <a class="lien-fleche" href="{% url 'espace:documents' %}">Voir les {{ nb_documents }} documents</a>
-      {% endif %}
+<section class="app__section" aria-labelledby="titre-projets">
+  <h2 class="app__titre" id="titre-projets">Projets en cours et à venir</h2>
+  {% if projets_actifs %}
+    <div class="app__grille">
+      {% for projet in projets_actifs %}{% include "espace/_projet.html" %}{% endfor %}
     </div>
-    {% if documents %}
-      <ul class="docs espace-t">
-        {% for document in documents %}{% include "espace/_document.html" %}{% endfor %}
-      </ul>
-    {% else %}
-      <p class="vide espace-t">Aucun document pour le moment.</p>
-    {% endif %}
-  </div>
+  {% else %}
+    <div class="app__vide">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/></svg>
+      <p>Aucun projet pour le moment. Ils apparaîtront ici dès leur lancement.</p>
+    </div>
+  {% endif %}
+
+  {% if projets_termines %}
+    <details class="termines">
+      <summary>Projets terminés ({{ projets_termines|length }})</summary>
+      <div class="app__grille">
+        {% for projet in projets_termines %}{% include "espace/_projet.html" %}{% endfor %}
+      </div>
+    </details>
+  {% endif %}
 </section>
 
-<section class="section section--serre">
-  <div class="contenant">
-    <div class="cta">
-      <div>
-        <h2>Une question sur votre projet&nbsp;?</h2>
-        <p>Écrivez-nous ou appelez le 06&nbsp;34&nbsp;61&nbsp;86&nbsp;97.</p>
-      </div>
-      <div><a class="bouton bouton--primaire" href="{% url 'pages:contact' %}">Nous contacter</a></div>
-    </div>
+<section class="app__section" aria-labelledby="titre-documents">
+  <div class="app__titre-ligne">
+    <h2 class="app__titre" id="titre-documents">Derniers documents</h2>
+    {% if nb_documents > 5 %}
+      <a class="lien-fleche" href="{% url 'espace:documents' %}">Voir les {{ nb_documents }} documents</a>
+    {% endif %}
   </div>
+  {% if documents %}
+    <ul class="docs">
+      {% for document in documents %}{% include "espace/_document.html" %}{% endfor %}
+    </ul>
+  {% else %}
+    <div class="app__vide">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+      <p>Aucun document pour le moment. Factures, livrables et attestations seront déposés ici.</p>
+    </div>
+  {% endif %}
 </section>
 {% endblock %}
