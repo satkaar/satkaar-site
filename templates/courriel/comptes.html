@@ -1,23 +1,24 @@
 {% extends "courriel/base_courriel.html" %}
 
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <h2>Boîtes mail</h2>
+  <span class="app__barre-info">Relevées en IMAP, utilisées pour répondre en SMTP</span>
+</div>
+<div class="app__barre-droite"><a class="app__bouton app__bouton--plein" href="{% url 'courriel:compte_ajouter' %}">+ Ajouter une boîte</a></div>
+{% endblock %}
+
 {% block courriel %}
-<header class="courriel__entete">
-  <div>
-    <h2>Boîtes mail</h2>
-    <p>Les boîtes de l'équipe, relevées en IMAP et utilisées pour répondre en SMTP.</p>
-  </div>
-  <a class="courriel__bouton courriel__bouton--plein" href="{% url 'courriel:compte_ajouter' %}">+ Ajouter une boîte</a>
-</header>
 
 {% if liste %}
   <div class="courriel__boites">
     {% for c in liste %}
       <article class="stats__carte courriel__boite{% if c.derniere_erreur %} courriel__boite--erreur{% endif %}">
         <div class="courriel__boite-tete">
-          <span class="courriel__avatar courriel__avatar--grand" aria-hidden="true">{{ c.adresse|first|upper }}</span>
+          <span class="courriel__avatar courriel__avatar--grand{% if c.est_gmail %} courriel__avatar--gmail{% endif %}" aria-hidden="true">{{ c.adresse|first|upper }}</span>
           <div>
             <h2>{{ c }}</h2>
-            <p>{{ c.adresse }}</p>
+            <p>{{ c.adresse }} · {% if c.est_gmail %}Gmail{% elif "ovh" in c.imap_hote %}OVH{% else %}{{ c.imap_hote }}{% endif %}</p>
           </div>
         </div>
         <p>
@@ -35,6 +36,13 @@
         </dl>
         <div class="courriel__boite-actions">
           <a class="courriel__bouton" href="{% url 'courriel:compte' c.pk %}">Modifier</a>
+          <form method="post" action="{% url 'courriel:compte_importer' c.pk %}" class="courriel__import">
+            {% csrf_token %}
+            <button type="submit" class="courriel__bouton" data-envoyer data-texte-occupe="Import en cours…" title="Les 1 000 derniers messages reçus et les 300 derniers envoyés ; ceux déjà présents sont ignorés.">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+              <span data-libelle>Importer l'historique</span>
+            </button>
+          </form>
           <details class="courriel__confirmer">
             <summary class="courriel__bouton courriel__bouton--danger">Retirer</summary>
             <form method="post" action="{% url 'courriel:compte_supprimer' c.pk %}">

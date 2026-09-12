@@ -1,10 +1,11 @@
 {% extends "courriel/base_courriel.html" %}
 
-{% block courriel %}
-<div class="courriel__barre-outils">
-  <a class="courriel__bouton courriel__bouton--discret" href="{% if courriel.corbeille %}{% url 'courriel:dossier' 'corbeille' %}{% elif courriel.envoye %}{% url 'courriel:dossier' 'envoyes' %}{% else %}{% url 'courriel:boite' %}{% endif %}">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Retour
-  </a>
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <a class="app__retour" href="{% if courriel.corbeille %}{% url 'courriel:dossier' 'corbeille' %}{% elif courriel.envoye %}{% url 'courriel:dossier' 'envoyes' %}{% else %}{% url 'courriel:boite' %}{% endif %}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Retour</a>
+  <h2>{% if courriel.corbeille %}Corbeille{% elif courriel.envoye %}Envoyés{% else %}Boîte de réception{% endif %}</h2>
+</div>
+<div class="app__barre-droite">
   <a class="courriel__bouton courriel__bouton--plein" href="{% url 'courriel:rediger' %}?mode=repondre&amp;origine={{ courriel.pk }}">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 17 4 12l5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg> Répondre
   </a>
@@ -12,7 +13,6 @@
   <a class="courriel__bouton" href="{% url 'courriel:rediger' %}?mode=transferer&amp;origine={{ courriel.pk }}">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 17 5-5-5-5"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg> Transférer
   </a>
-  <span class="courriel__espace"></span>
   <form method="post" action="{% url 'courriel:agir' courriel.pk %}">
     {% csrf_token %}<input type="hidden" name="suivant" value="{{ request.path }}">
     <button class="courriel__bouton courriel__bouton--icone{% if courriel.etoile %} courriel__bouton--etoile{% endif %}" name="action" value="{% if courriel.etoile %}sans_etoile{% else %}etoile{% endif %}" aria-pressed="{{ courriel.etoile|yesno:'true,false' }}" title="{% if courriel.etoile %}Retirer l'étoile{% else %}Étoiler{% endif %}">
@@ -43,7 +43,11 @@
     {% endif %}
   </form>
 </div>
+{% endblock %}
 
+{% block classe_principal %} courriel__principal--plein{% endblock %}
+
+{% block courriel %}
 <article class="courriel__lecture">
   <h2>{{ courriel.sujet|default:"(sans objet)" }}</h2>
   <div class="courriel__entetes">

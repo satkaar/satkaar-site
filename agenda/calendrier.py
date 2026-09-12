@@ -159,6 +159,29 @@ def grille_mois(annee, mois, trouves=(), aujourdhui=None, semaine_de=None):
     return semaines
 
 
+def annee(an, trouves, aujourdhui):
+    """Les 12 mois de l'année, chaque jour avec son nombre d'éléments (vue Année)."""
+    par_jour, par_mois = {}, {m: set() for m in range(1, 13)}
+    for index, e in enumerate(trouves):
+        premier_jour = e.debut.date()
+        dernier_jour = (e.fin - timedelta(microseconds=1)).date() if e.fin > e.debut else premier_jour
+        jour = max(premier_jour, date(an, 1, 1))
+        while jour <= min(dernier_jour, date(an, 12, 31)):
+            par_jour[jour] = par_jour.get(jour, 0) + 1
+            par_mois[jour.month].add(index)
+            jour += timedelta(days=1)
+    mois = []
+    for numero in range(1, 13):
+        jours = [j for sem in calendar.Calendar(firstweekday=0).monthdatescalendar(an, numero) for j in sem]
+        while len(jours) < 42:  # six semaines partout, pour aligner les cartes
+            jours.append(jours[-1] + timedelta(days=1))
+        semaines = [[{"date": j, "hors_mois": j.month != numero, "aujourdhui": j == aujourdhui,
+                      "nombre": par_jour.get(j, 0) if j.month == numero else 0} for j in jours[i:i + 7]]
+                    for i in range(0, 42, 7)]
+        mois.append({"premier": date(an, numero, 1), "semaines": semaines, "total": len(par_mois[numero])})
+    return mois
+
+
 def lundi_de(jour):
     return jour - timedelta(days=jour.weekday())
 

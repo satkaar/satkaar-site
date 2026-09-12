@@ -42,6 +42,15 @@ class CompteCourriel(models.Model):
         return self.libelle or self.adresse
 
     @property
+    def est_gmail(self):
+        return self.imap_hote.lower().endswith(("gmail.com", "googlemail.com"))
+
+    @property
+    def copie_envoyes_automatique(self):
+        """Gmail range lui-même dans « Envoyés » ce qui part par son SMTP : pas de seconde copie."""
+        return self.est_gmail or self.smtp_hote.lower().endswith(("office365.com", "outlook.com"))
+
+    @property
     def mot_de_passe(self):
         return dechiffrer(self.mot_de_passe_chiffre)
 

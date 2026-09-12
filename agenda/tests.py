@@ -114,3 +114,17 @@ class AgendaTests(TestCase):
         self.assertContains(page, "--nb-jours: 1")
         self.assertContains(page, 'aria-current="true">Jour</a>')
         self.assertContains(self.client.get(reverse("agenda:mois")), 'aria-current="true">Mois</a>')
+
+    def test_vue_annee(self):
+        Evenement.objects.create(titre="Salon", journee_entiere=True, debut=moment(date(2026, 11, 24), 0),
+                                 fin=moment(date(2026, 11, 27), 0))
+        self.client.force_login(self.equipe)
+        page = self.client.get(reverse("agenda:annee_de", args=[2026]))
+        novembre = page.context["mois_de_l_annee"][10]
+        jours = {j["date"].day: j["nombre"] for sem in novembre["semaines"] for j in sem if not j["hors_mois"]}
+        self.assertEqual((jours[23], jours[24], jours[26], jours[27]), (0, 1, 1, 0))
+        self.assertEqual(novembre["total"], 1)
+        self.assertEqual(len(page.context["mois_de_l_annee"]), 12)
+        self.assertContains(page, 'aria-current="true">Année</a>')
+        self.assertEqual(self.client.get(reverse("agenda:annee_de", args=[99999])).status_code, 404)
+

@@ -56,6 +56,21 @@ def mois(request, annee=None, mois=None):
     })
 
 
+@equipe
+def annee(request, annee=None):
+    maintenant = timezone.localtime()
+    an = annee or maintenant.year
+    if not 1900 <= an <= 2200:
+        raise Http404
+    debut, fin = _aware(date(an, 1, 1)), _aware(date(an + 1, 1, 1))
+    trouves = calendrier.elements(debut, fin)
+    reference = maintenant.date() if an == maintenant.year else date(an, 1, 1)
+    return render(request, "agenda/annee.html", {
+        **_colonne(reference, "annee"), "an": an, "mois_de_l_annee": calendrier.annee(an, trouves, maintenant.date()),
+        "total": len(trouves),
+    })
+
+
 def _grille(request, vue, reference):
     """Vue semaine (7 colonnes) ou jour (1 colonne), heure par heure."""
     maintenant = timezone.localtime()

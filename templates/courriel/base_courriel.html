@@ -9,6 +9,10 @@
 {% block titre_page %}Mail{% endblock %}
 {% block sous_titre_page %}{% for c in comptes %}{{ c.adresse }}{% if not forloop.last %} · {% endif %}{% empty %}Messagerie de l'équipe{% endfor %}{% endblock %}
 
+{% block barre_page %}
+<div class="app__barre-page">{% block barre_mail %}{% endblock %}</div>
+{% endblock %}
+
 {% block contenu %}
 <div class="courriel">
   <aside class="courriel__dossiers" aria-label="Dossiers">
@@ -51,7 +55,7 @@
     </nav>
   </aside>
 
-  <div class="courriel__principal">
+  <div class="courriel__principal{% block classe_principal %}{% endblock %}">
     {% if messages %}
       <div class="courriel__messages" role="status">
         {% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}

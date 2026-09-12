@@ -3,7 +3,35 @@
 {% block classe_app %} app--stats app--contacts{% endblock %}
 {% block titre_page %}Contacts{% endblock %}
 {% block sous_titre_page %}Prospects et clients · Isidor, Vanessa, Bernard{% endblock %}
-{% block actions_page %}<a class="courriel__bouton courriel__bouton--plein" href="{% url 'contacts:ajouter' %}{% if produit %}?produit={{ produit }}{% endif %}">+ Nouveau contact</a>{% endblock %}
+{% block actions_page %}
+  <nav class="app__vues" aria-label="Affichage des contacts">
+    <a href="?{{ parametres }}"{% if vue == "pipeline" %} aria-current="true"{% endif %}>Pipeline</a>
+    <a href="?vue=liste{% if parametres %}&amp;{{ parametres }}{% endif %}"{% if vue == "liste" %} aria-current="true"{% endif %}>Liste</a>
+  </nav>
+{% endblock %}
+{% block barre_page %}
+<div class="app__barre-page">
+  <nav class="app__barre-gauche filtres" aria-label="Filtrer par logiciel">
+    <a class="filtre" href="?{% if vue == 'liste' %}vue=liste{% endif %}"{% if not produit and not a_relancer and not statut %} aria-current="true"{% endif %}>Tous</a>
+    {% for cle, libelle in produits %}
+      <a class="filtre" href="?produit={{ cle }}{% if vue == 'liste' %}&amp;vue=liste{% endif %}"{% if produit == cle %} aria-current="true"{% endif %}>{{ libelle }}</a>
+    {% endfor %}
+    <a class="filtre" href="?relance=1{% if vue == 'liste' %}&amp;vue=liste{% endif %}"{% if a_relancer %} aria-current="true"{% endif %}>À relancer</a>
+  </nav>
+  <div class="app__barre-droite">
+    <form class="contacts__recherche-form" method="get" role="search">
+      {% if produit %}<input type="hidden" name="produit" value="{{ produit }}">{% endif %}
+      {% if vue == "liste" %}<input type="hidden" name="vue" value="liste">{% endif %}
+      <label class="visuellement-cache" for="recherche">Rechercher un contact</label>
+      <input class="champ contacts__recherche" type="search" id="recherche" name="q" value="{{ recherche }}" placeholder="Nom, organisation, commune…">
+    </form>
+    <a class="app__bouton" href="{% url 'contacts:export' %}{% if parametres %}?{{ parametres }}{% endif %}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> CSV
+    </a>
+    <a class="app__bouton app__bouton--plein" href="{% url 'contacts:ajouter' %}{% if produit %}?produit={{ produit }}{% endif %}">+ Nouveau contact</a>
+  </div>
+</div>
+{% endblock %}
 
 {% block contenu %}
 {% if messages %}<div class="courriel__messages" role="status">{% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}</div>{% endif %}
@@ -42,28 +70,6 @@
 
 <section class="stats__bloc" aria-labelledby="t-pipeline">
   <h2 class="stats__titre visuellement-cache" id="t-pipeline">Contacts</h2>
-  <form class="stats__periode contacts__filtres" method="get" role="search">
-    <span class="filtres">
-      <a class="filtre" href="?{% if vue == 'liste' %}vue=liste{% endif %}"{% if not produit and not a_relancer and not statut %} aria-current="true"{% endif %}>Tous</a>
-      {% for cle, libelle in produits %}
-        <a class="filtre" href="?produit={{ cle }}{% if vue == 'liste' %}&amp;vue=liste{% endif %}"{% if produit == cle %} aria-current="true"{% endif %}>{{ libelle }}</a>
-      {% endfor %}
-      <a class="filtre" href="?relance=1{% if vue == 'liste' %}&amp;vue=liste{% endif %}"{% if a_relancer %} aria-current="true"{% endif %}>À relancer</a>
-    </span>
-    {% if produit %}<input type="hidden" name="produit" value="{{ produit }}">{% endif %}
-    {% if vue == "liste" %}<input type="hidden" name="vue" value="liste">{% endif %}
-    <label class="visuellement-cache" for="recherche">Rechercher un contact</label>
-    <input class="champ contacts__recherche" type="search" id="recherche" name="q" value="{{ recherche }}" placeholder="Nom, organisation, commune…">
-    <span class="contacts__outils">
-      <span class="agenda__vues">
-        <a href="?{{ parametres }}"{% if vue == "pipeline" %} aria-current="true"{% endif %}>Pipeline</a>
-        <a href="?vue=liste{% if parametres %}&amp;{{ parametres }}{% endif %}"{% if vue == "liste" %} aria-current="true"{% endif %}>Liste</a>
-      </span>
-      <a class="courriel__bouton" href="{% url 'contacts:export' %}{% if parametres %}?{{ parametres }}{% endif %}">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> CSV
-      </a>
-    </span>
-  </form>
 
   {% if vue == "pipeline" %}
     <div class="piste">

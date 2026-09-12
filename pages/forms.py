@@ -116,6 +116,11 @@ class DemandeDemonstrationForm(ChampsAccessiblesMixin, forms.ModelForm):
         # Sans sujet transmis par la page d'origine, le visiteur choisit lui-même.
         self.fields["sujet"].initial = None
         self._jours = jours_ouvres_a_venir(timezone.localdate())
+        # Créneaux déjà pris dans l'agenda de l'équipe ou par une autre demande : grisés et refusés.
+        from agenda.disponibilites import creneaux_pris
+
+        self._toutes_heures = [h for heures in HEURES_DE_RAPPEL.values() for h in heures]
+        self.creneaux_pris = creneaux_pris(self._jours, self._toutes_heures)
         self.fields["rappel_jour"].choices = [("", "Peu importe")] + [
             (jour.isoformat(), jour.isoformat()) for jour in self._jours
         ]
@@ -129,6 +134,13 @@ class DemandeDemonstrationForm(ChampsAccessiblesMixin, forms.ModelForm):
         souhaite_rappel = donnees.get("rappel_jour") or donnees.get("rappel_heure")
         if souhaite_rappel and not donnees.get("telephone"):
             self.add_error("telephone", "Indiquez un numéro pour que nous puissions vous rappeler.")
+        jour, heure = donnees.get("rappel_jour"), donnees.get("rappel_heure")
+        if jour:
+            pris = self.creneaux_pris.get(jour.isoformat(), [])
+            if len(pris) == len(self._toutes_heures):
+                self.add_error("rappel_jour", "Ce jour est complet. Choisissez un autre jour.")
+            elif heure and heure.strftime("%H:%M") in pris:
+                self.add_error("rappel_heure", "Ce créneau vient d'être réservé. Choisissez une autre heure.")
         return donnees
 
     # --- Données d'affichage des pastilles de rappel -------------------------
@@ -141,6 +153,7 @@ class DemandeDemonstrationForm(ChampsAccessiblesMixin, forms.ModelForm):
             pastilles.append({
                 "valeur": jour.isoformat(),
                 "coche": coche == jour.isoformat(),
+                "complet_pris": len(self.creneaux_pris.get(jour.isoformat(), [])) == len(self._toutes_heures),
                 "en_tete": "Demain" if jour == demain else JOURS_COURTS[jour.weekday()],
                 "numero": jour.day,
                 "mois": MOIS_COURTS[jour.month - 1],
@@ -150,8 +163,11 @@ class DemandeDemonstrationForm(ChampsAccessiblesMixin, forms.ModelForm):
 
     def heures_de_rappel(self):
         coche = str(self["rappel_heure"].value() or "")[:5]
+        # Sans JavaScript, les heures déjà prises du jour choisi sont grisées dès l'affichage.
+        pris = set(self.creneaux_pris.get(str(self["rappel_jour"].value() or ""), []))
         return [
-            {"moment": moment, "heures": [{"valeur": h, "coche": coche == h} for h in heures]}
+            {"moment": moment, "heures": [{"valeur": h, "coche": coche == h and h not in pris, "pris": h in pris}
+                                          for h in heures]}
             for moment, heures in HEURES_DE_RAPPEL.items()
         ]
 

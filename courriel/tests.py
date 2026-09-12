@@ -32,7 +32,8 @@ def message_brut(sujet="Demande de devis", message_id="<a1@client.fr>", avec_pie
 
 
 class FauxIMAP:
-    def __init__(self, messages):
+    def __init__(self, messages, envoyes=None):
+        self.dossiers = {"INBOX": messages, '"INBOX.Sent"': envoyes or {}}
         self.messages = messages
         self.commandes = []
         self.lecture_seule = None
@@ -44,14 +45,18 @@ class FauxIMAP:
 
     def select(self, dossier, readonly=False):
         self.lecture_seule = readonly
+        self.messages = self.dossiers[dossier]
         return "OK", [str(len(self.messages)).encode()]
 
     def uid(self, commande, *arguments):
         self.commandes.append((commande, *arguments))
         if commande == "search":
             return "OK", [b" ".join(self.messages)]
-        uid, parties = arguments
-        return "OK", [(b"1 (UID " + uid + b" BODY[] {100}", self.messages[uid]), b")"]
+        uids, parties = arguments
+        reponse = []
+        for uid in uids.split(b","):
+            reponse += [(b"1 (UID " + uid + b" BODY[] {100}", self.messages[uid]), b")"]
+        return "OK", reponse
 
     def list(self):
         return "OK", [b'(\\HasNoChildren) "." "INBOX"', b'(\\HasNoChildren \\Sent) "." "INBOX.Sent"']
@@ -153,6 +158,53 @@ class ReleveTests(Base):
                 protocoles.relever(self.compte)
 
 
+class ImportTests(Base):
+    def test_historique_recus_et_envoyes(self):
+        envoye = message_brut("Re: Demande de devis", "<envoi-1@satkaar.io>", avec_piece=False)
+        faux = FauxIMAP({b"7": message_brut(), b"8": message_brut("Relance", "<a2@client.fr>", avec_piece=False)},
+                        envoyes={b"3": envoye})
+        with mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", return_value=faux):
+            self.assertEqual(protocoles.importer_historique(self.compte), (2, 1))
+            self.assertEqual(protocoles.importer_historique(self.compte), (0, 0))
+        envoi = Courriel.objects.get(dossier=Courriel.Dossier.ENVOYES)
+        self.assertTrue(envoi.lu)
+        self.assertEqual(envoi.sujet, "Re: Demande de devis")
+        # Un seul FETCH groupé pour les deux messages reçus.
+        self.assertEqual([c[1] for c in faux.commandes if c[0] == "fetch"][0], b"7,8")
+
+    def test_uid_apres_le_litteral(self):
+        reponse = [(b"1 (BODY[] {5}", b"12345"), b" UID 42)"]
+        self.assertEqual(protocoles._uids_et_messages(reponse), [("42", b"12345")])
+
+
+class GmailTests(Base):
+    def setUp(self):
+        super().setUp()
+        self.gmail = CompteCourriel(adresse="damien@gmail.com", identifiant="damien@gmail.com",
+                                    imap_hote="imap.gmail.com", smtp_hote="smtp.gmail.com")
+        self.gmail.mot_de_passe = "secret"
+        self.gmail.save()
+
+    def test_pas_de_seconde_copie_dans_envoyes(self):
+        faux = FauxIMAP({})
+        with mock.patch("courriel.protocoles.smtplib.SMTP_SSL", FauxSMTP), \
+                mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", return_value=faux):
+            protocoles.envoyer(self.gmail, ["elodie@client.fr"], "Bonjour", "Texte")
+        self.assertEqual(len(FauxSMTP.envois), 1)
+        self.assertIsNone(faux.depose)  # Gmail range lui-même le message dans « Envoyés »
+        self.assertTrue(self.gmail.est_gmail)
+        self.assertFalse(self.compte.copie_envoyes_automatique)
+
+    def test_mot_de_passe_d_application_avec_espaces(self):
+        from .forms import CompteForm
+
+        form = CompteForm({"adresse": "autre@gmail.com", "nom_expediteur": "Satkaar", "identifiant": "autre@gmail.com",
+                           "mot_de_passe": "abcd efgh ijkl mnop", "imap_hote": "imap.gmail.com", "imap_port": 993,
+                           "smtp_hote": "smtp.gmail.com", "smtp_port": 465, "smtp_securite": "ssl", "actif": "on"})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.save().mot_de_passe, "abcdefghijklmnop")
+
+
 class EnvoiTests(Base):
     def test_envoi_cci_reponse_et_copie_dans_envoyes(self):
         faux = FauxIMAP({})
@@ -244,9 +296,10 @@ class VuesTests(Base):
         reponse = self.client.post(reverse("courriel:rediger"), {"compte": self.compte.pk, "a": "pas-une-adresse", "texte": "x"})
         self.assertContains(reponse, "Adresse invalide")
 
-    def test_ajout_de_boite_chiffre_et_teste(self):
+    def test_ajout_de_boite_chiffre_teste_et_importe(self):
         self.client.force_login(self.equipe)
-        with mock.patch("courriel.views.protocoles.tester") as tester:
+        with mock.patch("courriel.views.protocoles.tester") as tester, \
+                mock.patch("courriel.views.protocoles.importer_historique", return_value=(12, 4)) as importer:
             self.client.post(reverse("courriel:compte_ajouter"), {
                 "adresse": "devis@satkaar.io", "nom_expediteur": "Satkaar", "identifiant": "devis@satkaar.io",
                 "mot_de_passe": "tres-secret", "imap_hote": "ssl0.ovh.net", "imap_port": 993,
@@ -254,6 +307,7 @@ class VuesTests(Base):
             })
         boite_mail = CompteCourriel.objects.get(adresse="devis@satkaar.io")
         tester.assert_called_once()
+        importer.assert_called_once_with(boite_mail, reception=200, envoyes=100)
         self.assertEqual(boite_mail.mot_de_passe, "tres-secret")
         self.assertNotIn(b"tres-secret", bytes(boite_mail.mot_de_passe_chiffre))
 

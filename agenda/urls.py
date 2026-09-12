@@ -6,6 +6,8 @@ app_name = "agenda"
 
 urlpatterns = [
     path("", views.mois, name="mois"),
+    path("annee/", views.annee, name="annee"),
+    path("annee/<int:annee>/", views.annee, name="annee_de"),
     path("mois/<int:annee>/<int:mois>/", views.mois, name="mois_de"),
     path("semaine/", views.semaine, name="semaine"),
     path("semaine/<int:annee>/<int:mois>/<int:jour>/", views.semaine, name="semaine_du"),

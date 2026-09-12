@@ -16,7 +16,7 @@ FOURNISSEURS = {
             "smtp_hote": "ssl0.ovh.net", "smtp_port": 465, "smtp_securite": "ssl"},
     "ovh_pro": {"libelle": "OVH Email Pro", "imap_hote": "pro1.mail.ovh.net", "imap_port": 993,
                 "smtp_hote": "pro1.mail.ovh.net", "smtp_port": 587, "smtp_securite": "starttls"},
-    "google": {"libelle": "Google Workspace / Gmail (mot de passe d'application)", "imap_hote": "imap.gmail.com",
+    "google": {"libelle": "Gmail / Google Workspace", "imap_hote": "imap.gmail.com",
                "imap_port": 993, "smtp_hote": "smtp.gmail.com", "smtp_port": 465, "smtp_securite": "ssl"},
     "infomaniak": {"libelle": "Infomaniak", "imap_hote": "mail.infomaniak.com", "imap_port": 993,
                    "smtp_hote": "mail.infomaniak.com", "smtp_port": 465, "smtp_securite": "ssl"},
@@ -38,9 +38,10 @@ def adresses(texte):
 
 class CompteForm(ChampsAccessiblesMixin, forms.ModelForm):
     mot_de_passe = forms.CharField(
-        label="Mot de passe de la boîte", required=False, strip=False,
+        label="Mot de passe", required=False, strip=False,
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
-        help_text="Chiffré avant d'être enregistré. En modification, laissez vide pour le conserver.",
+        help_text="Gmail : le mot de passe d'application de 16 lettres. OVH : celui de la boîte. "
+                  "Chiffré avant d'être enregistré ; en modification, laissez vide pour le conserver.",
     )
 
     class Meta:
@@ -59,6 +60,14 @@ class CompteForm(ChampsAccessiblesMixin, forms.ModelForm):
             self.fields["mot_de_passe"].help_text = "Chiffré avant d'être enregistré."
         self._preparer_champs()
         self.fields["actif"].widget.attrs["class"] = "case"
+
+    def clean(self):
+        donnees = super().clean()
+        mot_de_passe = donnees.get("mot_de_passe", "")
+        if mot_de_passe and donnees.get("imap_hote", "").lower().endswith(("gmail.com", "googlemail.com")):
+            # Google affiche le mot de passe d'application par groupes de 4 (« abcd efgh ijkl mnop »).
+            donnees["mot_de_passe"] = mot_de_passe.replace(" ", "").replace("\u00a0", "")
+        return donnees
 
     def save(self, commit=True):
         compte = super().save(commit=False)

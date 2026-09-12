@@ -141,40 +141,81 @@ def _fermer(client):
             pass
 
 
+PAR_LOT = 20  # messages rapatriés par commande FETCH
+
+
+def _uids_et_messages(reponse):
+    """Réponse d'un FETCH groupé → [(uid, octets)]. L'UID peut précéder ou suivre le littéral."""
+    resultats = []
+    for i, element in enumerate(reponse or []):
+        if not isinstance(element, tuple):
+            continue
+        entete, corps = element
+        trouve = re.search(rb"UID (\d+)", entete)
+        if not trouve and i + 1 < len(reponse) and isinstance(reponse[i + 1], bytes):
+            trouve = re.search(rb"UID (\d+)", reponse[i + 1])
+        if trouve and corps:
+            resultats.append((trouve.group(1).decode(), bytes(corps)))
+    return resultats
+
+
+def _importer_dossier(client, compte, dossier_serveur, dossier_local, limite):
+    """Rapatrie les `limite` derniers messages d'un dossier du serveur, sans les marquer lus."""
+    statut, _ = client.select(dossier_serveur, readonly=True)
+    if statut != "OK":
+        raise ErreurCourriel(f"Dossier {dossier_serveur} introuvable sur le serveur.")
+    statut, donnees = client.uid("search", None, "ALL")
+    uids = donnees[0].split()[-limite:] if statut == "OK" and donnees and donnees[0] else []
+    connus = set(compte.courriels.filter(dossier=dossier_local).values_list("uid", flat=True))
+    a_lire = [u for u in uids if u.decode() not in connus]
+    nouveaux = 0
+    for i in range(0, len(a_lire), PAR_LOT):
+        statut, reponse = client.uid("fetch", b",".join(a_lire[i:i + PAR_LOT]), "(BODY.PEEK[])")
+        if statut != "OK":
+            continue
+        for uid, brut in _uids_et_messages(reponse):
+            donnees_message = lire_message(brut)
+            if not donnees_message["message_id"]:
+                donnees_message["message_id"] = f"<uid-{uid}-{dossier_local}@{compte.imap_hote}>"
+            existant = compte.courriels.filter(dossier=dossier_local, message_id=donnees_message["message_id"])
+            if existant.exists():
+                existant.update(uid=uid)  # déjà connu (envoyé d'ici, ou UIDVALIDITY changé côté serveur)
+                continue
+            enregistrer(compte, donnees_message, dossier=dossier_local, uid=uid,
+                        lu=dossier_local == Courriel.Dossier.ENVOYES)
+            nouveaux += 1
+    return nouveaux
+
+
 def relever(compte, limite=50):
     """Importe les messages récents de la boîte de réception. Renvoie le nombre de nouveaux."""
     client = _imap(compte)
-    nouveaux = 0
     try:
-        statut, _ = client.select("INBOX", readonly=True)
-        if statut != "OK":
-            raise ErreurCourriel("Boîte de réception introuvable sur le serveur.")
-        statut, donnees = client.uid("search", None, "ALL")
-        uids = donnees[0].split()[-limite:] if statut == "OK" and donnees and donnees[0] else []
-        connus = set(compte.courriels.filter(dossier=Courriel.Dossier.RECEPTION).values_list("uid", flat=True))
-        for uid in uids:
-            uid_texte = uid.decode()
-            if uid_texte in connus:
-                continue
-            statut, reponse = client.uid("fetch", uid, "(BODY.PEEK[])")
-            brut = next((r[1] for r in reponse or [] if isinstance(r, tuple)), None) if statut == "OK" else None
-            if not brut:
-                continue
-            donnees_message = lire_message(bytes(brut))
-            if not donnees_message["message_id"]:
-                donnees_message["message_id"] = f"<uid-{uid_texte}@{compte.imap_hote}>"
-            existant = compte.courriels.filter(dossier=Courriel.Dossier.RECEPTION, message_id=donnees_message["message_id"])
-            if existant.exists():
-                existant.update(uid=uid_texte)  # déjà importé (UIDVALIDITY changé côté serveur)
-                continue
-            enregistrer(compte, donnees_message, uid=uid_texte)
-            nouveaux += 1
+        nouveaux = _importer_dossier(client, compte, "INBOX", Courriel.Dossier.RECEPTION, limite)
     except (OSError, imaplib.IMAP4.error) as erreur:
         raise ErreurCourriel(f"Relève interrompue : {erreur}") from erreur
     finally:
         _fermer(client)
     CompteCourriel.objects.filter(pk=compte.pk).update(derniere_releve=timezone.now(), derniere_erreur="")
     return nouveaux
+
+
+def importer_historique(compte, reception=200, envoyes=100):
+    """Premier import d'une boîte : ses derniers messages reçus et envoyés.
+    Renvoie (reçus importés, envoyés importés)."""
+    client = _imap(compte)
+    try:
+        recus = _importer_dossier(client, compte, "INBOX", Courriel.Dossier.RECEPTION, reception)
+        partis = 0
+        dossier = _dossier_envoyes(client)
+        if dossier and envoyes:
+            partis = _importer_dossier(client, compte, dossier, Courriel.Dossier.ENVOYES, envoyes)
+    except (OSError, imaplib.IMAP4.error) as erreur:
+        raise ErreurCourriel(f"Import interrompu : {erreur}") from erreur
+    finally:
+        _fermer(client)
+    CompteCourriel.objects.filter(pk=compte.pk).update(derniere_releve=timezone.now(), derniere_erreur="")
+    return recus, partis
 
 
 def _dossier_envoyes(client):
@@ -274,7 +315,8 @@ def envoyer(compte, a, sujet, texte, copie=(), copie_cachee=(), pieces=(), en_re
         except (OSError, smtplib.SMTPException):
             pass
 
-    _deposer_dans_envoyes(compte, message)
+    if not compte.copie_envoyes_automatique:
+        _deposer_dans_envoyes(compte, message)
     return enregistrer(
         compte,
         {

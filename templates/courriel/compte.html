@@ -1,15 +1,41 @@
 {% extends "courriel/base_courriel.html" %}
 
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <a class="app__retour" href="{% url 'courriel:comptes' %}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Boîtes mail</a>
+  <h2>{% if instance %}Modifier {{ instance }}{% else %}Ajouter une boîte mail{% endif %}</h2>
+  <span class="app__barre-info">La connexion est vérifiée à l'enregistrement</span>
+</div>
+{% endblock %}
+
 {% block courriel %}
-<header class="courriel__entete">
-  <div>
-    <h2>{% if instance %}Modifier {{ instance }}{% else %}Ajouter une boîte mail{% endif %}</h2>
-    <p>La connexion est vérifiée à l'enregistrement (réception et envoi).</p>
-  </div>
-</header>
 
 <form class="courriel__formulaire" method="post" novalidate>
   {% csrf_token %}
+  <section class="stats__carte courriel__guide">
+    <h2>Comment connecter votre boîte</h2>
+    <div class="courriel__guide-colonnes">
+      <div>
+        <h3><span class="courriel__avatar courriel__avatar--petit courriel__avatar--gmail" aria-hidden="true">G</span> Gmail</h3>
+        <ol>
+          <li>Activez la <strong>validation en deux étapes</strong> sur votre compte Google.</li>
+          <li>Créez un <strong>mot de passe d'application</strong> sur <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a> (nom : « Satkaar »).</li>
+          <li>Saisissez ci-dessous votre adresse Gmail, puis ce mot de passe de 16 lettres (espaces acceptés).</li>
+        </ol>
+        <p>Votre mot de passe Google habituel ne fonctionne pas : Google l'interdit aux logiciels de messagerie. Pour une adresse Google Workspace, l'administrateur doit autoriser les mots de passe d'application.</p>
+      </div>
+      <div>
+        <h3><span class="courriel__avatar courriel__avatar--petit" aria-hidden="true">O</span> OVH</h3>
+        <ol>
+          <li>Choisissez « OVH (MX Plan) », ou « OVH Email Pro » selon votre offre (visible dans l'espace client OVH).</li>
+          <li>Identifiant : l'adresse complète, par exemple contact@satkaar.io.</li>
+          <li>Mot de passe : celui de la boîte mail (celui du webmail OVH).</li>
+        </ol>
+      </div>
+    </div>
+    <p class="courriel__guide-pied">À l'enregistrement, la connexion est testée puis les 200 derniers messages reçus et les 100 derniers envoyés sont importés.</p>
+  </section>
+
   <section class="stats__carte">
     <h2>Hébergeur</h2>
     <label class="courriel__champ-seul" for="fournisseur">Remplir les serveurs pour

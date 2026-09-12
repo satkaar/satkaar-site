@@ -70,9 +70,17 @@
     });
     var adresse = document.getElementById("id_adresse");
     var identifiant = document.getElementById("id_identifiant");
+    var choisir = function (cle) {
+      if (fournisseur.value === cle) return;
+      fournisseur.value = cle;
+      fournisseur.dispatchEvent(new Event("change"));
+    };
     if (adresse && identifiant) {
       adresse.addEventListener("input", function () {
         if (!identifiant.dataset.touche) identifiant.value = adresse.value;
+        // Une adresse Gmail remplit les serveurs de Google ; les autres gardent le réglage choisi.
+        var domaine = (adresse.value.split("@")[1] || "").toLowerCase();
+        if (domaine === "gmail.com" || domaine === "googlemail.com") choisir("google");
       });
       identifiant.addEventListener("input", function () { identifiant.dataset.touche = "1"; });
     }
@@ -111,7 +119,7 @@
       bouton.dataset.occupe = "1";
       setTimeout(function () { bouton.disabled = true; }, 0);
       var libelle = bouton.querySelector("[data-libelle]");
-      if (libelle) libelle.textContent = libelle.textContent === "Envoyer" ? "Envoi…" : "Vérification…";
+      if (libelle) libelle.textContent = bouton.dataset.texteOccupe || (libelle.textContent === "Envoyer" ? "Envoi…" : "Vérification…");
     });
   });
 })();

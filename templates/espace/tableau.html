@@ -4,6 +4,24 @@
 {% block titre_page %}Tableau de bord{% endblock %}
 {% block sous_titre_page %}Bonjour {{ user.first_name|default:user.email }} · vos projets avec Satkaar, leur avancement et leurs prochaines étapes{% endblock %}
 
+{% block barre_page %}
+<div class="app__barre-page">
+  <div class="app__barre-gauche">
+    <h2>{% now "l j F Y" as aujourdhui %}{{ aujourdhui|capfirst }}</h2>
+    <span class="app__barre-info">{{ projets_actifs|length }} projet{{ projets_actifs|length|pluralize }} en cours ou à venir</span>
+  </div>
+  <div class="app__barre-droite">
+    {% if user.is_staff %}
+      <a class="app__bouton" href="{% url 'courriel:rediger' %}">Nouveau message</a>
+      <a class="app__bouton" href="{% url 'agenda:ajouter' %}">+ Nouvel événement</a>
+      <a class="app__bouton app__bouton--plein" href="{% url 'contacts:ajouter' %}">+ Nouveau contact</a>
+    {% else %}
+      <a class="app__bouton app__bouton--plein" href="{% url 'pages:contact' %}">Contacter Satkaar</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
 {% block contenu %}
 
 <section class="app__section" aria-labelledby="titre-projets">

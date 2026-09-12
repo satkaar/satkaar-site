@@ -9,6 +9,7 @@
 {% block sous_titre_page %}Agenda partagé de l'équipe et rappels demandés sur le site{% endblock %}
 {% block actions_page %}
   <nav class="agenda__vues" aria-label="Affichage de l'agenda">
+    <a href="{% url 'agenda:annee_de' reference.year %}"{% if vue == "annee" %} aria-current="true"{% endif %}>Année</a>
     <a href="{% url 'agenda:mois_de' reference.year reference.month %}"{% if vue == "mois" %} aria-current="true"{% endif %}>Mois</a>
     <a href="{% url 'agenda:semaine_du' reference.year reference.month reference.day %}"{% if vue == "semaine" %} aria-current="true"{% endif %}>Semaine</a>
     <a href="{% url 'agenda:jour_du' reference.year reference.month reference.day %}"{% if vue == "jour" %} aria-current="true"{% endif %}>Jour</a>
@@ -16,7 +17,8 @@
 {% endblock %}
 
 {% block contenu %}
-<div class="agenda">
+<div class="agenda{% block classe_agenda %}{% endblock %}">
+  {% block colonne %}
   <aside class="agenda__colonne" aria-label="Navigation de l'agenda">
     <a class="agenda__nouveau" href="{% url 'agenda:ajouter' %}?date={{ reference|date:'Y-m-d' }}">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v16M4 12h16"/></svg>
@@ -47,6 +49,7 @@
       </ul>
     </section>
   </aside>
+  {% endblock %}
 
   <div class="agenda__principal">
     {% if messages %}

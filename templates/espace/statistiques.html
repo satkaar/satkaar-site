@@ -4,8 +4,23 @@
 {% block classe_app %} app--stats{% endblock %}
 
 {% block titre_page %}Indicateurs &amp; statistiques{% endblock %}
-{% block sous_titre_page %}Audience du site · {{ r.debut|date:"j N" }} – {{ r.fin|date:"j N Y" }}, comparé aux {{ r.jours }} jours précédents{% endblock %}
-{% block actions_page %}<p class="stats__direct"><span class="stats__pouls" aria-hidden="true"></span>{{ r.temps_reel }} visiteur{{ r.temps_reel|pluralize }} en ce moment</p>{% endblock %}
+{% block sous_titre_page %}Audience du site, référencement et santé technique{% endblock %}
+{% block actions_page %}
+  <nav class="app__vues" aria-label="Période">
+    {% for cle, libelle in periodes.items %}<a href="?periode={{ cle }}"{% if cle == periode %} aria-current="true"{% endif %}>{{ libelle }}</a>{% endfor %}
+  </nav>
+{% endblock %}
+{% block barre_page %}
+<div class="app__barre-page">
+  <div class="app__barre-gauche">
+    <h2>{{ r.debut|date:"j N" }} – {{ r.fin|date:"j N Y" }}</h2>
+    <span class="app__barre-info">{{ r.jours }} jours, comparés aux {{ r.jours }} jours précédents</span>
+  </div>
+  <div class="app__barre-droite">
+    <p class="stats__direct"><span class="stats__pouls" aria-hidden="true"></span>{{ r.temps_reel }} visiteur{{ r.temps_reel|pluralize }} en ce moment</p>
+  </div>
+</div>
+{% endblock %}
 
 {% block contenu %}
 {% comment %}
@@ -13,18 +28,6 @@
   puis une grille de cartes (2/3 + 1/3, moitiés, tiers).
 {% endcomment %}
 
-<nav class="stats__periode" aria-label="Période">
-  <span class="stats__periode-libelle">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-    Période
-  </span>
-  <span class="filtres">
-    {% for cle, libelle in periodes.items %}
-      <a class="filtre" href="?periode={{ cle }}"{% if cle == periode %} aria-current="true"{% endif %}>{{ libelle }}</a>
-    {% endfor %}
-  </span>
-  <span class="stats__periode-active">Période active : <strong>{{ r.debut|date:"j N" }} – {{ r.fin|date:"j N Y" }}</strong> · {{ r.jours }} jours</span>
-</nav>
 
 {# 1. Chiffres clés #}
 <section class="stats__bloc" aria-labelledby="t-cles">

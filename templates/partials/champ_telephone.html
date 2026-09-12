@@ -1,7 +1,7 @@
 {% comment %}
   Téléphone et moment de rappel, réunis dans un seul bloc. Les pastilles sont de vrais
-  boutons radio : elles fonctionnent au clavier et sans JavaScript. Le script ne fait
-  qu'ajouter les flèches de défilement des jours.
+  boutons radio : elles fonctionnent au clavier et sans JavaScript. Le script ajoute les
+  flèches de défilement des jours et grise les heures déjà prises dans l'agenda de l'équipe.
 {% endcomment %}
 <div class="bloc-rappel">
   {% include "partials/champ.html" with champ=form.telephone %}
@@ -16,14 +16,14 @@
       <div class="creneaux__defilement">
         <div class="creneaux__jours">
           {% for jour in form.jours_de_rappel %}
-            <label class="puce puce--jour">
-              <input class="puce__radio" type="radio" name="{{ form.rappel_jour.html_name }}" value="{{ jour.valeur }}"{% if jour.coche %} checked{% endif %}>
+            <label class="puce puce--jour"{% if jour.complet_pris %} title="Complet"{% endif %}>
+              <input class="puce__radio" type="radio" name="{{ form.rappel_jour.html_name }}" value="{{ jour.valeur }}"{% if jour.coche %} checked{% endif %}{% if jour.complet_pris %} disabled{% endif %}>
               <span class="puce__corps">
                 {% if jour.valeur %}
                   <span class="puce__petit" aria-hidden="true">{{ jour.en_tete }}</span>
                   <span class="puce__grand" aria-hidden="true">{{ jour.numero }}</span>
                   <span class="puce__petit" aria-hidden="true">{{ jour.mois }}</span>
-                  <span class="visuellement-cache">{{ jour.complet }}</span>
+                  <span class="visuellement-cache">{{ jour.complet }}{% if jour.complet_pris %}, complet{% endif %}</span>
                 {% else %}
                   <span class="puce__petit" aria-hidden="true">Peu</span>
                   <span class="puce__grand" aria-hidden="true">—</span>
@@ -53,12 +53,14 @@
       <p class="creneaux__moment">{{ groupe.moment }}</p>
       <div class="creneaux__heures">
         {% for heure in groupe.heures %}
-          <label class="puce puce--heure">
-            <input class="puce__radio" type="radio" name="{{ form.rappel_heure.html_name }}" value="{{ heure.valeur }}"{% if heure.coche %} checked{% endif %}>
-            <span class="puce__corps">{{ heure.valeur }}</span>
+          <label class="puce puce--heure"{% if heure.pris %} title="Déjà réservé"{% endif %}>
+            <input class="puce__radio" type="radio" name="{{ form.rappel_heure.html_name }}" value="{{ heure.valeur }}"{% if heure.coche %} checked{% endif %}{% if heure.pris %} disabled{% endif %}>
+            <span class="puce__corps">{{ heure.valeur }}<span class="visuellement-cache" data-etat-creneau>{% if heure.pris %}, déjà réservé{% endif %}</span></span>
           </label>
         {% endfor %}
       </div>
     {% endfor %}
+    <p class="creneaux__legende"><span class="puce__temoin" aria-hidden="true"></span>Grisé : créneau déjà réservé.</p>
   </fieldset>
+  {{ form.creneaux_pris|json_script:"creneaux-pris" }}
 </div>

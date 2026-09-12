@@ -4,6 +4,15 @@
 {% block titre_page %}Changer mon mot de passe{% endblock %}
 {% block sous_titre_page %}Choisissez un mot de passe que vous n'utilisez nulle part ailleurs{% endblock %}
 
+{% block barre_page %}
+<div class="app__barre-page">
+  <div class="app__barre-gauche">
+    <a class="app__retour" href="{% url 'espace:tableau' %}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Tableau de bord</a>
+    <h2>Sécurité du compte</h2>
+  </div>
+</div>
+{% endblock %}
+
 {% block contenu %}
 <section class="app__carte">
   <form class="formulaire app__formulaire" method="post" novalidate>

@@ -4,18 +4,18 @@
 {% block titre_page %}{{ contact.nom }}{% endblock %}
 {% block sous_titre_page %}{{ contact.organisation|default:"Fiche contact" }}{% if contact.fonction %} · {{ contact.fonction }}{% endif %}{% endblock %}
 
-{% block contenu %}
-{% if messages %}<div class="courriel__messages" role="status">{% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}</div>{% endif %}
-
-<div class="courriel__barre-outils contacts__outils-fiche">
-  <a class="courriel__bouton courriel__bouton--discret" href="{% url 'contacts:liste' %}?produit={{ contact.produit }}">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Contacts
-  </a>
+{% block barre_page %}
+<div class="app__barre-page">
+  <div class="app__barre-gauche produit--{{ contact.produit }}">
+    <a class="app__retour" href="{% url 'contacts:liste' %}?produit={{ contact.produit }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Contacts</a>
+    <span class="produit-badge">{{ contact.get_produit_display }}</span>
+    <span class="etape-badge etape-badge--{{ contact.statut }}">{{ contact.get_statut_display }}</span>
+  </div>
+  <div class="app__barre-droite">
   <a class="courriel__bouton courriel__bouton--plein" href="{% url 'contacts:modifier' contact.pk %}">Modifier</a>
   {% if contact.courriel %}<a class="courriel__bouton" href="{% url 'courriel:rediger' %}?a={{ contact.courriel|urlencode }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg> Écrire</a>{% endif %}
   {% if contact.telephone %}<a class="courriel__bouton" href="tel:{{ contact.telephone|cut:' ' }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg> Appeler</a>{% endif %}
   <a class="courriel__bouton" href="{{ rendez_vous }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg> Planifier un rendez-vous</a>
-  <span class="courriel__espace"></span>
   <details class="courriel__confirmer agenda__supprimer">
     <summary class="courriel__bouton courriel__bouton--danger">Supprimer</summary>
     <form method="post" action="{% url 'contacts:supprimer' contact.pk %}">
@@ -24,7 +24,12 @@
       <button type="submit" class="courriel__bouton courriel__bouton--danger-plein">Confirmer la suppression</button>
     </form>
   </details>
+  </div>
 </div>
+{% endblock %}
+
+{% block contenu %}
+{% if messages %}<div class="courriel__messages" role="status">{% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}</div>{% endif %}
 
 <section class="stats__carte pipeline-etapes produit--{{ contact.produit }}" aria-labelledby="t-etape">
   <div class="pipeline-etapes__tete">

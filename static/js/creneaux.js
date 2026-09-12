@@ -41,3 +41,31 @@
     mettreAJour();
   });
 })();
+
+// Heures déjà prises (agenda de l'équipe, autres demandes) : grisées pour le jour choisi.
+(function () {
+  var source = document.getElementById("creneaux-pris");
+  if (!source) return;
+  var pris = JSON.parse(source.textContent);
+  var jours = document.querySelectorAll('input[name="rappel_jour"]');
+  var heures = document.querySelectorAll('.puce--heure input[name="rappel_heure"]');
+  var indifferente = document.querySelector('input[name="rappel_heure"][value=""]');
+
+  function appliquer() {
+    var jour = document.querySelector('input[name="rappel_jour"]:checked');
+    var occupees = (jour && pris[jour.value]) || [];
+    heures.forEach(function (radio) {
+      var prise = occupees.indexOf(radio.value) !== -1;
+      radio.disabled = prise;
+      radio.closest(".puce").title = prise ? "Déjà réservé" : "";
+      radio.parentNode.querySelector("[data-etat-creneau]").textContent = prise ? ", déjà réservé" : "";
+      if (prise && radio.checked) {
+        radio.checked = false;
+        if (indifferente) indifferente.checked = true;
+      }
+    });
+  }
+
+  jours.forEach(function (radio) { radio.addEventListener("change", appliquer); });
+  appliquer();
+})();

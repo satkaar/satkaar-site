@@ -1,12 +1,16 @@
 {% extends "courriel/base_courriel.html" %}
 
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <a class="app__retour" href="{% if origine %}{% url 'courriel:lire' origine.pk %}{% else %}{% url 'courriel:boite' %}{% endif %}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Retour</a>
+  <h2>{% if mode == "transferer" %}Transférer{% elif mode %}Répondre{% else %}Nouveau message{% endif %}</h2>
+  {% if origine %}<span class="app__barre-info">{{ origine.sujet|default:"(sans objet)" }} · {{ origine.expediteur_nom|default:origine.expediteur_adresse }}</span>{% endif %}
+</div>
+{% endblock %}
+
+{% block classe_principal %} courriel__principal--plein{% endblock %}
+
 {% block courriel %}
-<header class="courriel__entete">
-  <div>
-    <h2>{% if mode == "transferer" %}Transférer{% elif mode %}Répondre{% else %}Nouveau message{% endif %}</h2>
-    {% if origine %}<p>{{ origine.sujet|default:"(sans objet)" }} · {{ origine.expediteur_nom|default:origine.expediteur_adresse }}</p>{% endif %}
-  </div>
-</header>
 
 <form class="courriel__redaction" method="post" enctype="multipart/form-data" novalidate>
   {% csrf_token %}

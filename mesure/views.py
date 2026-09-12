@@ -15,7 +15,7 @@ from .middleware import EXCLUS
 from .models import Evenement, Mesure
 from .sante import auditer
 
-PERIODES = {"7": "7 derniers jours", "30": "30 derniers jours", "90": "90 derniers jours", "365": "12 derniers mois"}
+PERIODES = {"7": "7 jours", "30": "30 jours", "90": "90 jours", "365": "12 mois"}
 TAILLE_MAX = 4096
 ENVOIS_MAX = 120  # par visiteur et par tranche de 10 minutes
 

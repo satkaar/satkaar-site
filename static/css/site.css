@@ -3638,48 +3638,6 @@ a.vitrine:hover img {
   gap: 0.75rem;
 }
 
-.app__outil {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  color: var(--crm-texte-2);
-}
-
-.app__outil:hover {
-  background: var(--crm-survol);
-  color: var(--crm-texte);
-}
-
-.app__outil svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.app__outil-badge {
-  position: absolute;
-  top: -0.15rem;
-  right: -0.15rem;
-  display: inline-grid;
-  place-items: center;
-  min-width: 1rem;
-  height: 1rem;
-  padding: 0 0.25rem;
-  border-radius: 999px;
-  background: #ea4335;
-  box-shadow: 0 0 0 2px var(--crm-creme);
-  color: var(--blanc);
-  font-size: 0.6rem;
-  font-weight: 700;
-}
-
 .app__qui {
   display: inline-flex;
   align-items: center;
@@ -3689,9 +3647,136 @@ a.vitrine:hover img {
 }
 
 .app__contenu {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   width: 100%;
-  padding: 0.5rem 1.5rem 2rem;
+  min-width: 0;
+}
+
+.app__page {
+  flex: 1;
+  padding: 1.25rem 1.5rem 2rem;
+}
+
+/* Barre de page, sur le modèle de celle de l'agenda : filets en haut et en bas,
+   navigation ou titre à gauche, actions à droite. */
+.app__barre-page {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  min-height: 3.4rem;
+  padding: 0.6rem 1.5rem;
+  border-top: 1px solid var(--crm-bord);
+  border-bottom: 1px solid var(--crm-bord);
+  background: var(--crm-creme);
+}
+
+.app__barre-gauche,
+.app__barre-droite {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  min-width: 0;
+}
+
+.app__barre-droite {
+  margin-left: auto;
+}
+
+.app__barre-page h2 {
+  margin: 0;
+  font-family: var(--police-texte);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--crm-texte);
+}
+
+.app__barre-info {
+  font-size: 0.8rem;
+  color: var(--crm-muet);
+}
+
+.app__retour {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem 0.3rem 0.35rem;
+  border-radius: 999px;
+  color: var(--crm-texte-2);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.app__retour:hover {
+  background: var(--crm-survol);
+  color: var(--crm-texte);
+}
+
+.app__retour svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Bouton secondaire de la barre (comme « Aujourd'hui » dans l'agenda). */
+.app__bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 1rem;
+  border: 1px solid var(--crm-bord);
+  border-radius: 999px;
+  background: transparent;
+  color: #444746;
+  font: 400 0.875rem/1.3 var(--police-texte);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.app__bouton:hover {
+  background: var(--crm-survol);
+  color: #444746;
+}
+
+.app__bouton svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.app__bouton--plein {
+  border-color: var(--crm-marque);
+  background: var(--crm-marque);
+  color: var(--blanc);
+  font-weight: 500;
+}
+
+.app__bouton--plein:hover {
+  border-color: var(--crm-marque-fonce);
+  background: var(--crm-marque-fonce);
+  color: var(--blanc);
+}
+
+.app__bouton--danger {
+  color: var(--crm-alerte);
+}
+
+.app__bouton--danger:hover {
+  border-color: var(--crm-alerte);
+  background: #fce8e6;
+  color: var(--crm-alerte);
 }
 
 /* Pages simples de l'espace (tableau de bord client, mot de passe). */
@@ -3861,11 +3946,8 @@ a.vitrine:hover img {
     padding-inline: 1rem;
   }
 
-  .app__qui span:first-child {
-    display: none;
-  }
-
-  .app__contenu {
+  .app__page,
+  .app__barre-page {
     padding-inline: 1rem;
   }
 }
@@ -5612,7 +5694,7 @@ a.vitrine:hover img {
 .agenda--autre { --c: #5c6672; }
 .agenda--rappel { --c: #0f7c8c; }
 
-.app--agenda .app__contenu {
+.app--agenda .app__page {
   padding: 0;
 }
 
@@ -5625,7 +5707,8 @@ a.vitrine:hover img {
 }
 
 /* Sélecteur Mois / Semaine / Jour du bandeau. */
-.agenda__vues {
+.agenda__vues,
+.app__vues {
   display: inline-flex;
   align-items: center;
   padding: 2px;
@@ -5634,7 +5717,8 @@ a.vitrine:hover img {
   background: var(--blanc);
 }
 
-.agenda__vues a {
+.agenda__vues a,
+.app__vues a {
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   color: var(--crm-texte-2);
@@ -5643,11 +5727,13 @@ a.vitrine:hover img {
   text-decoration: none;
 }
 
-.agenda__vues a:hover {
+.agenda__vues a:hover,
+.app__vues a:hover {
   background: var(--crm-survol);
 }
 
-.agenda__vues a[aria-current] {
+.agenda__vues a[aria-current],
+.app__vues a[aria-current] {
   background: var(--crm-marque);
   color: var(--blanc);
 }
@@ -6602,9 +6688,13 @@ a.vitrine:hover img {
   margin-bottom: 1rem;
 }
 
+.contacts__recherche-form {
+  margin: 0;
+}
+
 .contacts__recherche {
-  flex: 1 1 12rem;
-  max-width: 18rem;
+  width: 16rem;
+  max-width: 100%;
 }
 
 .app .contacts__recherche {
@@ -7138,4 +7228,403 @@ a.vitrine:hover img {
   .pipeline-etapes__liste {
     grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
   }
+}
+
+/* --- Agenda : vue Année (12 mois, jours teintés selon le nombre d'éléments) --- */
+/* Pleine page : pas de colonne de gauche, les 12 mois s'étirent sur toute la hauteur. */
+.agenda--pleine-page {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.agenda__barre-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.annee {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem 1.5rem 1rem;
+}
+
+.annee__mois {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  grid-auto-rows: minmax(15rem, 1fr);
+  gap: 0.75rem;
+}
+
+.annee__carte {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0.8rem 0.9rem 0.9rem;
+  border: 1px solid var(--stats-bord);
+  border-radius: 12px;
+  background: var(--blanc);
+  box-shadow: var(--ombre-carte);
+}
+
+.annee__carte h3 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-family: var(--police-texte);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.annee__carte h3 a {
+  color: var(--crm-texte);
+  text-decoration: none;
+}
+
+.annee__carte h3 a:hover {
+  color: var(--crm-marque);
+  text-decoration: underline;
+}
+
+.annee__carte h3 span {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--crm-muet);
+}
+
+.annee__grille {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: auto repeat(6, minmax(1.15rem, 1fr));
+  gap: 3px;
+  min-height: 0;
+  text-align: center;
+}
+
+.annee__jour-semaine {
+  padding-bottom: 0.15rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--crm-texte-2);
+}
+
+/* Chaque jour occupe sa case : une pastille arrondie qui grandit avec l'écran. */
+.annee__jour {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  border-radius: 8px;
+  color: var(--crm-texte);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+a.annee__jour:hover {
+  background: var(--crm-survol);
+}
+
+.annee__jour--hors {
+  color: #c4c7cc;
+}
+
+/* Une seule teinte, du clair au foncé (nombre d'éléments dans la journée). */
+.annee__jour--1 { background: rgba(26, 44, 91, 0.12); font-weight: 600; }
+.annee__jour--2 { background: rgba(26, 44, 91, 0.3); font-weight: 600; }
+.annee__jour--3 { background: rgba(26, 44, 91, 0.62); color: var(--blanc); font-weight: 600; }
+
+a.annee__jour--1:hover { background: rgba(26, 44, 91, 0.2); }
+a.annee__jour--2:hover { background: rgba(26, 44, 91, 0.4); }
+a.annee__jour--3:hover { background: rgba(26, 44, 91, 0.75); }
+
+.annee__jour--aujourdhui {
+  box-shadow: inset 0 0 0 2px var(--crm-marque);
+  font-weight: 700;
+}
+
+.annee__legende {
+  display: flex;
+  flex: none;
+  max-width: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--crm-muet);
+}
+
+.annee__legende > span:first-child {
+  font-weight: 600;
+  color: var(--crm-texte);
+}
+
+.annee__echelle {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.annee__echelle .annee__jour {
+  width: 1.7rem;
+  height: 1.3rem;
+  font-size: 0.65rem;
+}
+
+/* 12 mois en lignes complètes : 4 × 3, ou 6 × 2 sur grand écran. */
+@media (min-width: 1250px) {
+  .annee__mois {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(11.5rem, 1fr));
+  }
+}
+
+@media (min-width: 1800px) {
+  .annee__mois {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(13rem, 1fr));
+  }
+}
+
+/* Créneau de rappel déjà réservé (agenda de l'équipe) : grisé, barré, non sélectionnable. */
+.puce:has(.puce__radio:disabled) {
+  cursor: not-allowed;
+}
+
+.puce__radio:disabled + .puce__corps,
+.puce:hover .puce__radio:disabled + .puce__corps {
+  border-color: #e3e0da;
+  background: #f1efeb;
+  color: #a19b91;
+  text-decoration: line-through;
+  box-shadow: none;
+}
+
+.puce__radio:disabled + .puce__corps .puce__petit {
+  color: #b3ada3;
+}
+
+.creneaux__legende {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ardoise);
+}
+
+.puce__temoin {
+  width: 1.4rem;
+  height: 0.9rem;
+  border: 1px solid #e3e0da;
+  border-radius: 4px;
+  background: #f1efeb;
+}
+
+/* Recherche et relève du Mail, sur une ligne dans la barre de page. */
+.app__barre-droite .courriel__recherche {
+  flex: none;
+  width: 20rem;
+  max-width: 100%;
+}
+
+.app__barre-droite .courriel__recherche .champ,
+.app .contacts__recherche {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.app__barre-droite form {
+  margin: 0;
+}
+
+@media (min-width: 1001px) {
+  .app__barre-droite {
+    flex: none;
+    flex-wrap: nowrap;
+  }
+}
+
+/* --- Mail pleine page (comme l'agenda) ------------------------------------- */
+/* Dossiers en bande plate à gauche, liste bord à bord qui défile seule. */
+@media (min-width: 1001px) {
+  .app--courriel .app__contenu {
+    height: calc(100vh - 3.5rem);
+    overflow: hidden;
+  }
+
+  .app--courriel .app__page {
+    display: flex;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .app--courriel .courriel {
+    flex: 1;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 0;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .app--courriel .courriel__dossiers {
+    position: static;
+    align-content: start;
+    overflow-y: auto;
+    padding: 1rem 0.75rem;
+    border: 0;
+    border-right: 1px solid var(--crm-bord);
+    border-radius: 0;
+    background: var(--crm-creme);
+    box-shadow: none;
+  }
+
+  .app--courriel .courriel__principal {
+    align-content: start;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem 2rem;
+  }
+
+  /* Liste des messages : bord à bord, sans carte. */
+  .app--courriel .courriel__principal--plein {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    background: var(--blanc);
+  }
+
+  .courriel__principal--plein .courriel__messages {
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--crm-bord);
+    background: var(--crm-creme);
+  }
+
+  .courriel__principal--plein .courriel__liste {
+    flex: 1;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .courriel__principal--plein .courriel__vide {
+    height: 100%;
+    align-content: center;
+  }
+
+  .courriel__principal--plein .courriel__pages {
+    flex: none;
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid var(--crm-bord);
+    background: var(--crm-creme);
+  }
+
+  .courriel__principal--plein .courriel-ligne__lien {
+    padding-right: 1.5rem;
+  }
+
+  .courriel__principal--plein .courriel-ligne__etoile button {
+    width: 3rem;
+    padding-left: 0.5rem;
+  }
+}
+
+/* Lecture et rédaction aussi en plein cadre. */
+@media (min-width: 1001px) {
+  .courriel__principal--plein .courriel__lecture {
+    flex: 1;
+    padding: 1.75rem 2.5rem 2.5rem;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .courriel__principal--plein .courriel__redaction {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .courriel__principal--plein .courriel__redaction textarea {
+    flex: 1;
+    min-height: 16rem;
+  }
+
+  .courriel__principal--plein .courriel__entetes-saisie,
+  .courriel__principal--plein .courriel__pieces-saisie,
+  .courriel__principal--plein .courriel__envoi {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1001px) {
+  .courriel__principal--plein .courriel__redaction textarea {
+    padding-inline: 1.5rem;
+  }
+}
+
+/* Boîtes Gmail et OVH : repère visuel et guide de connexion. */
+.courriel__avatar--gmail {
+  background: #c5221f;
+}
+
+.courriel__import {
+  margin: 0;
+}
+
+.courriel__guide h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.courriel__guide-colonnes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 1rem 2rem;
+}
+
+.courriel__guide h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-family: var(--police-texte);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.courriel__guide ol {
+  margin: 0 0 0.5rem;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--crm-texte);
+}
+
+.courriel__guide p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--crm-muet);
+}
+
+.courriel__guide a {
+  color: var(--crm-marque);
+  font-weight: 600;
+}
+
+.courriel__guide-pied {
+  margin-top: 0.75rem !important;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--stats-filet);
 }

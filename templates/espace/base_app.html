@@ -66,23 +66,17 @@
       </div>
       <div class="app__outils">
         {% block actions_page %}{% endblock %}
-        {% if user.is_staff %}
-          {% for p in pages %}{% if p.cle == "mail" %}
-            <a class="app__outil" href="{{ p.url }}" title="Mail{% if p.badge %} : {{ p.badge }} non lu{{ p.badge|pluralize }}{% endif %}">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">{{ p.icone }}</svg>
-              <span class="visuellement-cache">Mail{% if p.badge %}, {{ p.badge }} non lu{{ p.badge|pluralize }}{% endif %}</span>
-              {% if p.badge %}<span class="app__outil-badge" aria-hidden="true">{% if p.badge > 9 %}9+{% else %}{{ p.badge }}{% endif %}</span>{% endif %}
-            </a>
-          {% endif %}{% endfor %}
-        {% endif %}
-        <span class="app__qui">
-          <span>{{ user.first_name|default:user.email }}</span>
+        <span class="app__qui" title="{{ user.get_full_name|default:user.email }}">
           <span class="app__initiales" aria-hidden="true">{{ user.first_name|first|default:user.email|first|upper }}{{ user.last_name|first|upper }}</span>
         </span>
       </div>
     </header>
     <main class="app__contenu" id="contenu">
-      {% block contenu %}{% endblock %}
+      {% comment %}Barre de la page, pleine largeur comme dans l'agenda : navigation à gauche, actions à droite.{% endcomment %}
+      {% block barre_page %}{% endblock %}
+      <div class="app__page">
+        {% block contenu %}{% endblock %}
+      </div>
     </main>
   </div>
 </div>

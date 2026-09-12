@@ -236,11 +236,35 @@ def compte(request, pk=None):
         except protocoles.ErreurCourriel as erreur:
             CompteCourriel.objects.filter(pk=boite_mail.pk).update(derniere_erreur=str(erreur)[:300])
             messages.warning(request, f"Boîte enregistrée, mais la connexion échoue : {erreur}")
-        else:
-            CompteCourriel.objects.filter(pk=boite_mail.pk).update(derniere_erreur="")
+            return redirect("courriel:comptes")
+        CompteCourriel.objects.filter(pk=boite_mail.pk).update(derniere_erreur="")
+        if instance:
             messages.success(request, "Boîte enregistrée : la réception (IMAP) et l'envoi (SMTP) répondent.")
-        return redirect("courriel:comptes")
+            return redirect("courriel:comptes")
+        # Nouvelle boîte : on rapatrie tout de suite ses derniers messages reçus et envoyés.
+        _importer(request, boite_mail, reception=200, envoyes=100)
+        return redirect(f"{reverse('courriel:boite')}?compte={boite_mail.pk}")
     return render(request, "courriel/compte.html", _barre("comptes", form=form, instance=instance, fournisseurs=FOURNISSEURS))
+
+
+def _importer(request, boite_mail, reception, envoyes):
+    try:
+        recus, partis = protocoles.importer_historique(boite_mail, reception=reception, envoyes=envoyes)
+    except protocoles.ErreurCourriel as erreur:
+        CompteCourriel.objects.filter(pk=boite_mail.pk).update(derniere_erreur=str(erreur)[:300])
+        messages.error(request, f"Import de {boite_mail.adresse} interrompu : {erreur}")
+        return
+    messages.success(request, f"{boite_mail.adresse} : {recus} message{'s' if recus > 1 else ''} reçu{'s' if recus > 1 else ''} "
+                              f"et {partis} envoyé{'s' if partis > 1 else ''} importé{'s' if recus + partis > 1 else ''}.")
+
+
+@equipe
+@require_POST
+def compte_importer(request, pk):
+    """Historique plus profond : les 1 000 derniers reçus et 300 derniers envoyés (déjà importés ignorés)."""
+    boite_mail = get_object_or_404(CompteCourriel, pk=pk)
+    _importer(request, boite_mail, reception=1000, envoyes=300)
+    return redirect("courriel:comptes")
 
 
 @equipe

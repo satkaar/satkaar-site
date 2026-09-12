@@ -1,12 +1,12 @@
 {% extends "courriel/base_courriel.html" %}
 {% load courriels %}
 
-{% block courriel %}
-<header class="courriel__entete">
-  <div>
-    <h2>{% if compte %}{{ compte }}{% else %}{{ titre }}{% endif %}</h2>
-    <p>{{ page.paginator.count }} message{{ page.paginator.count|pluralize }}{% if compte %} · {{ compte.adresse }}{% endif %}{% if recherche %} pour « {{ recherche }} »{% endif %}</p>
-  </div>
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <h2>{% if compte %}{{ compte }}{% else %}{{ titre }}{% endif %}</h2>
+  <span class="app__barre-info">{{ page.paginator.count }} message{{ page.paginator.count|pluralize }}{% if compte %} · {{ compte.adresse }}{% endif %}{% if recherche %} pour « {{ recherche }} »{% endif %}</span>
+</div>
+<div class="app__barre-droite">
   <form class="courriel__recherche" method="get" role="search">
     {% if compte %}<input type="hidden" name="compte" value="{{ compte.pk }}">{% endif %}
     <label class="visuellement-cache" for="recherche">Rechercher dans les messages</label>
@@ -20,7 +20,12 @@
     </button>
     <span class="courriel__etat" role="status" data-etat></span>
   </form>
-</header>
+</div>
+{% endblock %}
+
+{% block classe_principal %} courriel__principal--plein{% endblock %}
+
+{% block courriel %}
 
 <div class="courriel__liste">
   {% if page.object_list %}

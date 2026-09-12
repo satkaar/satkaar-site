@@ -148,3 +148,51 @@ class ReferencementTests(TestCase):
     def test_espace_client_hors_index(self):
         html = self.client.get(reverse("espace:connexion")).content.decode()
         self.assertIn('content="noindex, nofollow"', html)
+
+
+class CreneauxBranchesSurLAgendaTests(TestCase):
+    """Un créneau pris dans l'agenda de l'équipe ou par une autre demande ne se réserve pas deux fois."""
+
+    url = reverse("pages:contact")
+
+    def setUp(self):
+        from agenda.models import Evenement
+
+        self.jour = jours_ouvres_a_venir(timezone.localdate())[0]
+        self.lendemain = jours_ouvres_a_venir(timezone.localdate())[1]
+        debut = timezone.make_aware(datetime.datetime.combine(self.jour, datetime.time(10, 0)))
+        Evenement.objects.create(titre="Comité de pilotage", debut=debut, fin=debut + datetime.timedelta(hours=1))
+        Evenement.objects.create(titre="Salon", journee_entiere=True,
+                                 debut=timezone.make_aware(datetime.datetime.combine(self.lendemain, datetime.time(0))),
+                                 fin=timezone.make_aware(datetime.datetime.combine(self.lendemain, datetime.time(0))) + datetime.timedelta(days=1))
+        DemandeDemonstration.objects.create(nom="Autre visiteur", organisation="X", courriel="x@x.fr", telephone="0600000000",
+                                            rappel_jour=self.jour, rappel_heure=datetime.time(15, 0))
+
+    def envoyer(self, heure):
+        return self.client.post(self.url, {"nom": "Claire Martin", "organisation": "Manosque", "courriel": "claire@example.fr",
+                                           "sujet": "vanessa", "telephone": "06 12 34 56 78",
+                                           "rappel_jour": self.jour.isoformat(), "rappel_heure": heure})
+
+    def test_creneaux_pris(self):
+        from agenda.disponibilites import creneaux_pris
+
+        heures = ["09:30", "10:00", "10:30", "11:00", "15:00", "15:30"]
+        pris = creneaux_pris([self.jour, self.lendemain], heures)
+        self.assertEqual(pris[self.jour.isoformat()], ["10:00", "10:30", "15:00"])  # 10 h – 11 h, puis la demande de 15 h
+        self.assertEqual(pris[self.lendemain.isoformat()], heures)  # journée entière : tout est pris
+
+    def test_page_transmet_les_creneaux_pris(self):
+        page = self.client.get(self.url)
+        self.assertEqual(page.context["form"].creneaux_pris[self.jour.isoformat()], ["10:00", "10:30", "15:00"])
+        self.assertContains(page, 'id="creneaux-pris"')
+        self.assertContains(page, f'value="{self.lendemain.isoformat()}" disabled')
+
+    def test_double_reservation_refusee(self):
+        reponse = self.envoyer("10:30")
+        self.assertContains(reponse, "Ce créneau vient d&#x27;être réservé")
+        self.assertEqual(DemandeDemonstration.objects.count(), 1)
+
+    def test_creneau_libre_accepte_puis_bloque(self):
+        reponse = self.envoyer("11:00")
+        self.assertRedirects(reponse, f"{self.url}?envoye=1", fetch_redirect_response=False)
+        self.assertContains(self.envoyer("11:00"), "Ce créneau vient d&#x27;être réservé")

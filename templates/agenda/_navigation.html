@@ -5,5 +5,8 @@
     <h2>{{ titre|capfirst }}</h2>
     <a class="agenda__fleche" href="{{ url_suivant }}" aria-label="{{ libelle_suivant }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 6 6 6-6 6"/></svg></a>
   </div>
-  <a class="agenda__aujourdhui" href="{{ url_aujourdhui }}">Aujourd'hui</a>
+  <span class="agenda__barre-actions">
+    {% if bouton_ajout %}<a class="courriel__bouton courriel__bouton--plein" href="{% url 'agenda:ajouter' %}">+ Nouvel événement</a>{% endif %}
+    <a class="agenda__aujourdhui" href="{{ url_aujourdhui }}">Aujourd'hui</a>
+  </span>
 </div>

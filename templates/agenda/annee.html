@@ -1,0 +1,42 @@
+{% extends "agenda/base_agenda.html" %}
+
+{% block classe_agenda %} agenda--pleine-page{% endblock %}
+{% block colonne %}{% endblock %}
+
+{% block agenda %}
+{% url 'agenda:annee_de' an|add:"-1" as url_precedent %}
+{% url 'agenda:annee_de' an|add:"1" as url_suivant %}
+{% url 'agenda:annee' as url_aujourdhui %}
+{% include "agenda/_navigation.html" with titre=an|stringformat:"d" libelle_precedent="Année précédente" libelle_suivant="Année suivante" bouton_ajout=True %}
+
+<div class="annee">
+  <div class="annee__mois">
+    {% for m in mois_de_l_annee %}
+      <section class="annee__carte" aria-labelledby="mois-{{ forloop.counter }}">
+        <h3 id="mois-{{ forloop.counter }}">
+          <a href="{% url 'agenda:mois_de' m.premier.year m.premier.month %}">{{ m.premier|date:"F"|capfirst }}</a>
+          {% if m.total %}<span>{{ m.total }} événement{{ m.total|pluralize }}</span>{% endif %}
+        </h3>
+        <div class="annee__grille">
+          {% for j in "LMMJVSD" %}<span class="annee__jour-semaine" aria-hidden="true">{{ j }}</span>{% endfor %}
+          {% for sem in m.semaines %}{% for j in sem %}
+            {% if j.hors_mois %}
+              <span class="annee__jour annee__jour--hors" aria-hidden="true">{{ j.date.day }}</span>
+            {% else %}
+              <a class="annee__jour{% if j.nombre >= 3 %} annee__jour--3{% elif j.nombre == 2 %} annee__jour--2{% elif j.nombre == 1 %} annee__jour--1{% endif %}{% if j.aujourdhui %} annee__jour--aujourdhui{% endif %}"
+                 href="{% url 'agenda:jour_du' j.date.year j.date.month j.date.day %}"{% if j.aujourdhui %} aria-current="date"{% endif %}
+                 aria-label="{{ j.date|date:'l j F' }}{% if j.nombre %}, {{ j.nombre }} élément{{ j.nombre|pluralize }}{% endif %}"
+                 {% if j.nombre %}title="{{ j.nombre }} élément{{ j.nombre|pluralize }}"{% endif %}>{{ j.date.day }}</a>
+            {% endif %}
+          {% endfor %}{% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+  <p class="annee__legende">
+    <span>{{ total }} élément{{ total|pluralize }} en {{ an }}</span>
+    <span class="annee__echelle" aria-hidden="true"><span class="annee__jour annee__jour--1">1</span><span class="annee__jour annee__jour--2">2</span><span class="annee__jour annee__jour--3">3+</span></span>
+    <span>élément(s) dans la journée · aujourd'hui entouré</span>
+  </p>
+</div>
+{% endblock %}
