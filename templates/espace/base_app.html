@@ -21,7 +21,7 @@
         <a class="app__lien" href="{{ p.url }}"{% if p.actif %} aria-current="page"{% endif %}>
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">{{ p.icone }}</svg>
           <span>{{ p.libelle }}</span>
-          {% if p.badge %}<span class="app__compteur">{{ p.badge }}<span class="visuellement-cache"> {{ p.titre_badge }}{% if p.cle == "mail" %}{{ p.badge|pluralize }}{% endif %}</span></span>{% endif %}
+          {% if p.badge %}<span class="app__compteur">{{ p.badge }}<span class="visuellement-cache"> {{ p.titre_badge }}</span></span>{% endif %}
         </a>
       {% endfor %}
     </nav>

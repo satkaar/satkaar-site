@@ -6455,3 +6455,687 @@ a.vitrine:hover img {
     padding-inline: 1rem;
   }
 }
+
+/* --- Contacts (espace, équipe Satkaar) ----------------------------------- */
+/* Pipeline commercial par logiciel, aux standards du CRM. Couleur par produit,
+   toujours accompagnée de son nom. */
+
+.produit--isidor { --p: #2e6b5a; }
+.produit--vanessa { --p: #1e63a8; }
+.produit--bernard { --p: #be5620; }
+.produit--katarina { --p: #6b4fa0; }
+.produit--conseil { --p: #1a2c5b; }
+.produit--formation { --p: #8b5a1a; }
+.produit--autre { --p: #5c6672; }
+
+.produit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p, #5c6672) 12%, white);
+  color: color-mix(in srgb, var(--p, #5c6672) 85%, black);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.produit-badge::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--p, #5c6672);
+}
+
+.tuile--lien {
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tuile--lien:hover {
+  border-color: var(--crm-marque);
+  box-shadow: 0 4px 12px -6px rgba(15, 23, 42, 0.3);
+}
+
+/* Cartes par logiciel. */
+.produit-carte {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem 1.2rem;
+  border: 1px solid var(--stats-bord);
+  border-top: 4px solid var(--p);
+  border-radius: 12px;
+  background: var(--blanc);
+  box-shadow: var(--ombre-carte);
+  color: var(--crm-texte);
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.produit-carte:hover,
+.produit-carte--active {
+  border-color: var(--p);
+  box-shadow: 0 6px 16px -8px rgba(15, 23, 42, 0.35);
+}
+
+.produit-carte__tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.produit-carte .produit-badge {
+  font-size: 0.85rem;
+  padding: 0.2rem 0.7rem;
+}
+
+.produit-carte__voir {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--crm-muet);
+}
+
+.produit-carte__chiffres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  font-size: 0.85rem;
+  color: var(--crm-muet);
+}
+
+.produit-carte__chiffres strong {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.9rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--crm-marque);
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.produit-carte__montants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  font-size: 0.8rem;
+  color: var(--crm-muet);
+}
+
+.produit-carte__montants strong {
+  color: var(--crm-texte);
+}
+
+.entonnoir {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--stats-filet);
+}
+
+.entonnoir__etape {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--p) 7%, white);
+  text-align: center;
+}
+
+.entonnoir__etape span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.65rem;
+  color: var(--crm-muet);
+}
+
+.entonnoir__etape strong {
+  font-size: 0.95rem;
+  color: color-mix(in srgb, var(--p) 85%, black);
+}
+
+/* Filtres. */
+.contacts__filtres {
+  margin-bottom: 1rem;
+}
+
+.contacts__recherche {
+  flex: 1 1 12rem;
+  max-width: 18rem;
+}
+
+.app .contacts__recherche {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.contacts__outils {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+/* Pipeline en colonnes. */
+.piste {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(13rem, 1fr));
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.piste__colonne {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--stats-bord);
+  border-radius: 12px;
+  background: #f4f1ea;
+}
+
+.piste__tete {
+  padding: 0.7rem 0.85rem 0.6rem;
+  border-bottom: 1px solid var(--stats-bord);
+}
+
+.piste__tete h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  font-family: var(--police-texte);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--crm-muet);
+}
+
+.piste__tete h3 span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--blanc);
+  color: #0f172a;
+  font-size: 0.7rem;
+  letter-spacing: 0;
+}
+
+.piste__colonne--client .piste__tete h3 {
+  color: var(--crm-succes);
+}
+
+.piste__tete p {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  color: var(--crm-muet);
+}
+
+.piste__cartes {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  min-height: 6rem;
+}
+
+.piste__vide {
+  margin: 0;
+  padding: 0.75rem 0;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--crm-discret);
+}
+
+.piste-carte {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--stats-bord);
+  border-left: 3px solid var(--p);
+  border-radius: 8px;
+  background: var(--blanc);
+  box-shadow: var(--crm-ombre);
+}
+
+.piste-carte:hover {
+  box-shadow: 0 4px 12px -6px rgba(15, 23, 42, 0.35);
+}
+
+.piste-carte__lien {
+  display: grid;
+  gap: 0.1rem;
+  color: var(--crm-texte);
+  text-decoration: none;
+}
+
+.piste-carte__nom {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.piste-carte__org {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--crm-muet);
+}
+
+.piste-carte__infos,
+.piste-carte__pied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.piste-carte__montant {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--crm-texte);
+  white-space: nowrap;
+}
+
+.piste-carte__montant abbr {
+  text-decoration: none;
+  color: var(--crm-muet);
+}
+
+.piste-carte__relance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--crm-muet);
+}
+
+.piste-carte__relance svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.piste-carte__relance--due {
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: #fce8e6;
+  color: var(--crm-alerte);
+  font-weight: 600;
+}
+
+.piste-carte__qui {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.6rem;
+}
+
+.contacts__perdus,
+.contacts__note {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: var(--crm-muet);
+}
+
+.contacts__perdus a {
+  color: var(--crm-marque);
+  font-weight: 600;
+}
+
+/* Liste. */
+.contacts__tableau th a {
+  color: var(--crm-texte);
+  text-decoration: none;
+}
+
+.contacts__tableau th a:hover {
+  color: var(--crm-marque);
+  text-decoration: underline;
+}
+
+.contacts__du {
+  color: var(--crm-alerte);
+  font-weight: 600;
+}
+
+.etape-badge {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--crm-marque-doux);
+  color: var(--crm-marque);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.etape-badge--client {
+  background: rgba(45, 90, 61, 0.12);
+  color: var(--crm-succes);
+}
+
+.etape-badge--perdu {
+  background: #f1f3f4;
+  color: var(--crm-texte-2);
+}
+
+.etape-badge--proposition,
+.etape-badge--demo {
+  background: rgba(217, 160, 91, 0.2);
+  color: var(--crm-accent-texte);
+}
+
+/* Fiche : étapes du pipeline. */
+.contacts__outils-fiche {
+  margin-bottom: 1rem;
+}
+
+.pipeline-etapes {
+  margin-bottom: 1rem;
+  border-top: 4px solid var(--p);
+}
+
+.pipeline-etapes__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.pipeline-etapes__tete h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--police-texte);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.pipeline-etapes__tete form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.pipeline-etapes__liste {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pipeline-etapes__etape form {
+  margin: 0;
+}
+
+.pipeline-etapes__etape button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.6rem 0.5rem;
+  border: 1px solid var(--crm-bord);
+  border-radius: 999px;
+  background: var(--blanc);
+  color: var(--crm-muet);
+  font: 500 0.8rem/1.2 var(--police-texte);
+  cursor: pointer;
+}
+
+.pipeline-etapes__etape button:hover {
+  border-color: var(--crm-marque);
+  color: var(--crm-marque);
+}
+
+.pipeline-etapes__puce {
+  display: inline-grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: var(--crm-survol);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.pipeline-etapes__etape--faite button {
+  border-color: transparent;
+  background: var(--crm-marque-doux);
+  color: var(--crm-marque);
+}
+
+.pipeline-etapes__etape--faite .pipeline-etapes__puce {
+  background: var(--crm-marque);
+  color: var(--blanc);
+}
+
+.pipeline-etapes__etape--actuelle button {
+  border-color: var(--crm-marque);
+  background: var(--crm-degrade);
+  color: var(--blanc);
+  font-weight: 600;
+}
+
+.pipeline-etapes__etape--actuelle .pipeline-etapes__puce {
+  background: var(--blanc);
+  color: var(--crm-marque);
+}
+
+/* Fiche : échanges et informations. */
+.contacts__note-form {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--stats-filet);
+}
+
+.contacts__note-form textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.contacts__note-form button {
+  justify-self: start;
+}
+
+.contacts__note-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.contacts__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.contacts__type input {
+  margin: 0;
+  accent-color: var(--crm-marque);
+}
+
+.contacts__type:has(input:checked) {
+  border-color: var(--crm-marque);
+  background: var(--crm-marque-doux);
+  color: var(--crm-marque);
+}
+
+.chronologie {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chronologie__item {
+  position: relative;
+  padding: 0 0 1rem 1.25rem;
+  border-left: 2px solid var(--stats-filet);
+  margin-left: 0.4rem;
+}
+
+.chronologie__item::before {
+  content: "";
+  position: absolute;
+  left: -0.4rem;
+  top: 0.15rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 2px solid var(--blanc);
+  border-radius: 50%;
+  background: var(--crm-marque);
+}
+
+.chronologie__item--etape::before {
+  background: var(--crm-accent);
+}
+
+.chronologie__item--appel::before {
+  background: var(--crm-succes);
+}
+
+.chronologie__item:last-child {
+  padding-bottom: 0;
+}
+
+.chronologie__type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--crm-muet);
+}
+
+.chronologie__item p {
+  margin: 0.2rem 0 0.25rem;
+  font-size: 0.875rem;
+  color: var(--crm-texte);
+}
+
+.chronologie__quand {
+  font-size: 0.72rem;
+  color: var(--crm-discret);
+}
+
+.contacts__mails {
+  display: grid;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contacts__mails a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.4rem;
+  border-radius: 8px;
+  color: var(--crm-texte);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.contacts__mails a:hover {
+  background: var(--crm-survol);
+}
+
+.contacts__mails strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.contacts__mails span:last-child {
+  font-size: 0.75rem;
+  color: var(--crm-muet);
+  white-space: nowrap;
+}
+
+.contacts__infos {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.contacts__infos div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.contacts__infos dt {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--crm-muet);
+}
+
+.contacts__infos dd {
+  display: grid;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--crm-texte);
+  overflow-wrap: anywhere;
+}
+
+.contacts__infos a {
+  color: var(--crm-marque);
+}
+
+.contacts__infos small {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: var(--crm-muet);
+}
+
+.contacts__potentiel {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--crm-marque);
+}
+
+.contacts__demande-date {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  color: var(--crm-muet);
+}
+
+.contacts__demande {
+  margin: 0 0 0.5rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--crm-accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--crm-creme);
+  font-size: 0.85rem;
+  color: var(--crm-texte);
+}
+
+@media (max-width: 1100px) {
+  .pipeline-etapes__liste {
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  }
+}

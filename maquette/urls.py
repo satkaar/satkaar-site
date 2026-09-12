@@ -19,6 +19,7 @@ urlpatterns = [
     # Ancienne adresse du Mail (« Courriels ») : les favoris et liens déjà envoyés restent valables.
     re_path(r"^espace/courriels/(?P<reste>.*)$", RedirectView.as_view(url="/espace/mail/%(reste)s", permanent=True, query_string=True)),
     path("espace/agenda/", include("agenda.urls")),
+    path("espace/contacts/", include("contacts.urls")),
     path("espace/", include("espace.urls")),
     path("", include("pages.urls")),
 ]

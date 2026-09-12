@@ -1,0 +1,20 @@
+{% comment %}Carte d'un contact dans le pipeline.{% endcomment %}
+<article class="piste-carte produit--{{ c.produit }}">
+  <a class="piste-carte__lien" href="{% url 'contacts:fiche' c.pk %}">
+    <span class="piste-carte__nom">{{ c.nom }}</span>
+    {% if c.organisation %}<span class="piste-carte__org">{{ c.organisation }}{% if c.ville %} · {{ c.ville }}{% endif %}</span>{% endif %}
+  </a>
+  <div class="piste-carte__infos">
+    <span class="produit-badge">{{ c.get_produit_display }}</span>
+    {% if c.potentiel is not None %}<span class="piste-carte__montant">{{ c.potentiel|floatformat:"0g" }} €/an{% if c.estime %}<abbr title="Estimation d'après la surface et le tarif public d'Isidor">*</abbr>{% endif %}</span>{% endif %}
+  </div>
+  <div class="piste-carte__pied">
+    {% if c.prochaine_relance %}
+      <span class="piste-carte__relance{% if c.prochaine_relance <= aujourdhui and c.en_cours %} piste-carte__relance--due{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        {% if c.prochaine_relance <= aujourdhui and c.en_cours %}À relancer{% else %}Relance{% endif %} {{ c.prochaine_relance|date:"j N" }}
+      </span>
+    {% else %}<span></span>{% endif %}
+    {% if c.responsable %}<span class="app__initiales piste-carte__qui" title="Suivi par {{ c.responsable.get_full_name|default:c.responsable.email }}">{{ c.responsable.first_name|first|default:c.responsable.email|first|upper }}{{ c.responsable.last_name|first|upper }}</span>{% endif %}
+  </div>
+</article>

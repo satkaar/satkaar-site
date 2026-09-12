@@ -146,6 +146,8 @@ def editer(request, pk=None):
                 heure = time(9)
             initial.update({"heure_debut": heure, "heure_fin": (datetime.combine(date.today(), heure) + timedelta(hours=1)).time(),
                             "participants": [request.user.pk]})
+            # Préremplissage depuis une fiche contact (« Planifier un rendez-vous »).
+            initial.update({cle: request.GET[cle][:200] for cle in ("titre", "organisation") if request.GET.get(cle)})
         form = EvenementForm(instance=instance, initial=initial)
     reference = timezone.localtime(instance.debut).date() if instance else form.initial.get("date_debut", timezone.localdate())
     return render(request, "agenda/editer.html", {**_colonne(reference, "jour"), "form": form, "instance": instance})

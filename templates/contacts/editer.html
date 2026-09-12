@@ -1,0 +1,52 @@
+{% extends "espace/base_app.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Contact — Satkaar" %}{% endblock %}
+{% block classe_app %} app--stats app--contacts{% endblock %}
+{% block titre_page %}{% if instance %}Modifier {{ instance.nom }}{% else %}Nouveau contact{% endif %}{% endblock %}
+{% block sous_titre_page %}Prospect ou client, et son avancement dans le pipeline{% endblock %}
+
+{% block contenu %}
+<form class="courriel__formulaire contacts__formulaire" method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="courriel__info courriel__info--error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+  <section class="stats__carte">
+    <h2>Qui</h2>
+    {% include "courriel/_champ.html" with champ=form.nom %}
+    {% include "courriel/_champ.html" with champ=form.organisation %}
+    {% include "courriel/_champ.html" with champ=form.fonction %}
+    {% include "courriel/_champ.html" with champ=form.ville %}
+    {% include "courriel/_champ.html" with champ=form.courriel %}
+    {% include "courriel/_champ.html" with champ=form.telephone %}
+  </section>
+  <section class="stats__carte">
+    <h2>Opportunité</h2>
+    {% include "courriel/_champ.html" with champ=form.produit %}
+    {% include "courriel/_champ.html" with champ=form.statut %}
+    {% include "courriel/_champ.html" with champ=form.source %}
+    <div data-taille>{% include "courriel/_champ.html" with champ=form.taille aide=True %}</div>
+    {% include "courriel/_champ.html" with champ=form.montant aide=True %}
+    {% include "courriel/_champ.html" with champ=form.prochaine_relance %}
+    {% include "courriel/_champ.html" with champ=form.responsable %}
+  </section>
+  <div class="courriel__envoi">
+    <button type="submit" class="courriel__bouton courriel__bouton--plein courriel__bouton--grand">Enregistrer</button>
+    <a class="courriel__bouton courriel__bouton--discret" href="{% if instance %}{% url 'contacts:fiche' instance.pk %}{% else %}{% url 'contacts:liste' %}{% endif %}">Annuler</a>
+  </div>
+</form>
+{{ tailles|json_script:"tailles" }}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script>
+    // Le libellé de « taille » suit le produit : hectares pour Isidor, habitants pour Vanessa…
+    (function () {
+      var produit = document.getElementById("id_produit");
+      var libelle = document.querySelector("[data-taille] label");
+      var tailles = JSON.parse(document.getElementById("tailles").textContent);
+      if (!produit || !libelle) return;
+      var maj = function () { libelle.textContent = tailles[produit.value] || "Taille"; };
+      produit.addEventListener("change", maj);
+      maj();
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "espace/base_app.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Contacts — Satkaar" %}{% endblock %}
+{% block classe_app %} app--stats app--contacts{% endblock %}
+{% block titre_page %}Contacts{% endblock %}
+{% block sous_titre_page %}Prospects et clients · Isidor, Vanessa, Bernard{% endblock %}
+{% block actions_page %}<a class="courriel__bouton courriel__bouton--plein" href="{% url 'contacts:ajouter' %}{% if produit %}?produit={{ produit }}{% endif %}">+ Nouveau contact</a>{% endblock %}
+
+{% block contenu %}
+{% if messages %}<div class="courriel__messages" role="status">{% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}</div>{% endif %}
+
+<section class="stats__bloc" aria-labelledby="t-synthese">
+  <h2 class="stats__titre visuellement-cache" id="t-synthese">Synthèse</h2>
+  <div class="tuiles tuiles--4">
+    <article class="tuile"><p class="tuile__libelle"><span class="tuile__icone" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span>Leads en cours</p><p class="tuile__valeur">{{ totaux.leads }}</p><p class="tuile__aide">Du premier contact à la proposition.</p></article>
+    <article class="tuile"><p class="tuile__libelle"><span class="tuile__icone tuile__icone--succes" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span>Clients</p><p class="tuile__valeur">{{ totaux.clients }}</p><p class="tuile__aide">Tous logiciels et prestations.</p></article>
+    <article class="tuile"><p class="tuile__libelle"><span class="tuile__icone" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.8 5 3.5 5 1.6 5 3.5-2.2 3-5 3-5-1.1-5-3"/></svg></span>Potentiel en cours</p><p class="tuile__valeur">{{ totaux.potentiel|floatformat:"0g" }} €</p><p class="tuile__aide">€ HT par an, leads en cours.</p></article>
+    <a class="tuile tuile--lien{% if totaux.a_relancer %} tuile--moyen{% endif %}" href="?relance=1"><p class="tuile__libelle"><span class="tuile__icone tuile__icone--accent" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>À relancer</p><p class="tuile__valeur">{{ totaux.a_relancer }}</p><p class="tuile__aide">Relance prévue aujourd'hui ou dépassée.</p></a>
+  </div>
+</section>
+
+<section class="stats__bloc" aria-labelledby="t-produits">
+  <h2 class="stats__titre" id="t-produits">Par logiciel</h2>
+  <div class="stats__rangee">
+    {% for r in resumes %}
+      <a class="produit-carte produit--{{ r.cle }}{% if produit == r.cle %} produit-carte--active{% endif %}" href="?produit={{ r.cle }}{% if vue == 'liste' %}&amp;vue=liste{% endif %}" aria-label="{{ r.libelle }} : {{ r.leads }} lead{{ r.leads|pluralize }} en cours, {{ r.clients }} client{{ r.clients|pluralize }}">
+        <span class="produit-carte__tete"><span class="produit-badge">{{ r.libelle }}</span><span class="produit-carte__voir">Voir le pipeline →</span></span>
+        <span class="produit-carte__chiffres">
+          <span><strong>{{ r.leads }}</strong> lead{{ r.leads|pluralize }} en cours</span>
+          <span><strong>{{ r.clients }}</strong> client{{ r.clients|pluralize }}</span>
+        </span>
+        <span class="produit-carte__montants">
+          <span>Potentiel <strong>{{ r.potentiel|floatformat:"0g" }} €</strong>/an</span>
+          <span>Clients <strong>{{ r.revenu|floatformat:"0g" }} €</strong>/an</span>
+        </span>
+        <span class="entonnoir" aria-hidden="true">
+          {% for e in r.etapes %}<span class="entonnoir__etape"><span>{{ e.libelle }}</span><strong>{{ e.nombre }}</strong></span>{% endfor %}
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="stats__bloc" aria-labelledby="t-pipeline">
+  <h2 class="stats__titre visuellement-cache" id="t-pipeline">Contacts</h2>
+  <form class="stats__periode contacts__filtres" method="get" role="search">
+    <span class="filtres">
+      <a class="filtre" href="?{% if vue == 'liste' %}vue=liste{% endif %}"{% if not produit and not a_relancer and not statut %} aria-current="true"{% endif %}>Tous</a>
+      {% for cle, libelle in produits %}
+        <a class="filtre" href="?produit={{ cle }}{% if vue == 'liste' %}&amp;vue=liste{% endif %}"{% if produit == cle %} aria-current="true"{% endif %}>{{ libelle }}</a>
+      {% endfor %}
+      <a class="filtre" href="?relance=1{% if vue == 'liste' %}&amp;vue=liste{% endif %}"{% if a_relancer %} aria-current="true"{% endif %}>À relancer</a>
+    </span>
+    {% if produit %}<input type="hidden" name="produit" value="{{ produit }}">{% endif %}
+    {% if vue == "liste" %}<input type="hidden" name="vue" value="liste">{% endif %}
+    <label class="visuellement-cache" for="recherche">Rechercher un contact</label>
+    <input class="champ contacts__recherche" type="search" id="recherche" name="q" value="{{ recherche }}" placeholder="Nom, organisation, commune…">
+    <span class="contacts__outils">
+      <span class="agenda__vues">
+        <a href="?{{ parametres }}"{% if vue == "pipeline" %} aria-current="true"{% endif %}>Pipeline</a>
+        <a href="?vue=liste{% if parametres %}&amp;{{ parametres }}{% endif %}"{% if vue == "liste" %} aria-current="true"{% endif %}>Liste</a>
+      </span>
+      <a class="courriel__bouton" href="{% url 'contacts:export' %}{% if parametres %}?{{ parametres }}{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> CSV
+      </a>
+    </span>
+  </form>
+
+  {% if vue == "pipeline" %}
+    <div class="piste">
+      {% for col in colonnes %}
+        <section class="piste__colonne piste__colonne--{{ col.cle }}" aria-label="{{ col.libelle }} : {{ col.contacts|length }} contact{{ col.contacts|length|pluralize }}">
+          <header class="piste__tete">
+            <h3>{{ col.libelle }} <span>{{ col.contacts|length }}</span></h3>
+            {% if col.potentiel %}<p>{{ col.potentiel|floatformat:"0g" }} €/an</p>{% endif %}
+          </header>
+          <div class="piste__cartes">
+            {% for c in col.contacts %}{% include "contacts/_carte.html" %}{% empty %}<p class="piste__vide">Aucun contact</p>{% endfor %}
+          </div>
+        </section>
+      {% endfor %}
+    </div>
+    {% if perdus %}<p class="contacts__perdus">{{ perdus }} contact{{ perdus|pluralize }} perdu{{ perdus|pluralize }} dans cette sélection · <a href="?statut=perdu&amp;vue=liste{% if produit %}&amp;produit={{ produit }}{% endif %}">voir la liste</a></p>{% endif %}
+  {% else %}
+    {% if contacts %}
+      <div class="stats__carte stats__carte--tableau stats__tableau-defilant">
+        <table class="stats__tableau contacts__tableau">
+          <thead><tr><th scope="col">Contact</th><th scope="col">Produit</th><th scope="col">Étape</th><th scope="col">Potentiel</th><th scope="col">Relance</th><th scope="col">Suivi par</th><th scope="col">Source</th></tr></thead>
+          <tbody>
+            {% for c in contacts %}
+              <tr class="produit--{{ c.produit }}">
+                <th scope="row"><a href="{% url 'contacts:fiche' c.pk %}">{{ c.nom }}</a><small>{{ c.organisation }}{% if c.ville %} · {{ c.ville }}{% endif %}</small></th>
+                <td><span class="produit-badge">{{ c.get_produit_display }}</span></td>
+                <td><span class="etape-badge etape-badge--{{ c.statut }}">{{ c.get_statut_display }}</span></td>
+                <td>{% if c.potentiel is not None %}{{ c.potentiel|floatformat:"0g" }} €{% if c.estime %}*{% endif %}{% else %}—{% endif %}</td>
+                <td>{% if c.prochaine_relance %}<span class="{% if c.prochaine_relance <= aujourdhui and c.en_cours %}contacts__du{% endif %}">{{ c.prochaine_relance|date:"j N Y" }}</span>{% else %}—{% endif %}</td>
+                <td>{% if c.responsable %}{{ c.responsable.get_full_name|default:c.responsable.email }}{% else %}—{% endif %}</td>
+                <td>{{ c.get_source_display }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="app__vide"><p>Aucun contact ne correspond à ces filtres.</p></div>
+    {% endif %}
+  {% endif %}
+  <p class="contacts__note">* Estimation Isidor : 29,90 € HT par mois + 0,33 € HT par hectare et par mois, sur 12 mois. Les demandes déposées sur le site arrivent ici automatiquement comme leads.</p>
+</section>
+{% endblock %}

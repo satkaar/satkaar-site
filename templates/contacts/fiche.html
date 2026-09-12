@@ -1,0 +1,129 @@
+{% extends "espace/base_app.html" %}
+{% block seo %}{% include "partials/meta.html" with titre="Fiche contact — Satkaar" %}{% endblock %}
+{% block classe_app %} app--stats app--contacts{% endblock %}
+{% block titre_page %}{{ contact.nom }}{% endblock %}
+{% block sous_titre_page %}{{ contact.organisation|default:"Fiche contact" }}{% if contact.fonction %} · {{ contact.fonction }}{% endif %}{% endblock %}
+
+{% block contenu %}
+{% if messages %}<div class="courriel__messages" role="status">{% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}</div>{% endif %}
+
+<div class="courriel__barre-outils contacts__outils-fiche">
+  <a class="courriel__bouton courriel__bouton--discret" href="{% url 'contacts:liste' %}?produit={{ contact.produit }}">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Contacts
+  </a>
+  <a class="courriel__bouton courriel__bouton--plein" href="{% url 'contacts:modifier' contact.pk %}">Modifier</a>
+  {% if contact.courriel %}<a class="courriel__bouton" href="{% url 'courriel:rediger' %}?a={{ contact.courriel|urlencode }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg> Écrire</a>{% endif %}
+  {% if contact.telephone %}<a class="courriel__bouton" href="tel:{{ contact.telephone|cut:' ' }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg> Appeler</a>{% endif %}
+  <a class="courriel__bouton" href="{{ rendez_vous }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg> Planifier un rendez-vous</a>
+  <span class="courriel__espace"></span>
+  <details class="courriel__confirmer agenda__supprimer">
+    <summary class="courriel__bouton courriel__bouton--danger">Supprimer</summary>
+    <form method="post" action="{% url 'contacts:supprimer' contact.pk %}">
+      {% csrf_token %}
+      <p>La fiche et son historique d'échanges seront supprimés.</p>
+      <button type="submit" class="courriel__bouton courriel__bouton--danger-plein">Confirmer la suppression</button>
+    </form>
+  </details>
+</div>
+
+<section class="stats__carte pipeline-etapes produit--{{ contact.produit }}" aria-labelledby="t-etape">
+  <div class="pipeline-etapes__tete">
+    <h2 id="t-etape">Pipeline <span class="produit-badge">{{ contact.get_produit_display }}</span></h2>
+    {% if contact.statut == "perdu" %}
+      <form method="post" action="{% url 'contacts:etape' contact.pk %}">{% csrf_token %}<input type="hidden" name="statut" value="lead"><span class="etape-badge etape-badge--perdu">Perdu</span> <button class="courriel__bouton">Réactiver</button></form>
+    {% else %}
+      <form method="post" action="{% url 'contacts:etape' contact.pk %}">{% csrf_token %}<input type="hidden" name="statut" value="perdu"><button class="courriel__bouton courriel__bouton--danger">Marquer perdu</button></form>
+    {% endif %}
+  </div>
+  <ol class="pipeline-etapes__liste">
+    {% for e in etapes %}
+      <li class="pipeline-etapes__etape{% if forloop.counter0 < index_etape %} pipeline-etapes__etape--faite{% elif forloop.counter0 == index_etape %} pipeline-etapes__etape--actuelle{% endif %}">
+        <form method="post" action="{% url 'contacts:etape' contact.pk %}">
+          {% csrf_token %}<input type="hidden" name="statut" value="{{ e.value }}">
+          <button type="submit"{% if forloop.counter0 == index_etape %} aria-current="step"{% endif %}>
+            <span class="pipeline-etapes__puce" aria-hidden="true">{% if forloop.counter0 < index_etape %}✓{% else %}{{ forloop.counter }}{% endif %}</span>{{ e.label }}
+          </button>
+        </form>
+      </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<div class="stats__rangee contacts__fiche">
+  <div class="stats__large stats__pile">
+    <section class="stats__carte" id="echanges" aria-labelledby="t-echanges">
+      <h3 id="t-echanges">Échanges</h3>
+      <form class="contacts__note-form" method="post" action="{% url 'contacts:note' contact.pk %}">
+        {% csrf_token %}
+        <div class="contacts__note-types" role="radiogroup" aria-label="Type d'échange">
+          {% for choix in note_form.type %}<label class="filtre contacts__type">{{ choix.tag }} {{ choix.choice_label }}</label>{% endfor %}
+        </div>
+        <label class="visuellement-cache" for="{{ note_form.texte.id_for_label }}">Compte rendu</label>
+        {{ note_form.texte }}
+        <button type="submit" class="courriel__bouton courriel__bouton--plein">Ajouter l'échange</button>
+      </form>
+      {% if notes %}
+        <ol class="chronologie">
+          {% for n in notes %}
+            <li class="chronologie__item chronologie__item--{{ n.type }}">
+              <span class="chronologie__type">{{ n.get_type_display }}</span>
+              <p>{{ n.texte|linebreaksbr }}</p>
+              <span class="chronologie__quand">{{ n.cree_le|date:"j F Y, H:i" }}{% if n.auteur %} · {{ n.auteur.get_full_name|default:n.auteur.email }}{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ol>
+      {% else %}
+        <p class="stats__vide">Aucun échange noté pour le moment.</p>
+      {% endif %}
+    </section>
+
+    <section class="stats__carte" aria-labelledby="t-mails">
+      <h3 id="t-mails">Mails échangés</h3>
+      {% if mails %}
+        <ul class="contacts__mails">
+          {% for m in mails %}
+            <li><a href="{% url 'courriel:lire' m.pk %}">
+              <span class="courriel__avatar courriel__avatar--petit{% if m.envoye %} courriel__avatar--envoi{% endif %}" aria-hidden="true">{% if m.envoye %}↗{% else %}↙{% endif %}</span>
+              <strong>{{ m.sujet|default:"(sans objet)" }}</strong>
+              <span>{% if m.envoye %}Envoyé{% else %}Reçu{% endif %} · {{ m.date|date:"j N Y" }}</span>
+            </a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="stats__vide">{% if contact.courriel %}Aucun mail avec {{ contact.courriel }} dans les boîtes relevées.{% else %}Ajoutez une adresse pour retrouver les mails échangés.{% endif %}</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="stats__pile">
+    <section class="stats__carte" aria-labelledby="t-opportunite">
+      <h3 id="t-opportunite">Opportunité</h3>
+      <dl class="contacts__infos">
+        <div><dt>Potentiel</dt><dd><strong class="contacts__potentiel">{% if contact.potentiel is not None %}{{ contact.potentiel|floatformat:"0g" }} €{% else %}—{% endif %}</strong>{% if contact.potentiel is not None %} HT par an{% endif %}{% if contact.estime %}<small>Estimé d'après la surface : 29,90 € + 0,33 €/ha par mois.</small>{% endif %}</dd></div>
+        <div><dt>{{ contact.libelle_taille }}</dt><dd>{{ contact.taille|default_if_none:"—" }}</dd></div>
+        <div><dt>Prochaine relance</dt><dd>{% if contact.prochaine_relance %}<span class="{% if contact.prochaine_relance <= aujourdhui and contact.en_cours %}contacts__du{% endif %}">{{ contact.prochaine_relance|date:"l j F Y" }}</span>{% else %}—{% endif %}</dd></div>
+        <div><dt>Source</dt><dd>{{ contact.get_source_display }}</dd></div>
+        <div><dt>Suivi par</dt><dd>{% if contact.responsable %}{{ contact.responsable.get_full_name|default:contact.responsable.email }}{% else %}—{% endif %}</dd></div>
+      </dl>
+    </section>
+    <section class="stats__carte" aria-labelledby="t-coordonnees">
+      <h3 id="t-coordonnees">Coordonnées</h3>
+      <dl class="contacts__infos">
+        <div><dt>Organisation</dt><dd>{{ contact.organisation|default:"—" }}</dd></div>
+        <div><dt>Fonction</dt><dd>{{ contact.fonction|default:"—" }}</dd></div>
+        <div><dt>Courriel</dt><dd>{% if contact.courriel %}<a href="{% url 'courriel:rediger' %}?a={{ contact.courriel|urlencode }}">{{ contact.courriel }}</a>{% else %}—{% endif %}</dd></div>
+        <div><dt>Téléphone</dt><dd>{% if contact.telephone %}<a href="tel:{{ contact.telephone|cut:' ' }}">{{ contact.telephone }}</a>{% else %}—{% endif %}</dd></div>
+        <div><dt>Commune</dt><dd>{{ contact.ville|default:"—" }}</dd></div>
+      </dl>
+    </section>
+    {% if contact.demande %}
+      <section class="stats__carte" aria-labelledby="t-demande">
+        <h3 id="t-demande">Demande reçue sur le site</h3>
+        <p class="contacts__demande-date">{{ contact.demande.cree_le|date:"j F Y, H:i" }} · {{ contact.demande.get_sujet_display }}</p>
+        {% if contact.demande.message %}<blockquote class="contacts__demande">{{ contact.demande.message|linebreaksbr }}</blockquote>{% endif %}
+        {% if contact.demande.rappel_jour %}<p class="contacts__demande-date">Rappel souhaité le {{ contact.demande.rappel_jour|date:"j F" }}{% if contact.demande.rappel_heure %} à {{ contact.demande.rappel_heure|time:"H:i" }}{% endif %}.</p>{% endif %}
+      </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
