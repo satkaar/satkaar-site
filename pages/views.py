@@ -1,3 +1,5 @@
+import hashlib
+
 from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
@@ -7,6 +9,7 @@ from django.urls import reverse
 from django.utils import formats
 from django.views.decorators.http import require_POST
 
+from maquette.reseau import adresse_client
 from mesure.models import Evenement
 
 from . import seo
@@ -114,7 +117,10 @@ def reformuler(request):
             {"erreur": f"Le message dépasse {REFORMULATION_LONGUEUR_MAX} caractères."}, status=400
         )
 
-    cle = f"reformulation:{request.META.get('REMOTE_ADDR', '')}"
+    # Adresse et navigateur : derrière un proxy qui masque les adresses, un visiteur n'épuise
+    # pas à lui seul le quota de tous les autres.
+    navigateur = hashlib.sha256(request.META.get("HTTP_USER_AGENT", "").encode()).hexdigest()[:12]
+    cle = f"reformulation:{adresse_client(request)}:{navigateur}"
     cache.add(cle, 0, REFORMULATION_FENETRE)
     if cache.incr(cle) > REFORMULATION_APPELS_MAX:
         return JsonResponse(

@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from django.core.cache import cache
 
+from maquette.reseau import adresse_client
+
 # Au-delà de ce nombre d'échecs pour un même courriel depuis une même adresse, on bloque un moment.
 ESSAIS_MAX = 5
 FENETRE_ESSAIS = 15 * 60  # secondes
@@ -28,7 +30,7 @@ class ConnexionForm(AuthenticationForm):
         _habiller(self)
 
     def _cle_essais(self):
-        adresse = self.request.META.get("REMOTE_ADDR", "") if self.request else ""
+        adresse = adresse_client(self.request) if self.request else ""
         courriel = (self.data.get("username") or "").strip().lower()
         return f"connexion:{adresse}:{courriel}"
 

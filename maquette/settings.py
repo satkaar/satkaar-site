@@ -47,6 +47,9 @@ ALLOWED_HOSTS = [
 SITE_URL = _env('SITE_URL').rstrip('/')
 CSRF_TRUSTED_ORIGINS = [o for o in [SITE_URL, *_env('CSRF_TRUSTED_ORIGINS').split(',')] if o.startswith('http')]
 
+# Derrière l'Ingress de la plateforme : l'adresse du visiteur se lit dans X-Real-IP (voir maquette/reseau.py).
+PROXY_DE_CONFIANCE = _vrai(_env('DJANGO_PROXY_DE_CONFIANCE', defaut='false'))
+
 # Préproduction (preprod.satkaar.io) : interdite aux moteurs, pour ne pas doubler satkaar.io.
 NOINDEX = _vrai(_env('DJANGO_NOINDEX', defaut='false'))
 
@@ -230,6 +233,16 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = int(_env('SECURE_HSTS_SECONDS', defaut='31536000'))
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Cache commun aux processus gunicorn (limites de tentatives, quotas, audit) : sur disque en
+# production, en mémoire en développement.
+if not DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': _env('DJANGO_CACHE_DIR', defaut='/tmp/satkaar-cache'),
+        }
+    }
 
 # Journaux sur la sortie standard (lus par kubectl logs).
 LOGGING = {

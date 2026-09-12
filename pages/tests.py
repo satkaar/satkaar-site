@@ -210,3 +210,18 @@ class PreproductionTests(TestCase):
         with override_settings(NOINDEX=True):
             self.assertEqual(self.client.get(reverse("robots")).content.decode(), "User-agent: *\nDisallow: /\n")
             self.assertEqual(self.client.get(reverse("pages:accueil"))["X-Robots-Tag"], "noindex, nofollow")
+
+
+class AdresseClientTests(TestCase):
+    def test_derriere_le_proxy_et_sans(self):
+        from django.test import RequestFactory, override_settings
+
+        from maquette.reseau import adresse_client
+
+        requete = RequestFactory().get("/", REMOTE_ADDR="100.64.6.2", HTTP_X_REAL_IP="86.220.1.2",
+                                       HTTP_X_FORWARDED_FOR="86.220.1.2, 100.64.6.2")
+        self.assertEqual(adresse_client(requete), "100.64.6.2")  # sans proxy de confiance : en-têtes ignorés
+        with override_settings(PROXY_DE_CONFIANCE=True):
+            self.assertEqual(adresse_client(requete), "86.220.1.2")
+            sans_real_ip = RequestFactory().get("/", REMOTE_ADDR="100.64.6.2", HTTP_X_FORWARDED_FOR="86.220.9.9, 10.0.0.1")
+            self.assertEqual(adresse_client(sans_real_ip), "86.220.9.9")

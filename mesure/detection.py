@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 
+from maquette.reseau import adresse_client
+
 # (motif dans le User-Agent, nom affiché, famille). L'ordre compte : le premier qui correspond gagne.
 ROBOTS = [
     ("GPTBot", "GPTBot (OpenAI)", "ia"),
@@ -127,7 +129,7 @@ def source(referent, hote, utm_source):
 def empreinte(request):
     """Identifiant du visiteur pour la journée : l'IP n'est jamais conservée."""
     jour = datetime.date.today().isoformat()
-    ip = request.META.get("REMOTE_ADDR", "")
+    ip = adresse_client(request)
     ua = request.META.get("HTTP_USER_AGENT", "")
     return hashlib.sha256(f"{jour}|{settings.SECRET_KEY}|{ip}|{ua}".encode()).hexdigest()[:16]
 

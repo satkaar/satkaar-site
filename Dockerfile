@@ -32,6 +32,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     HOME=/tmp \
     DJANGO_WSGI_MODULE=${DJANGO_WSGI_MODULE} \
     DEBUG=False \
+    DJANGO_PROXY_DE_CONFIANCE=true \
     DJANGO_DB_PATH=/data/db.sqlite3 \
     ESPACE_DOCUMENTS_ROOT=/data/documents_prives
 
