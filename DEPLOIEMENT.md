@@ -64,6 +64,13 @@ docker run -p 8080:8080 -e DEBUG=False -e ALLOWED_HOSTS=localhost \
 6. **Après le premier démarrage** — créer les comptes de l'équipe (`is_staff`) et reconnecter les
    boîtes mail dans l'espace (Mail › Gérer les boîtes).
 
+## Branches
+
+- `develop` : travail en cours (intégration continue à chaque push).
+- `preprod` : chaque push déploie https://preprod.satkaar.io.
+- `main` : version de production ; le déploiement sur https://satkaar.io se lance à la main
+  (Actions › « Déploiement (Kapsule) » › Run workflow › `prod`).
+
 ## Sauvegardes
 
 Tout l'état du site est dans le volume /data. Copie ponctuelle :
