@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'pages',
     'espace',
     'mesure',
+    'courriel',
+    'agenda',
 ]
 
 MIDDLEWARE = [
@@ -150,6 +152,9 @@ LOGIN_REDIRECT_URL = 'espace:tableau'
 ESPACE_DOCUMENTS_ROOT = BASE_DIR / 'documents_prives'
 
 DEFAULT_FROM_EMAIL = 'Satkaar <contact@satkaar.io>'
+
+# Chiffrement des mots de passe des boîtes mail (clé Fernet). Sans elle, clé dérivée de SECRET_KEY.
+COURRIEL_CLE = os.environ.get('COURRIEL_CLE', '')
 
 # En production, les cookies de session ne circulent qu'en HTTPS.
 if not DEBUG:

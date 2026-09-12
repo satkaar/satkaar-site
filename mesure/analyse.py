@@ -232,7 +232,8 @@ def analyser(jours=30, maintenant=None):
         "demandes": demandes.count(),
         "rappels": demandes.filter(Q(rappel_jour__isnull=False) | Q(rappel_heure__isnull=False)).count(),
         "par_sujet": _repartition(Counter(sujets.get(s, s) for s in demandes.values_list("sujet", flat=True))),
-        "evenements": [{"libelle": types[t], "nombre": compte_evenements.get(t, 0)} for t in types],
+        "evenements": [{"libelle": types[t], "nombre": compte_evenements.get(t, 0)}
+                       for t in types if t != Evenement.Type.TELECHARGEMENT],
         "sortants": _repartition(detail_evenements["sortant"], limite=10),
         "faq": _repartition(detail_evenements["faq"], limite=10),
         "appels_action": _repartition(detail_evenements["appel_action"], limite=10),

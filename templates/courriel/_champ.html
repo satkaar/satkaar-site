@@ -1,0 +1,8 @@
+<div class="courriel__champ{% if large %} courriel__champ--large{% endif %}">
+  <label for="{{ champ.id_for_label }}">{{ champ.label }}</label>
+  <div>
+    {% if champ.errors %}<p class="erreur" id="{{ champ.auto_id }}-erreur">{{ champ.errors|join:" " }}</p>{% endif %}
+    {{ champ }}
+    {% if champ.help_text and aide %}<p class="aide-champ">{{ champ.help_text }}</p>{% endif %}
+  </div>
+</div>

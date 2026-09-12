@@ -1,0 +1,91 @@
+{% extends "courriel/base_courriel.html" %}
+
+{% block courriel %}
+<div class="courriel__barre-outils">
+  <a class="courriel__bouton courriel__bouton--discret" href="{% if courriel.corbeille %}{% url 'courriel:dossier' 'corbeille' %}{% elif courriel.envoye %}{% url 'courriel:dossier' 'envoyes' %}{% else %}{% url 'courriel:boite' %}{% endif %}">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Retour
+  </a>
+  <a class="courriel__bouton courriel__bouton--plein" href="{% url 'courriel:rediger' %}?mode=repondre&amp;origine={{ courriel.pk }}">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 17 4 12l5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg> Répondre
+  </a>
+  <a class="courriel__bouton" href="{% url 'courriel:rediger' %}?mode=repondre_tous&amp;origine={{ courriel.pk }}">Répondre à tous</a>
+  <a class="courriel__bouton" href="{% url 'courriel:rediger' %}?mode=transferer&amp;origine={{ courriel.pk }}">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 17 5-5-5-5"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg> Transférer
+  </a>
+  <span class="courriel__espace"></span>
+  <form method="post" action="{% url 'courriel:agir' courriel.pk %}">
+    {% csrf_token %}<input type="hidden" name="suivant" value="{{ request.path }}">
+    <button class="courriel__bouton courriel__bouton--icone{% if courriel.etoile %} courriel__bouton--etoile{% endif %}" name="action" value="{% if courriel.etoile %}sans_etoile{% else %}etoile{% endif %}" aria-pressed="{{ courriel.etoile|yesno:'true,false' }}" title="{% if courriel.etoile %}Retirer l'étoile{% else %}Étoiler{% endif %}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>
+      <span class="visuellement-cache">Étoilé</span>
+    </button>
+  </form>
+  {% if not courriel.envoye %}
+    <form method="post" action="{% url 'courriel:agir' courriel.pk %}">
+      {% csrf_token %}<input type="hidden" name="suivant" value="{% url 'courriel:boite' %}">
+      <button class="courriel__bouton courriel__bouton--icone" name="action" value="non_lu" title="Marquer comme non lu">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>
+        <span class="visuellement-cache">Marquer comme non lu</span>
+      </button>
+    </form>
+  {% endif %}
+  <form method="post" action="{% url 'courriel:agir' courriel.pk %}">
+    {% csrf_token %}
+    {% if courriel.corbeille %}
+      <input type="hidden" name="suivant" value="{{ request.path }}">
+      <button class="courriel__bouton" name="action" value="restaurer">Restaurer</button>
+    {% else %}
+      <input type="hidden" name="suivant" value="{% url 'courriel:boite' %}">
+      <button class="courriel__bouton courriel__bouton--icone courriel__bouton--danger" name="action" value="corbeille" title="Placer dans la corbeille">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        <span class="visuellement-cache">Placer dans la corbeille</span>
+      </button>
+    {% endif %}
+  </form>
+</div>
+
+<article class="courriel__lecture">
+  <h2>{{ courriel.sujet|default:"(sans objet)" }}</h2>
+  <div class="courriel__entetes">
+    <span class="courriel__avatar courriel__avatar--grand{% if courriel.envoye %} courriel__avatar--envoi{% endif %}" aria-hidden="true">{{ courriel.expediteur_nom|default:courriel.expediteur_adresse|first|upper }}</span>
+    <dl>
+      <div><dt>De</dt><dd><strong>{{ courriel.expediteur_nom|default:courriel.expediteur_adresse }}</strong>{% if courriel.expediteur_nom %} &lt;{{ courriel.expediteur_adresse }}&gt;{% endif %}</dd></div>
+      <div><dt>À</dt><dd>{{ courriel.destinataires|default:"—" }}</dd></div>
+      {% if courriel.copie %}<div><dt>Cc</dt><dd>{{ courriel.copie }}</dd></div>{% endif %}
+      {% if courriel.repondre_a and courriel.repondre_a != courriel.expediteur_adresse %}<div><dt>Répondre à</dt><dd>{{ courriel.repondre_a }}</dd></div>{% endif %}
+    </dl>
+    <p class="courriel__quand">
+      <time datetime="{{ courriel.date|date:'c' }}">{{ courriel.date|date:"l j F Y, H:i" }}</time>
+      <span>{{ courriel.compte }}{% if courriel.envoye and courriel.envoye_par %} · envoyé par {{ courriel.envoye_par.get_full_name|default:courriel.envoye_par.email }}{% endif %}</span>
+    </p>
+  </div>
+
+  {% if document and a_images_distantes and not images %}
+    <p class="courriel__images">
+      Images distantes masquées : elles servent souvent à savoir si vous avez ouvert le message.
+      <a href="?images=1">Afficher les images</a>
+    </p>
+  {% endif %}
+
+  {% if document %}
+    {% comment %}HTML du message isolé : aucun script (pas de allow-scripts), liens ouverts dans un nouvel onglet.{% endcomment %}
+    <iframe class="courriel__cadre" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" srcdoc="{{ document }}" title="Contenu du message" data-cadre></iframe>
+  {% else %}
+    <div class="courriel__texte">{{ courriel.texte|urlize|linebreaksbr }}</div>
+  {% endif %}
+
+  {% if pieces %}
+    <div class="courriel__pieces">
+      <h2>{{ pieces|length }} pièce{{ pieces|length|pluralize }} jointe{{ pieces|length|pluralize }}</h2>
+      <ul>
+        {% for p in pieces %}
+          <li><a href="{% url 'courriel:piece_jointe' p.pk %}" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15l3 3 3-3"/></svg>
+            <span><strong>{{ p.nom }}</strong><small>{{ p.taille|filesizeformat }}</small></span>
+          </a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</article>
+{% endblock %}

@@ -8,9 +8,7 @@ app_name = "espace"
 
 urlpatterns = [
     path("", views.tableau, name="tableau"),
-    path("documents/", views.documents, name="documents"),
     path("statistiques/", statistiques, name="statistiques"),
-    path("documents/<int:pk>/telecharger/", views.telecharger, name="telecharger"),
     path("connexion/", views.Connexion.as_view(), name="connexion"),
     path("deconnexion/", views.Deconnexion.as_view(), name="deconnexion"),
     path("mot-de-passe/", views.ChangementMotDePasse.as_view(), name="mot_de_passe"),

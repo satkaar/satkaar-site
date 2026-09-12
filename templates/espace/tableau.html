@@ -1,12 +1,10 @@
 {% extends "espace/base_app.html" %}
 {% block seo %}{% include "partials/meta.html" with titre="Mon espace — Satkaar" %}{% endblock %}
 
+{% block titre_page %}Tableau de bord{% endblock %}
+{% block sous_titre_page %}Bonjour {{ user.first_name|default:user.email }} · vos projets avec Satkaar, leur avancement et leurs prochaines étapes{% endblock %}
+
 {% block contenu %}
-<header class="app__entete">
-  <p class="app__surtitre">Tableau de bord</p>
-  <h1>Bonjour {{ user.first_name|default:user.email }}</h1>
-  <p>Vos projets avec Satkaar, et tous vos documents au même endroit.</p>
-</header>
 
 <section class="app__section" aria-labelledby="titre-projets">
   <h2 class="app__titre" id="titre-projets">Projets en cours et à venir</h2>
@@ -31,22 +29,4 @@
   {% endif %}
 </section>
 
-<section class="app__section" aria-labelledby="titre-documents">
-  <div class="app__titre-ligne">
-    <h2 class="app__titre" id="titre-documents">Derniers documents</h2>
-    {% if nb_documents > 5 %}
-      <a class="lien-fleche" href="{% url 'espace:documents' %}">Voir les {{ nb_documents }} documents</a>
-    {% endif %}
-  </div>
-  {% if documents %}
-    <ul class="docs">
-      {% for document in documents %}{% include "espace/_document.html" %}{% endfor %}
-    </ul>
-  {% else %}
-    <div class="app__vide">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
-      <p>Aucun document pour le moment. Factures, livrables et attestations seront déposés ici.</p>
-    </div>
-  {% endif %}
-</section>
 {% endblock %}

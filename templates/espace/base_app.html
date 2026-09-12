@@ -1,67 +1,107 @@
 {% extends "base.html" %}
 {% comment %}
-  Gabarit des pages connectées de l'espace client : barre latérale bleu nuit à gauche, contenu
-  aéré à droite. L'en-tête et le pied de page du site ne s'affichent pas ici.
+  Gabarit des pages connectées, aux standards du CRM Vanessa : rail blanc des rubriques à gauche,
+  volet des pages de la rubrique, bandeau crème avec le titre de la page, cartes blanches sur fond crème.
+  L'en-tête et le pied de page du site ne s'affichent pas ici.
 {% endcomment %}
+{% load navigation %}
 {% block robots %}noindex, nofollow{% endblock %}
 
 {% block page %}
-<div class="app">
-  <aside class="app__barre">
+{% navigation_espace as sections %}
+<div class="app{% block classe_app %}{% endblock %}">
+  <aside class="app__rail" aria-label="Rubriques">
     <a class="app__marque" href="{% url 'espace:tableau' %}">
       {% include "partials/signe.html" %}
-      <span>Satkaar<small>Espace client</small></span>
+      <span>Satkaar<small>{% if user.is_staff %}Espace équipe{% else %}Espace client{% endif %}</small></span>
     </a>
 
-    <nav class="app__nav" aria-label="Espace client">
-      {% url 'espace:tableau' as u %}
-      <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="15" width="7" height="6" rx="1.5"/></svg>
-        Tableau de bord
-      </a>
-      {% url 'espace:documents' as u %}
-      <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
-        Documents
-      </a>
-      {% if user.is_staff %}
-        {% url 'espace:statistiques' as u %}
-        <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-          Statistiques
+    <nav class="app__rubriques" aria-label="Rubriques de l'espace">
+      {% for s in sections %}
+        <a class="app__rubrique{% if s.actif %} app__rubrique--active{% endif %}" href="{{ s.url }}" data-rubrique="{{ s.cle }}" aria-controls="volet-{{ s.cle }}"{% if s.actif %} aria-current="true"{% endif %}>
+          <span>{{ s.libelle }}</span>
+          {% if s.badge %}<span class="app__badge">{{ s.badge }}</span>{% endif %}
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 6 6 6-6 6"/></svg>
         </a>
-      {% endif %}
-      {% url 'espace:mot_de_passe' as u %}
-      <a class="app__lien" href="{{ u }}"{% if request.path == u %} aria-current="page"{% endif %}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M16 6l3 3M18.5 3.5l2 2"/></svg>
-        Mot de passe
-      </a>
+      {% endfor %}
     </nav>
 
-    <details class="app__compte">
-      <summary class="app__utilisateur" aria-label="Menu du compte de {{ user.get_full_name|default:user.email }}">
-        <span class="app__initiales" aria-hidden="true">{{ user.first_name|first|default:"?" }}{{ user.last_name|first }}</span>
-        <span class="app__identite">
-          <strong>{{ user.get_full_name|default:user.email }}</strong>
-          <span>{{ user.email }}</span>
-        </span>
-        <svg class="app__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 15 5-5 5 5"/></svg>
-      </summary>
-      <div class="app__menu">
-        <form method="post" action="{% url 'espace:deconnexion' %}">
-          {% csrf_token %}
-          <button class="app__menu-action" type="submit">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>
-            Se déconnecter
-          </button>
-        </form>
-      </div>
-    </details>
+    <div class="app__pied">
+      <details class="app__compte">
+        <summary class="app__utilisateur" aria-label="Menu du compte de {{ user.get_full_name|default:user.email }}">
+          <span class="app__initiales" aria-hidden="true">{{ user.first_name|first|default:user.email|first|upper }}{{ user.last_name|first|upper }}</span>
+          <span class="app__identite">
+            <strong>{{ user.get_full_name|default:user.email }}</strong>
+            <span>{{ user.email }}</span>
+          </span>
+          <svg class="app__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 15 5-5 5 5"/></svg>
+        </summary>
+        <div class="app__menu">
+          <div class="app__menu-tete">
+            <strong>{{ user.get_full_name|default:user.email }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+          <a class="app__menu-action" href="{% url 'espace:mot_de_passe' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+            Changer mon mot de passe
+          </a>
+          <form method="post" action="{% url 'espace:deconnexion' %}">
+            {% csrf_token %}
+            <button class="app__menu-action app__menu-action--sortie" type="submit">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>
+              Se déconnecter
+            </button>
+          </form>
+        </div>
+      </details>
+      <p class="app__version">Espace Satkaar · v1.0</p>
+    </div>
   </aside>
 
-  <main class="app__contenu" id="contenu">
-    {% block contenu %}{% endblock %}
-  </main>
+  <aside class="app__volet" aria-label="Pages de la rubrique">
+    {% for s in sections %}
+      <div class="app__panneau{% if not s.actif %} app__panneau--replie{% endif %}" id="volet-{{ s.cle }}">
+        <p class="app__volet-titre">{{ s.libelle }}</p>
+        <nav aria-label="{{ s.libelle }}">
+          {% for p in s.pages %}
+            <a class="app__lien" href="{{ p.url }}"{% if p.actif %} aria-current="page"{% endif %}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">{{ p.icone }}</svg>
+              <span>{{ p.libelle }}</span>
+              {% if p.badge %}<span class="app__compteur">{{ p.badge }}</span>{% endif %}
+            </a>
+          {% endfor %}
+        </nav>
+      </div>
+    {% endfor %}
+  </aside>
+
+  <div class="app__corps">
+    <header class="app__bandeau">
+      <div class="app__bandeau-titre">
+        <h1>{% block titre_page %}Espace{% endblock %}</h1>
+        <p>{% block sous_titre_page %}{% endblock %}</p>
+      </div>
+      <div class="app__outils">
+        {% block actions_page %}{% endblock %}
+        {% if user.is_staff %}
+          {% for s in sections %}{% for p in s.pages %}{% if p.libelle == "Mail" %}
+            <a class="app__outil" href="{{ p.url }}" title="Mail{% if p.badge %} : {{ p.badge }} non lu{{ p.badge|pluralize }}{% endif %}">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">{{ p.icone }}</svg>
+              <span class="visuellement-cache">Mail{% if p.badge %}, {{ p.badge }} non lu{{ p.badge|pluralize }}{% endif %}</span>
+              {% if p.badge %}<span class="app__outil-badge" aria-hidden="true">{% if p.badge > 9 %}9+{% else %}{{ p.badge }}{% endif %}</span>{% endif %}
+            </a>
+          {% endif %}{% endfor %}{% endfor %}
+        {% endif %}
+        <span class="app__qui">
+          <span>{{ user.first_name|default:user.email }}</span>
+          <span class="app__initiales" aria-hidden="true">{{ user.first_name|first|default:user.email|first|upper }}{{ user.last_name|first|upper }}</span>
+        </span>
+      </div>
+    </header>
+    <main class="app__contenu" id="contenu">
+      {% block contenu %}{% endblock %}
+    </main>
+  </div>
 </div>
 {% endblock %}
 

@@ -1,0 +1,6 @@
+{% comment %}Tuile d'un contrôle de santé : « ok / total », conforme seulement si toutes les pages passent.{% endcomment %}
+<article class="tuile {% if ok == total %}tuile--bon{% else %}tuile--mauvais{% endif %}">
+  <p class="tuile__libelle">{{ libelle }}</p>
+  <p class="tuile__valeur">{{ ok }} / {{ total }}</p>
+  {% if ok == total %}{% include "espace/_statut_controle.html" with bon="1" %}{% else %}{% include "espace/_statut_controle.html" with bon="0" %}{% endif %}
+</article>

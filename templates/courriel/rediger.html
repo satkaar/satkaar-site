@@ -1,0 +1,52 @@
+{% extends "courriel/base_courriel.html" %}
+
+{% block courriel %}
+<header class="courriel__entete">
+  <div>
+    <h2>{% if mode == "transferer" %}Transférer{% elif mode %}Répondre{% else %}Nouveau message{% endif %}</h2>
+    {% if origine %}<p>{{ origine.sujet|default:"(sans objet)" }} · {{ origine.expediteur_nom|default:origine.expediteur_adresse }}</p>{% endif %}
+  </div>
+</header>
+
+<form class="courriel__redaction" method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  {% if mode %}<input type="hidden" name="mode" value="{{ mode }}"><input type="hidden" name="origine" value="{{ origine.pk }}">{% endif %}
+  {% if form.non_field_errors %}<p class="courriel__info courriel__info--error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+
+  <div class="courriel__entetes-saisie">
+    {% include "courriel/_champ.html" with champ=form.compte %}
+    {% include "courriel/_champ.html" with champ=form.a aide=True %}
+    <details class="courriel__copies"{% if form.copie.value or form.copie_cachee.value or form.copie.errors or form.copie_cachee.errors %} open{% endif %}>
+      <summary>Cc et Cci</summary>
+      {% include "courriel/_champ.html" with champ=form.copie %}
+      {% include "courriel/_champ.html" with champ=form.copie_cachee %}
+    </details>
+    {% include "courriel/_champ.html" with champ=form.sujet %}
+  </div>
+
+  <label class="visuellement-cache" for="{{ form.texte.id_for_label }}">Message</label>
+  {% if form.texte.errors %}<p class="erreur" id="{{ form.texte.auto_id }}-erreur">{{ form.texte.errors|join:" " }}</p>{% endif %}
+  {{ form.texte }}
+
+  <div class="courriel__pieces-saisie">
+    <label for="{{ form.pieces.id_for_label }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m21 11-8.6 8.6a5 5 0 0 1-7-7L14 4a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4L16 6.6"/></svg>
+      Joindre des fichiers <small>(20 Mo au total)</small>
+    </label>
+    {% if form.pieces.errors %}<p class="erreur" id="{{ form.pieces.auto_id }}-erreur">{{ form.pieces.errors|join:" " }}</p>{% endif %}
+    {{ form.pieces }}
+    {% if pieces_origine %}
+      <label class="courriel__case"><input type="checkbox" name="joindre_origine" value="1" checked> Joindre les {{ pieces_origine|length }} pièce{{ pieces_origine|length|pluralize }} du message d'origine ({{ pieces_origine|join:", " }})</label>
+    {% endif %}
+  </div>
+
+  <div class="courriel__envoi">
+    <button type="submit" class="courriel__bouton courriel__bouton--plein courriel__bouton--grand" data-envoyer>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+      <span data-libelle>Envoyer</span>
+    </button>
+    <a class="courriel__bouton courriel__bouton--discret" href="{% if origine %}{% url 'courriel:lire' origine.pk %}{% else %}{% url 'courriel:boite' %}{% endif %}">Annuler</a>
+  </div>
+</form>
+{{ signatures|json_script:"signatures" }}
+{% endblock %}

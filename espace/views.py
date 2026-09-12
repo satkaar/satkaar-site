@@ -1,13 +1,10 @@
 from django.contrib.auth import views as auth
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.urls import reverse_lazy
 
-from mesure.models import Evenement
-
 from .forms import ChangementMotDePasseForm, ConnexionForm, NouveauMotDePasseForm, ReinitialisationForm
-from .models import Document, Projet
+from .models import Projet
 
 
 class Connexion(auth.LoginView):
@@ -29,33 +26,8 @@ def tableau(request):
         {
             "projets_actifs": projets.exclude(statut=Projet.Statut.TERMINE),
             "projets_termines": projets.filter(statut=Projet.Statut.TERMINE),
-            "documents": request.user.documents.select_related("projet")[:5],
-            "nb_documents": request.user.documents.count(),
         },
     )
-
-
-@login_required
-def documents(request):
-    categorie = request.GET.get("categorie")
-    liste = request.user.documents.select_related("projet")
-    if categorie in Document.Categorie.values:
-        liste = liste.filter(categorie=categorie)
-    else:
-        categorie = None
-    return render(
-        request,
-        "espace/documents.html",
-        {"documents": liste, "categories": Document.Categorie.choices, "categorie": categorie},
-    )
-
-
-@login_required
-def telecharger(request, pk):
-    # Le filtre sur le client fait qu'un document d'autrui répond « introuvable ».
-    document = get_object_or_404(Document, pk=pk, client=request.user)
-    Evenement.objects.create(type=Evenement.Type.TELECHARGEMENT, chemin=request.path, cible=document.get_categorie_display())
-    return FileResponse(document.fichier.open("rb"), as_attachment=True, filename=document.nom_fichier)
 
 
 class ChangementMotDePasse(auth.PasswordChangeView):

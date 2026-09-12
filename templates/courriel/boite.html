@@ -1,0 +1,74 @@
+{% extends "courriel/base_courriel.html" %}
+{% load courriels %}
+
+{% block courriel %}
+<header class="courriel__entete">
+  <div>
+    <h2>{% if compte %}{{ compte }}{% else %}{{ titre }}{% endif %}</h2>
+    <p>{{ page.paginator.count }} message{{ page.paginator.count|pluralize }}{% if compte %} · {{ compte.adresse }}{% endif %}{% if recherche %} pour « {{ recherche }} »{% endif %}</p>
+  </div>
+  <form class="courriel__recherche" method="get" role="search">
+    {% if compte %}<input type="hidden" name="compte" value="{{ compte.pk }}">{% endif %}
+    <label class="visuellement-cache" for="recherche">Rechercher dans les messages</label>
+    <input class="champ" type="search" id="recherche" name="q" value="{{ recherche }}" placeholder="Rechercher (objet, expéditeur, texte)">
+  </form>
+  <form method="post" action="{% url 'courriel:relever' %}" class="courriel__releve" data-releve{% if releve_auto %} data-releve-auto{% endif %}>
+    {% csrf_token %}
+    <button type="submit" class="courriel__bouton">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M3 21v-5h5"/></svg>
+      <span data-libelle>Relever</span>
+    </button>
+    <span class="courriel__etat" role="status" data-etat></span>
+  </form>
+</header>
+
+<div class="courriel__liste">
+  {% if page.object_list %}
+    <ul>
+      {% for c in page.object_list %}
+        <li class="courriel-ligne{% if not c.lu %} courriel-ligne--non-lu{% endif %}">
+          <form method="post" action="{% url 'courriel:agir' c.pk %}" class="courriel-ligne__etoile">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{% if c.etoile %}sans_etoile{% else %}etoile{% endif %}">
+            <input type="hidden" name="suivant" value="{{ request.get_full_path }}">
+            <button type="submit" aria-pressed="{{ c.etoile|yesno:'true,false' }}" aria-label="Étoiler : {{ c.sujet|default:'(sans objet)' }}">{% if c.etoile %}★{% else %}☆{% endif %}</button>
+          </form>
+          <a class="courriel-ligne__lien" href="{% url 'courriel:lire' c.pk %}">
+            <span class="courriel__avatar{% if c.envoye %} courriel__avatar--envoi{% endif %}" aria-hidden="true">{{ c.initiale }}</span>
+            <span class="courriel-ligne__qui">{% if not c.lu %}<span class="visuellement-cache">Non lu : </span>{% endif %}{{ c.correspondant }}</span>
+            <span class="courriel-ligne__resume">
+              <span class="courriel-ligne__sujet">{{ c.sujet|default:"(sans objet)" }}</span>
+              <span class="courriel-ligne__apercu">{{ c.apercu }}</span>
+            </span>
+            {% if c.nb_pieces %}<span class="courriel-ligne__piece" title="{{ c.nb_pieces }} pièce{{ c.nb_pieces|pluralize }} jointe{{ c.nb_pieces|pluralize }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m21 11-8.6 8.6a5 5 0 0 1-7-7L14 4a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4L16 6.6"/></svg><span class="visuellement-cache">, avec pièce jointe</span></span>{% endif %}
+            {% if not compte and comptes|length > 1 %}<span class="courriel-ligne__boite">{{ c.compte }}</span>{% endif %}
+            <time class="courriel-ligne__date" datetime="{{ c.date|date:'c' }}">{{ c.date|date_courte }}</time>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="courriel__vide">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>
+      {% if not comptes %}
+        <p><strong>Aucune boîte mail connectée.</strong></p>
+        <p><a class="lien-fleche" href="{% url 'courriel:compte_ajouter' %}">Connecter contact@satkaar.io</a></p>
+      {% elif recherche %}
+        <p>Aucun message ne correspond à « {{ recherche }} ».</p>
+      {% elif dossier == "reception" %}
+        <p><strong>Rien pour le moment.</strong> Cliquez sur « Relever » pour importer les derniers messages.</p>
+      {% else %}
+        <p>Ce dossier est vide.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+{% if page.has_other_pages %}
+  <nav class="courriel__pages" aria-label="Pages">
+    {% if page.has_previous %}<a class="filtre" href="?{% if compte %}compte={{ compte.pk }}&amp;{% endif %}{% if recherche %}q={{ recherche|urlencode }}&amp;{% endif %}page={{ page.previous_page_number }}">← Plus récents</a>{% endif %}
+    <span>Page {{ page.number }} sur {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="filtre" href="?{% if compte %}compte={{ compte.pk }}&amp;{% endif %}{% if recherche %}q={{ recherche|urlencode }}&amp;{% endif %}page={{ page.next_page_number }}">Plus anciens →</a>{% endif %}
+  </nav>
+{% endif %}
+{% endblock %}

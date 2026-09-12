@@ -1,0 +1,4 @@
+<nav class="filtres agenda__vues" aria-label="Affichage">
+  <a class="filtre" href="{% url 'agenda:semaine' %}"{% if vue == "semaine" %} aria-current="true"{% endif %}>Semaine</a>
+  <a class="filtre" href="{% url 'agenda:mois' %}"{% if vue == "mois" %} aria-current="true"{% endif %}>Mois</a>
+</nav>

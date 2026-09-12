@@ -1,12 +1,12 @@
 {% extends "espace/base_acces.html" %}
-{% block seo %}{% include "partials/meta.html" with titre="Connexion à votre espace client — Satkaar" description="Connexion à l'espace client Satkaar : vos projets, vos documents, vos factures." %}{% endblock %}
+{% block seo %}{% include "partials/meta.html" with titre="Connexion à votre espace client — Satkaar" description="Connexion à l'espace client Satkaar : suivez vos projets de conseil, de formation et de déploiement." %}{% endblock %}
 {% block robots %}noindex, nofollow{% endblock %}
 
 
 {% block carte %}
   <p class="surtitre">Espace client</p>
   <h1>Connexion</h1>
-  <p class="acces__intro">Retrouvez vos projets, vos documents et vos factures.</p>
+  <p class="acces__intro">Retrouvez vos projets avec Satkaar et leur avancement.</p>
 
   {% if form.non_field_errors %}
     <div class="confirmation confirmation--erreur" role="alert">

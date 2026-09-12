@@ -1,0 +1,64 @@
+{% extends "courriel/base_courriel.html" %}
+
+{% block courriel %}
+<header class="courriel__entete">
+  <div>
+    <h2>Boîtes mail</h2>
+    <p>Les boîtes de l'équipe, relevées en IMAP et utilisées pour répondre en SMTP.</p>
+  </div>
+  <a class="courriel__bouton courriel__bouton--plein" href="{% url 'courriel:compte_ajouter' %}">+ Ajouter une boîte</a>
+</header>
+
+{% if liste %}
+  <div class="courriel__boites">
+    {% for c in liste %}
+      <article class="stats__carte courriel__boite{% if c.derniere_erreur %} courriel__boite--erreur{% endif %}">
+        <div class="courriel__boite-tete">
+          <span class="courriel__avatar courriel__avatar--grand" aria-hidden="true">{{ c.adresse|first|upper }}</span>
+          <div>
+            <h2>{{ c }}</h2>
+            <p>{{ c.adresse }}</p>
+          </div>
+        </div>
+        <p>
+          {% if not c.actif %}<span class="statut-perf statut-perf--moyen"><span aria-hidden="true">‖</span> Relève en pause</span>
+          {% elif c.derniere_erreur %}<span class="statut-perf statut-perf--mauvais"><span aria-hidden="true">✕</span> Connexion en erreur</span>
+          {% elif c.derniere_releve %}<span class="statut-perf statut-perf--bon"><span aria-hidden="true">✓</span> Connectée</span>
+          {% else %}<span class="statut-perf statut-perf--moyen"><span aria-hidden="true">…</span> Jamais relevée</span>{% endif %}
+        </p>
+        {% if c.derniere_erreur %}<p class="courriel__boite-erreur">{{ c.derniere_erreur }}</p>{% endif %}
+        <dl class="courriel__boite-details">
+          <div><dt>Réception</dt><dd>{{ c.imap_hote }}:{{ c.imap_port }}</dd></div>
+          <div><dt>Envoi</dt><dd>{{ c.smtp_hote }}:{{ c.smtp_port }}</dd></div>
+          <div><dt>Messages importés</dt><dd>{{ c.nb }}</dd></div>
+          <div><dt>Dernière relève</dt><dd>{{ c.derniere_releve|date:"j F Y, H:i"|default:"—" }}</dd></div>
+        </dl>
+        <div class="courriel__boite-actions">
+          <a class="courriel__bouton" href="{% url 'courriel:compte' c.pk %}">Modifier</a>
+          <details class="courriel__confirmer">
+            <summary class="courriel__bouton courriel__bouton--danger">Retirer</summary>
+            <form method="post" action="{% url 'courriel:compte_supprimer' c.pk %}">
+              {% csrf_token %}
+              <p>Les messages importés ici seront effacés de l'espace. Rien n'est supprimé sur le serveur de messagerie.</p>
+              <button type="submit" class="courriel__bouton courriel__bouton--danger-plein">Confirmer le retrait</button>
+            </form>
+          </details>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="courriel__liste courriel__vide">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>
+    <p><strong>Aucune boîte connectée.</strong> Les réglages d'OVH (hébergeur de satkaar.io) sont déjà préremplis.</p>
+    <p><a class="lien-fleche" href="{% url 'courriel:compte_ajouter' %}">Connecter contact@satkaar.io</a></p>
+  </div>
+{% endif %}
+
+<aside class="stats__carte courriel__astuce">
+  <h2>Relève automatique</h2>
+  <p>La boîte de réception se met à jour à l'ouverture si la dernière relève date de plus de 5 minutes.
+    Pour relever en continu sur le serveur : <code>python manage.py relever_courriels --boucle 120</code>.</p>
+  <p>Ouvrir un message ici ne le marque pas comme lu sur le serveur, et vos envois sont aussi rangés dans le dossier « Envoyés » de la boîte.</p>
+</aside>
+{% endblock %}

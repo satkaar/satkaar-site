@@ -1,0 +1,88 @@
+{% extends "espace/base_app.html" %}
+{% comment %}
+  Agenda partagé de l'équipe, sur le modèle du CRM : colonne à gauche (nouvel événement,
+  mini-calendrier, légende, à venir), semaine ou mois à droite.
+{% endcomment %}
+{% block seo %}{% include "partials/meta.html" with titre="Agenda — Satkaar" %}{% endblock %}
+{% block classe_app %} app--stats app--agenda{% endblock %}
+{% block titre_page %}Agenda{% endblock %}
+{% block sous_titre_page %}Agenda partagé de l'équipe et rappels demandés sur le site{% endblock %}
+
+{% block contenu %}
+<div class="agenda">
+  <aside class="agenda__colonne" aria-label="Navigation de l'agenda">
+    <a class="courriel__ecrire" href="{% url 'agenda:ajouter' %}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>
+      Nouvel événement
+    </a>
+
+    <section class="mini" aria-label="Calendrier de {{ mini_mois|date:'F Y' }}">
+      <div class="mini__tete">
+        <a href="{% url 'agenda:semaine_du' mini_precedent.year mini_precedent.month 1 %}" aria-label="Mois précédent">‹</a>
+        <strong>{{ mini_mois|date:"F Y"|capfirst }}</strong>
+        <a href="{% url 'agenda:semaine_du' mini_suivant.year mini_suivant.month 1 %}" aria-label="Mois suivant">›</a>
+      </div>
+      <table>
+        <thead><tr>{% for j in "LMMJVSD" %}<th scope="col" aria-hidden="true">{{ j }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          {% for sem in mini %}
+            <tr>
+              {% for j in sem %}
+                <td class="{% if j.hors_mois %}mini__hors{% endif %}{% if j.dans_semaine %} mini__semaine{% endif %}">
+                  <a href="{% url 'agenda:semaine_du' j.date.year j.date.month j.date.day %}"{% if j.aujourdhui %} class="mini__aujourdhui" aria-current="date"{% endif %}
+                     aria-label="{{ j.date|date:'l j F' }}{% if j.elements %}, {{ j.elements|length }} élément{{ j.elements|length|pluralize }}{% endif %}">
+                    {{ j.date.day }}{% if j.elements %}<span class="mini__point" aria-hidden="true"></span>{% endif %}
+                  </a>
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="agenda__legende" aria-label="Légende">
+      <h2>Catégories</h2>
+      <ul>
+        {% for cle, valeur in categories.items %}
+          <li><span class="agenda__pastille agenda--{{ cle }}" aria-hidden="true"></span>{{ valeur.0 }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="agenda__prochains" aria-label="À venir">
+      <h2>À venir</h2>
+      {% if prochains %}
+        <ul>
+          {% for e in prochains %}
+            <li>
+              <a class="agenda--{{ e.categorie }}" href="{{ e.url }}">
+                <span class="agenda__prochain-date">{% if e.debut.date == aujourdhui %}Aujourd'hui{% else %}{{ e.debut|date:"D j M"|capfirst }}{% endif %} · {{ e.horaire }}</span>
+                <strong>{{ e.titre }}</strong>
+                {% if e.detail %}<span>{{ e.detail }}</span>{% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>Rien de prévu dans les 60 prochains jours.</p>
+      {% endif %}
+    </section>
+  </aside>
+
+  <div class="agenda__principal">
+    {% if messages %}
+      <div class="courriel__messages" role="status">
+        {% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}
+      </div>
+    {% endif %}
+    {% block agenda %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% load static %}
+  <script src="{% static 'js/agenda.js' %}" defer></script>
+{% endblock %}

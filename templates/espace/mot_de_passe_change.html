@@ -1,11 +1,12 @@
 {% extends "espace/base_app.html" %}
 {% block seo %}{% include "partials/meta.html" with titre="Mot de passe modifié — Satkaar" %}{% endblock %}
 
+{% block titre_page %}Mot de passe modifié{% endblock %}
+{% block sous_titre_page %}Votre nouveau mot de passe est enregistré{% endblock %}
+
 {% block contenu %}
-<header class="app__entete">
-  <p class="app__surtitre">Mot de passe</p>
-  <h1>Mot de passe modifié</h1>
-  <p>Votre nouveau mot de passe est enregistré.</p>
-</header>
-<a class="bouton bouton--primaire" href="{% url 'espace:tableau' %}">Retour au tableau de bord</a>
+<div class="app__carte">
+  <p>Votre nouveau mot de passe est actif dès maintenant.</p>
+  <a class="bouton bouton--primaire" href="{% url 'espace:tableau' %}">Retour au tableau de bord</a>
+</div>
 {% endblock %}

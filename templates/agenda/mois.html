@@ -1,0 +1,37 @@
+{% extends "agenda/base_agenda.html" %}
+
+{% block agenda %}
+<header class="agenda__entete">
+  <div class="agenda__navigation">
+    <a class="courriel__bouton courriel__bouton--icone" href="{% url 'agenda:mois_de' precedent.year precedent.month %}" aria-label="Mois précédent">‹</a>
+    <a class="courriel__bouton courriel__bouton--icone" href="{% url 'agenda:mois_de' suivant.year suivant.month %}" aria-label="Mois suivant">›</a>
+    <a class="courriel__bouton" href="{% url 'agenda:mois' %}">Aujourd'hui</a>
+    <h2>{{ premier|date:"F Y"|capfirst }}</h2>
+  </div>
+  {% include "agenda/_vues.html" %}
+</header>
+
+<div class="agenda__cadre">
+  <div class="agenda__mois">
+    <div class="agenda__mois-tetes" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div>
+    {% for sem in semaines %}
+      <div class="agenda__mois-ligne">
+        {% for j in sem %}
+          <div class="agenda__case{% if j.hors_mois %} agenda__case--hors{% endif %}{% if j.aujourdhui %} agenda__case--aujourdhui{% endif %}">
+            <div class="agenda__case-tete">
+              <a class="agenda__case-jour" href="{% url 'agenda:semaine_du' j.date.year j.date.month j.date.day %}"{% if j.aujourdhui %} aria-current="date"{% endif %} aria-label="Semaine du {{ j.date|date:'l j F' }}">{{ j.date.day }}</a>
+              <a class="agenda__case-ajout" href="{% url 'agenda:ajouter' %}?date={{ j.date|date:'Y-m-d' }}" aria-label="Ajouter un événement le {{ j.date|date:'l j F' }}">+</a>
+            </div>
+            <ul>
+              {% for e in j.elements|slice:":3" %}
+                <li><a class="agenda__puce agenda--{{ e.categorie }}{% if e.fait %} agenda__evt--fait{% endif %}" href="{{ e.url }}" title="{{ e.categorie_libelle }} · {{ e.horaire }} · {{ e.titre }}">{% if not e.journee_entiere %}<time>{{ e.debut|time:"H:i" }}</time> {% endif %}{{ e.titre }}</a></li>
+              {% endfor %}
+            </ul>
+            {% if j.elements|length > 3 %}<a class="agenda__plus" href="{% url 'agenda:semaine_du' j.date.year j.date.month j.date.day %}">+ {{ j.elements|length|add:"-3" }} autre{{ j.elements|length|add:"-3"|pluralize }}</a>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

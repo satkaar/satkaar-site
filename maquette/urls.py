@@ -14,6 +14,8 @@ urlpatterns = [
     path("llms.txt", pages_views.llms, name="llms"),
     path("mesure/", mesure_views.collecte, name="mesure"),
     path("sitemap.xml", sitemap, {"sitemaps": {"pages": PagesSitemap}}, name="sitemap"),
+    path("espace/mail/", include("courriel.urls")),
+    path("espace/agenda/", include("agenda.urls")),
     path("espace/", include("espace.urls")),
     path("", include("pages.urls")),
 ]

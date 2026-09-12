@@ -1,0 +1,57 @@
+{% extends "courriel/base_courriel.html" %}
+
+{% block courriel %}
+<header class="courriel__entete">
+  <div>
+    <h2>{% if instance %}Modifier {{ instance }}{% else %}Ajouter une boîte mail{% endif %}</h2>
+    <p>La connexion est vérifiée à l'enregistrement (réception et envoi).</p>
+  </div>
+</header>
+
+<form class="courriel__formulaire" method="post" novalidate>
+  {% csrf_token %}
+  <section class="stats__carte">
+    <h2>Hébergeur</h2>
+    <label class="courriel__champ-seul" for="fournisseur">Remplir les serveurs pour
+      <select class="champ" id="fournisseur" data-fournisseur>
+        <option value="">— choisir —</option>
+        {% for cle, f in fournisseurs.items %}<option value="{{ cle }}">{{ f.libelle }}</option>{% endfor %}
+      </select>
+    </label>
+    {{ fournisseurs|json_script:"fournisseurs" }}
+  </section>
+
+  <section class="stats__carte">
+    <h2>Identité</h2>
+    {% include "courriel/_champ.html" with champ=form.adresse %}
+    {% include "courriel/_champ.html" with champ=form.libelle aide=True %}
+    {% include "courriel/_champ.html" with champ=form.nom_expediteur %}
+  </section>
+
+  <section class="stats__carte">
+    <h2>Connexion</h2>
+    {% include "courriel/_champ.html" with champ=form.identifiant aide=True %}
+    {% include "courriel/_champ.html" with champ=form.mot_de_passe aide=True %}
+  </section>
+
+  <section class="stats__carte">
+    <h2>Serveurs</h2>
+    {% include "courriel/_champ.html" with champ=form.imap_hote %}
+    {% include "courriel/_champ.html" with champ=form.imap_port %}
+    {% include "courriel/_champ.html" with champ=form.smtp_hote %}
+    {% include "courriel/_champ.html" with champ=form.smtp_port %}
+    {% include "courriel/_champ.html" with champ=form.smtp_securite %}
+  </section>
+
+  <section class="stats__carte">
+    <h2>Signature et relève</h2>
+    {% include "courriel/_champ.html" with champ=form.signature aide=True %}
+    <label class="courriel__case">{{ form.actif }} {{ form.actif.label|capfirst }}</label>
+  </section>
+
+  <div class="courriel__envoi">
+    <button type="submit" class="courriel__bouton courriel__bouton--plein courriel__bouton--grand" data-envoyer><span data-libelle>Enregistrer et tester</span></button>
+    <a class="courriel__bouton courriel__bouton--discret" href="{% url 'courriel:comptes' %}">Annuler</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "agenda/base_agenda.html" %}
+
+{% block agenda %}
+<header class="courriel__entete">
+  <div><h2>{% if instance %}Modifier l'événement{% else %}Nouvel événement{% endif %}</h2></div>
+</header>
+
+<form class="courriel__formulaire agenda__formulaire" method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="courriel__info courriel__info--error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+
+  <section class="stats__carte">
+    <label class="visuellement-cache" for="{{ form.titre.id_for_label }}">Titre</label>
+    {% if form.titre.errors %}<p class="erreur" id="{{ form.titre.auto_id }}-erreur">{{ form.titre.errors|join:" " }}</p>{% endif %}
+    <input type="text" name="titre" id="{{ form.titre.id_for_label }}" value="{{ form.titre.value|default:'' }}" maxlength="200" class="champ agenda__titre-saisie" placeholder="Titre de l'événement" required aria-required="true"{% if form.titre.errors %} aria-invalid="true" aria-describedby="{{ form.titre.auto_id }}-erreur"{% endif %}>
+    {% include "courriel/_champ.html" with champ=form.categorie %}
+    <label class="courriel__case">{{ form.journee_entiere }} Journée entière</label>
+    <div class="agenda__quand-saisie">
+      {% include "courriel/_champ.html" with champ=form.date_debut %}
+      <div data-heures>{% include "courriel/_champ.html" with champ=form.heure_debut %}</div>
+      <div data-heures>{% include "courriel/_champ.html" with champ=form.heure_fin %}</div>
+      {% include "courriel/_champ.html" with champ=form.date_fin aide=True %}
+    </div>
+  </section>
+
+  <section class="stats__carte">
+    <h2>Où et avec qui</h2>
+    {% include "courriel/_champ.html" with champ=form.organisation %}
+    {% include "courriel/_champ.html" with champ=form.lieu %}
+    {% include "courriel/_champ.html" with champ=form.lien_visio %}
+    <label class="courriel__case">{{ form.generer_visio }} {{ form.generer_visio.label }}</label>
+    <fieldset class="agenda__participants">
+      <legend>Participants de l'équipe</legend>
+      {% for case in form.participants %}<label class="courriel__case">{{ case.tag }} {{ case.choice_label }}</label>{% endfor %}
+    </fieldset>
+  </section>
+
+  <section class="stats__carte">
+    <h2>Notes</h2>
+    {% include "courriel/_champ.html" with champ=form.description %}
+  </section>
+
+  <div class="courriel__envoi">
+    <button type="submit" class="courriel__bouton courriel__bouton--plein courriel__bouton--grand">Enregistrer</button>
+    <a class="courriel__bouton courriel__bouton--discret" href="{% if instance %}{% url 'agenda:evenement' instance.pk %}{% else %}{% url 'agenda:semaine' %}{% endif %}">Annuler</a>
+  </div>
+</form>
+{% endblock %}

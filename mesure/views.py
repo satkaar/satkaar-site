@@ -103,9 +103,9 @@ def statistiques(request):
         "periode": periode,
         "periodes": PERIODES,
         "courbe": graphique,
-        # Dessinées à la largeur réelle des cartes (demi-colonne) pour que le texte garde sa taille.
-        "colonnes_heures": colonnes(resultats["heures"], largeur=400, hauteur=180),
-        "colonnes_jours": colonnes(resultats["jours_semaine"], largeur=400, hauteur=180),
+        # Dessinées à la largeur réelle des cartes (moitié de page) pour que le texte garde sa taille.
+        "colonnes_heures": colonnes(resultats["heures"], largeur=520, hauteur=190),
+        "colonnes_jours": colonnes(resultats["jours_semaine"], largeur=520, hauteur=190),
         "points_courbe": [{"x": p["x"], "y": p["y"], "t": p["texte"], "v": p["valeur"]}
                           for p in graphique["points"]],
     })

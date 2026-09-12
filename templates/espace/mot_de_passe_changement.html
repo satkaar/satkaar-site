@@ -1,14 +1,11 @@
 {% extends "espace/base_app.html" %}
 {% block seo %}{% include "partials/meta.html" with titre="Changer mon mot de passe — Satkaar" %}{% endblock %}
 
-{% block contenu %}
-<header class="app__entete">
-  <p class="app__surtitre">Mot de passe</p>
-  <h1>Changer mon mot de passe</h1>
-  <p>Choisissez un mot de passe que vous n'utilisez nulle part ailleurs.</p>
-</header>
+{% block titre_page %}Changer mon mot de passe{% endblock %}
+{% block sous_titre_page %}Choisissez un mot de passe que vous n'utilisez nulle part ailleurs{% endblock %}
 
-<section class="app__section">
+{% block contenu %}
+<section class="app__carte">
   <form class="formulaire app__formulaire" method="post" novalidate>
     {% csrf_token %}
     {% include "espace/_champs.html" %}

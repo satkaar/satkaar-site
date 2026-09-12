@@ -4,12 +4,11 @@ import tempfile
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.cache import cache
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 
 from .forms import ESSAIS_MAX
-from .models import Document, Projet
+from .models import Projet
 
 DOSSIER_TEST = tempfile.mkdtemp()
 
@@ -29,13 +28,7 @@ class EspaceClientTests(TestCase):
         self.projet = Projet.objects.create(
             client=self.claire, titre="Diagnostic data", type=Projet.Type.CONSEIL, avancement=40
         )
-        self.document = Document.objects.create(
-            client=self.claire, projet=self.projet, titre="Facture 1", categorie=Document.Categorie.FACTURE,
-            fichier=SimpleUploadedFile("facture-1.pdf", b"%PDF-1.4 test"),
-        )
-        self.document_autre = Document.objects.create(
-            client=self.autre, titre="Document d'un autre", fichier=SimpleUploadedFile("secret.pdf", b"secret"),
-        )
+        Projet.objects.create(client=self.autre, titre="Projet d'un autre", type=Projet.Type.FORMATION)
 
     def connexion(self, courriel, mot_de_passe):
         return self.client.post(reverse("espace:connexion"), {"username": courriel, "password": mot_de_passe})
@@ -49,8 +42,7 @@ class EspaceClientTests(TestCase):
         self.assertRedirects(reponse, reverse("espace:tableau"))
         page = self.client.get(reverse("espace:tableau"))
         self.assertContains(page, "Diagnostic data")
-        self.assertContains(page, "Facture 1")
-        self.assertNotContains(page, "Document d'un autre")
+        self.assertNotContains(page, "Projet d'un autre")
 
     def test_mauvais_mot_de_passe(self):
         reponse = self.connexion("claire@example.fr", "faux")
@@ -63,26 +55,12 @@ class EspaceClientTests(TestCase):
         self.assertContains(reponse, "Trop de tentatives de connexion")
         self.assertNotIn("_auth_user_id", self.client.session)
 
-    def test_telechargement_de_son_document(self):
+    def test_plus_de_rubrique_documents(self):
         self.client.force_login(self.claire)
-        reponse = self.client.get(reverse("espace:telecharger", args=[self.document.pk]))
-        self.assertEqual(reponse.status_code, 200)
-        self.assertIn("attachment", reponse["Content-Disposition"])
-        self.assertEqual(b"".join(reponse.streaming_content), b"%PDF-1.4 test")
-
-    def test_document_d_un_autre_client_introuvable(self):
-        self.client.force_login(self.claire)
-        reponse = self.client.get(reverse("espace:telecharger", args=[self.document_autre.pk]))
-        self.assertEqual(reponse.status_code, 404)
-
-    def test_telechargement_refuse_sans_connexion(self):
-        reponse = self.client.get(reverse("espace:telecharger", args=[self.document.pk]))
-        self.assertEqual(reponse.status_code, 302)
-
-    def test_filtre_des_documents(self):
-        self.client.force_login(self.claire)
-        page = self.client.get(reverse("espace:documents") + "?categorie=livrable")
-        self.assertContains(page, "Aucun document dans cette catégorie.")
+        page = self.client.get(reverse("espace:tableau"))
+        self.assertNotContains(page, "Documents")
+        with self.assertRaises(NoReverseMatch):
+            reverse("espace:documents")
 
     def test_deconnexion(self):
         self.client.force_login(self.claire)

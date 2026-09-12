@@ -1,0 +1,69 @@
+{% extends "espace/base_app.html" %}
+{% comment %}
+  Messagerie de l'équipe, sur le modèle du CRM : colonne des dossiers et des boîtes à gauche,
+  liste ou message à droite, sur toute la largeur.
+{% endcomment %}
+{% load courriels %}
+{% block seo %}{% include "partials/meta.html" with titre="Mail — Satkaar" %}{% endblock %}
+{% block classe_app %} app--stats app--courriel{% endblock %}
+{% block titre_page %}Mail{% endblock %}
+{% block sous_titre_page %}{% for c in comptes %}{{ c.adresse }}{% if not forloop.last %} · {% endif %}{% empty %}Messagerie de l'équipe{% endfor %}{% endblock %}
+
+{% block contenu %}
+<div class="courriel">
+  <aside class="courriel__dossiers" aria-label="Dossiers">
+    <a class="courriel__ecrire" href="{% url 'courriel:rediger' %}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      Nouveau message
+    </a>
+    <nav class="courriel__nav">
+      <a class="courriel__dossier" href="{% url 'courriel:boite' %}"{% if dossier_actif == "reception" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/></svg>
+        Boîte de réception
+        {% if nb_non_lus %}<span class="courriel__compteur">{{ nb_non_lus }}</span>{% endif %}
+      </a>
+      <a class="courriel__dossier" href="{% url 'courriel:dossier' 'etoiles' %}"{% if dossier_actif == "etoiles" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>
+        Étoilés
+        {% if nb_etoiles %}<span class="courriel__compteur courriel__compteur--discret">{{ nb_etoiles }}</span>{% endif %}
+      </a>
+      <a class="courriel__dossier" href="{% url 'courriel:dossier' 'envoyes' %}"{% if dossier_actif == "envoyes" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+        Envoyés
+      </a>
+      <a class="courriel__dossier" href="{% url 'courriel:dossier' 'corbeille' %}"{% if dossier_actif == "corbeille" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        Corbeille
+      </a>
+
+      <p class="courriel__intertitre">Boîtes mail</p>
+      {% for c in comptes %}
+        <a class="courriel__dossier" href="{% url 'courriel:boite' %}?compte={{ c.pk }}"{% if dossier_actif == "compte-"|add:c.pk|stringformat:"s" %} aria-current="page"{% endif %}>
+          <span class="courriel__avatar courriel__avatar--petit" aria-hidden="true">{{ c.adresse|first|upper }}</span>
+          <span class="courriel__tronque">{{ c }}</span>
+          {% if c.derniere_erreur %}<span class="courriel__alerte" title="{{ c.derniere_erreur }}">!<span class="visuellement-cache"> connexion en erreur</span></span>{% endif %}
+        </a>
+      {% endfor %}
+      <a class="courriel__dossier" href="{% url 'courriel:comptes' %}"{% if dossier_actif == "comptes" %} aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Gérer les boîtes
+      </a>
+    </nav>
+  </aside>
+
+  <div class="courriel__principal">
+    {% if messages %}
+      <div class="courriel__messages" role="status">
+        {% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}
+      </div>
+    {% endif %}
+    {% block courriel %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% load static %}
+  <script src="{% static 'js/courriel.js' %}" defer></script>
+{% endblock %}
