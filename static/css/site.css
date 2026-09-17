@@ -7733,3 +7733,506 @@ a.annee__jour--3:hover { background: rgba(26, 44, 91, 0.75); }
     display: none;
   }
 }
+
+/* --- Éditeur de message (mise en forme, à la manière de Gmail) -------------------------------- */
+.redaction {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.redaction__outils {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.35rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--stats-filet);
+  background: var(--crm-creme);
+}
+
+.redaction__groupe {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding-right: 0.35rem;
+  border-right: 1px solid var(--crm-bord);
+}
+
+.redaction__groupe:last-child {
+  border-right: 0;
+}
+
+.redaction__bouton {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--crm-texte-2);
+  font: 600 0.9rem/1 var(--police-texte);
+  cursor: pointer;
+}
+
+.redaction__bouton:hover {
+  background: rgba(15, 23, 42, 0.07);
+  color: var(--crm-texte);
+}
+
+.redaction__bouton svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.redaction__couleur {
+  position: relative;
+  border-bottom: 3px solid currentColor;
+  border-radius: 6px 6px 2px 2px;
+}
+
+.redaction__couleur input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.redaction__choix {
+  height: 1.9rem;
+  padding: 0 0.35rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--crm-texte-2);
+  font-size: 0.8rem;
+}
+
+.redaction__choix:hover {
+  border-color: var(--crm-bord);
+  background: var(--blanc);
+}
+
+.redaction__lien {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--stats-filet);
+  background: var(--blanc);
+  font-size: 0.85rem;
+}
+
+.redaction__lien .champ {
+  flex: 1 1 18rem;
+  max-width: 26rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.redaction__emojis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--stats-filet);
+  background: var(--blanc);
+}
+
+.redaction__emoji {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.redaction__emoji:hover {
+  background: var(--crm-survol);
+}
+
+.redaction__zone {
+  flex: 1;
+  min-height: 16rem;
+  padding: 1.1rem 1.5rem;
+  overflow-y: auto;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--crm-texte);
+}
+
+.redaction__zone:focus-visible {
+  outline: 3px solid rgba(30, 99, 168, 0.35);
+  outline-offset: -3px;
+}
+
+.redaction__zone blockquote {
+  margin: 0.5rem 0;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--crm-bord);
+  color: var(--crm-muet);
+}
+
+.redaction__zone ul,
+.redaction__zone ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.redaction__zone a {
+  color: var(--crm-marque);
+}
+
+/* Pièces jointes du message en cours de rédaction. */
+.redaction__bouton--barre {
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 1px solid var(--crm-bord);
+  background: var(--blanc);
+}
+
+.pieces {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.piece {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 20rem;
+  padding: 0.25rem 0.35rem 0.25rem 0.55rem;
+  border: 1px solid var(--stats-bord);
+  border-radius: 999px;
+  background: var(--blanc);
+  font-size: 0.8rem;
+  color: var(--crm-texte);
+}
+
+.piece svg {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: none;
+  stroke: var(--crm-muet);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.piece__nom {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.piece__poids {
+  color: var(--crm-muet);
+  white-space: nowrap;
+}
+
+.piece__retirer {
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--crm-muet);
+  cursor: pointer;
+}
+
+.piece__retirer:hover {
+  background: #fce8e6;
+  color: var(--crm-alerte);
+}
+
+.pieces__total {
+  font-size: 0.78rem;
+  color: var(--crm-muet);
+}
+
+.pieces__total--trop {
+  color: var(--crm-alerte);
+  font-weight: 600;
+}
+
+/* Carnet d'adresses : suggestions sous les champs À, Cc et Cci. */
+.carnet-hote {
+  position: relative;
+}
+
+.carnet {
+  position: absolute;
+  z-index: 30;
+  inset-inline: 0;
+  top: calc(100% + 0.25rem);
+  max-height: 19rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  border: 1px solid var(--crm-bord);
+  border-radius: 10px;
+  background: var(--blanc);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 0.16);
+}
+
+.carnet__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 7px;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.carnet__item--actif,
+.carnet__item:hover {
+  background: var(--crm-creme);
+}
+
+.carnet__nom {
+  font-weight: 600;
+  color: var(--crm-marque);
+  white-space: nowrap;
+}
+
+.carnet__adresse {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--crm-muet);
+}
+
+.carnet__detail {
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--crm-muet);
+  font-size: 0.8rem;
+}
+
+.carnet__marque {
+  flex: none;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--crm-creme);
+  color: var(--crm-marque);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Objet du message : saisie et propositions de l'assistant. */
+.courriel__objet {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.courriel__objet input {
+  flex: 1;
+  min-width: 0;
+}
+
+.courriel__ia {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: none;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--crm-bord);
+  border-radius: 999px;
+  background: var(--blanc);
+  color: var(--crm-marque);
+  font: 600 0.82rem/1.2 var(--police-texte);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.courriel__ia:hover:not(:disabled) {
+  border-color: var(--crm-marque);
+  background: var(--crm-creme);
+}
+
+.courriel__ia:disabled {
+  color: var(--crm-muet);
+  cursor: progress;
+}
+
+.courriel__propositions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--crm-muet);
+}
+
+.courriel__propositions--erreur {
+  color: var(--crm-alerte);
+}
+
+.courriel__propositions-intro {
+  font-weight: 600;
+  color: var(--crm-marque);
+}
+
+.courriel__proposition {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--stats-bord);
+  border-radius: 999px;
+  background: var(--crm-creme);
+  color: var(--crm-marque);
+  font: 500 0.82rem/1.2 var(--police-texte);
+  cursor: pointer;
+}
+
+.courriel__proposition:hover {
+  border-color: var(--crm-marque);
+  background: var(--blanc);
+}
+
+.courriel__proposition--discret {
+  background: none;
+  border-style: dashed;
+}
+
+/* Ligne « De » : boîte d'envoi, signature du moment, ajout d'une boîte. */
+.courriel__de {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+}
+
+.courriel__de > select {
+  flex: 1 1 22rem;
+  min-width: 12rem;
+  max-width: 30rem;
+}
+
+.courriel__de-outil {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.6rem;
+  border: 1px solid var(--crm-bord);
+  border-radius: 999px;
+  background: var(--blanc);
+  font-size: 0.82rem;
+  color: var(--crm-muet);
+}
+
+.courriel__de-outil svg {
+  flex: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: none;
+  stroke: var(--crm-marque);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.courriel__de-outil select {
+  border: 0;
+  background-color: transparent;
+  font-weight: 600;
+  color: var(--crm-marque);
+}
+
+.courriel__de-outil label {
+  font-weight: 500;
+  color: var(--crm-muet);
+}
+
+.courriel__de-outil select {
+  max-width: 13rem;
+  padding: 0.15rem 1.4rem 0.15rem 0.3rem;
+  font-size: 0.82rem;
+}
+
+/* « + Boîte mail » au bord droit de la ligne De ; « Annuler » au bord droit de la barre d'envoi. */
+.courriel__de > .courriel__lien-discret,
+.courriel__redaction .courriel__envoi .courriel__bouton--discret {
+  margin-left: auto;
+}
+
+.courriel__lien-discret {
+  flex: none;
+  color: var(--crm-muet);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.courriel__lien-discret:hover {
+  color: var(--crm-marque);
+  text-decoration: underline;
+}
+
+.courriel__signature-apercu {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  overflow-x: auto;
+  border-left: 3px solid var(--crm-bord);
+  background: var(--crm-creme);
+  color: var(--crm-texte);
+  font: 0.84rem/1.5 var(--police-texte);
+  white-space: pre-wrap;
+}
+
+/* Case à cocher d'un formulaire du Mail : la case garde sa taille, le libellé suit. */
+.courriel__formulaire .courriel__case {
+  display: flex;
+  margin-block: 0.35rem;
+}
+
+.courriel__case input[type="checkbox"] {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+/* État de la reformulation, dans la barre d'envoi. */
+.courriel__ia-etat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--crm-muet);
+}
+
+.courriel__ia-etat--erreur {
+  color: var(--crm-alerte);
+}

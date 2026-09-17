@@ -70,9 +70,10 @@
   </section>
 
   <section class="stats__carte">
-    <h2>Signature et relève</h2>
-    {% include "courriel/_champ.html" with champ=form.signature aide=True %}
+    <h2>Relève</h2>
     <label class="courriel__case">{{ form.actif }} {{ form.actif.label|capfirst }}</label>
+    <p class="aide-champ">Les signatures se gèrent à part, pour pouvoir en avoir plusieurs par boîte :
+      <a href="{% url 'courriel:signatures' %}">Signatures</a>.</p>
   </section>
 
   <div class="courriel__envoi">

@@ -20,7 +20,7 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 from django.utils import timezone
 
-from . import classement
+from . import classement, redaction
 from .models import CompteCourriel, Courriel, PieceJointe
 
 logger = logging.getLogger(__name__)
@@ -380,8 +380,13 @@ def tester(compte):
         pass
 
 
-def envoyer(compte, a, sujet, texte, copie=(), copie_cachee=(), pieces=(), en_reponse_a="", references="", utilisateur=None):
-    """Envoie un message texte, le range dans « Envoyés » (ici et sur le serveur) et le renvoie."""
+def envoyer(compte, a, sujet, texte, copie=(), copie_cachee=(), pieces=(), en_reponse_a="", references="",
+            utilisateur=None, html=""):
+    """Envoie un message, le range dans « Envoyés » (ici et sur le serveur) et le renvoie.
+
+    Avec `html`, le message part en deux versions : le texte pour les logiciels qui n'affichent
+    pas le HTML, la mise en forme pour les autres.
+    """
     message = EmailMessage(policy=policy.SMTP)
     message["From"] = formataddr((compte.nom_expediteur, compte.adresse))
     message["To"] = ", ".join(a)
@@ -393,7 +398,10 @@ def envoyer(compte, a, sujet, texte, copie=(), copie_cachee=(), pieces=(), en_re
     if en_reponse_a:
         message["In-Reply-To"] = en_reponse_a
         message["References"] = f"{references} {en_reponse_a}".strip()
+    html = redaction.nettoyer(html)
     message.set_content(texte)
+    if html:
+        message.add_alternative(html, subtype="html")
     for piece in pieces:
         principal, _, secondaire = piece["type_mime"].partition("/")
         message.add_attachment(piece["contenu"], maintype=principal or "application",
@@ -417,7 +425,7 @@ def envoyer(compte, a, sujet, texte, copie=(), copie_cachee=(), pieces=(), en_re
         {
             "message_id": message["Message-ID"], "expediteur_nom": compte.nom_expediteur,
             "expediteur_adresse": compte.adresse, "destinataires": ", ".join(a), "copie": ", ".join(copie),
-            "sujet": sujet, "texte": texte, "date": timezone.now(), "en_reponse_a": en_reponse_a,
+            "sujet": sujet, "texte": texte, "html": html, "date": timezone.now(), "en_reponse_a": en_reponse_a,
             "references": message.get("References", ""), "pieces": list(pieces),
         },
         dossier=Courriel.Dossier.ENVOYES, lu=True, envoye_par=utilisateur,

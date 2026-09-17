@@ -3,6 +3,7 @@ import re
 from datetime import timedelta
 
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.http import FileResponse, Http404, JsonResponse
@@ -10,17 +11,22 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateformat import format as formater_date
+from django.utils.html import escape
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from espace.acces import equipe
 
-from . import classement, protocoles
-from .forms import FOURNISSEURS, CompteForm, RedactionForm
-from .models import CompteCourriel, Courriel, PieceJointe
+from . import carnet, classement, ia, protocoles
+from .forms import FOURNISSEURS, CompteForm, RedactionForm, SignatureForm
+from .models import CompteCourriel, Courriel, PieceJointe, Signature
 
 PAR_PAGE = 40
 RELEVE_AUTO = timedelta(minutes=5)
+
+# Appels à l'assistant (objet, reformulation) : plafond par personne, chaque appel étant facturé.
+IA_APPELS_MAX = 30
+IA_FENETRE = 10 * 60  # secondes
 
 DOSSIERS = {
     "reception": ("Boîte de réception", Q(dossier=Courriel.Dossier.RECEPTION, corbeille=False)),
@@ -131,17 +137,36 @@ def _sujet(prefixe, sujet):
     return sujet if re.match(rf"^{prefixe}\s*:", sujet, re.I) else f"{prefixe}: {sujet}"
 
 
-def _brouillon(origine, mode, compte):
+def _signature_html(signature):
+    # Repérée par data-signature : l'écran de rédaction sait ainsi la remplacer d'un bloc à l'autre.
+    return f'<div data-signature="{signature.pk}">{signature.html}</div>' if signature else ""
+
+
+def _citation_html(origine, quand, auteur):
+    """Message d'origine, repris tel quel s'il avait une mise en forme, sinon en texte."""
+    corps = origine.html or "<p>" + escape(origine.texte).replace("\n", "<br>") + "</p>"
+    return (f'<div data-origine="1"><p>Le {escape(quand)}, {escape(auteur)} a écrit :</p>'
+            f'<blockquote style="border-left:3px solid #dadce0;margin:0;padding-left:0.9rem">{corps}</blockquote></div>')
+
+
+def _brouillon(origine, mode, compte, signature=None):
     """Valeurs de départ du formulaire : signature, destinataires et message cité."""
-    signature = f"\n\n-- \n{compte.signature}" if compte and compte.signature else ""
+    bloc = f"\n\n{signature.texte}" if signature else ""
     if not origine:
-        return {"compte": compte, "texte": signature}
+        return {"compte": compte, "texte": bloc, "corps_html": f"<p><br></p>{_signature_html(signature)}"}
     quand = formater_date(timezone.localtime(origine.date), "j F Y à H:i")
     auteur = origine.expediteur_nom or origine.expediteur_adresse
     if mode == "transferer":
         entete = (f"---------- Message transféré ----------\nDe : {auteur} <{origine.expediteur_adresse}>\n"
                   f"Date : {quand}\nObjet : {origine.sujet}\nÀ : {origine.destinataires}\n\n")
-        return {"compte": compte, "sujet": _sujet("Tr", origine.sujet), "texte": f"{signature}\n\n{entete}{origine.texte}"}
+        entete_html = ("<p>---------- Message transféré ----------<br>"
+                       f"De : {escape(auteur)} &lt;{escape(origine.expediteur_adresse)}&gt;<br>"
+                       f"Date : {escape(quand)}<br>Objet : {escape(origine.sujet)}<br>"
+                       f"À : {escape(origine.destinataires)}</p>")
+        corps = origine.html or "<p>" + escape(origine.texte).replace("\n", "<br>") + "</p>"
+        return {"compte": compte, "sujet": _sujet("Tr", origine.sujet),
+                "texte": f"{bloc}\n\n{entete}{origine.texte}",
+                "corps_html": f'<p><br></p>{_signature_html(signature)}<div data-origine="1">{entete_html}{corps}</div>'}
 
     if origine.envoye:
         a = origine.destinataires
@@ -154,7 +179,8 @@ def _brouillon(origine, mode, compte):
         copie = ", ".join(dict.fromkeys(x for x in autres if x.lower() not in exclues))
     citation = "\n".join(f"> {ligne}" for ligne in origine.texte.splitlines())
     return {"compte": compte, "a": a, "copie": copie, "sujet": _sujet("Re", origine.sujet),
-            "texte": f"{signature}\n\nLe {quand}, {auteur} a écrit :\n{citation}"}
+            "texte": f"{bloc}\n\nLe {quand}, {auteur} a écrit :\n{citation}",
+            "corps_html": f"<p><br></p>{_signature_html(signature)}{_citation_html(origine, quand, auteur)}"}
 
 
 @equipe
@@ -187,6 +213,7 @@ def rediger(request):
                     d["compte"], d["a"], d["sujet"], d["texte"], copie=d["copie"], copie_cachee=d["copie_cachee"],
                     pieces=pieces, en_reponse_a=reponse.message_id if reponse else "",
                     references=reponse.references if reponse else "", utilisateur=request.user,
+                    html=d["corps_html"],
                 )
             except protocoles.ErreurCourriel as erreur:
                 form.add_error(None, str(erreur))
@@ -195,7 +222,7 @@ def rediger(request):
                 return redirect("courriel:lire", envoye.pk)
     else:
         compte = origine.compte if origine and origine.compte.actif else comptes.first()
-        initial = _brouillon(origine, mode, compte)
+        initial = _brouillon(origine, mode, compte, Signature.par_defaut_de(compte))
         if not origine:
             # Préremplissage depuis un autre écran (invitation envoyée depuis l'agenda…).
             initial.update({cle: request.GET[cle][:500] for cle in ("a", "sujet") if request.GET.get(cle)})
@@ -206,8 +233,84 @@ def rediger(request):
     return render(request, "courriel/rediger.html", _barre(
         "rediger", form=form, origine=origine, mode=mode,
         pieces_origine=origine.pieces_jointes.all() if origine and mode == "transferer" else [],
-        signatures={c.pk: c.signature for c in comptes},
+        signatures=[{"pk": s.pk, "libelle": s.libelle, "compte": s.compte_id,
+                     "html": s.html, "texte": s.texte, "defaut": s.par_defaut}
+                    for s in Signature.objects.all()],
     ))
+
+
+@equipe
+def signatures(request):
+    liste = Signature.objects.select_related("compte")
+    return render(request, "courriel/signatures.html", _barre("signatures", liste=liste))
+
+
+@equipe
+def signature(request, pk=None):
+    instance = get_object_or_404(Signature, pk=pk) if pk else None
+    form = SignatureForm(request.POST or None, instance=instance)
+    if request.method == "POST" and form.is_valid():
+        enregistree = form.save()
+        messages.success(request, f"Signature « {enregistree.libelle} » enregistrée.")
+        return redirect("courriel:signatures")
+    return render(request, "courriel/signature.html", _barre("signatures", form=form, instance=instance))
+
+
+@equipe
+@require_POST
+def signature_supprimer(request, pk):
+    a_retirer = get_object_or_404(Signature, pk=pk)
+    a_retirer.delete()
+    messages.success(request, f"Signature « {a_retirer.libelle} » supprimée.")
+    return redirect("courriel:signatures")
+
+
+@equipe
+def carnet_adresses(request):
+    """Le carnet d'adresses, chargé une fois par l'écran de rédaction pour compléter À, Cc et Cci."""
+    return JsonResponse({"adresses": carnet.entrees()})
+
+
+def _quota_atteint(request, usage):
+    """Chaque appel est facturé : un garde-fou par personne, comme sur le formulaire public."""
+    cle = f"ia:{usage}:{request.user.pk}"
+    cache.add(cle, 0, IA_FENETRE)
+    return cache.incr(cle) > IA_APPELS_MAX
+
+
+@equipe
+@require_POST
+def reformuler(request):
+    """Le message en cours de rédaction, remis au propre par l'assistant."""
+    corps = (request.POST.get("corps") or "").strip()
+    if not corps:
+        return JsonResponse({"erreur": "Écrivez d'abord votre message."}, status=400)
+    if _quota_atteint(request, "reformulation"):
+        return JsonResponse({"erreur": "Trop de reformulations demandées. Réessayez dans quelques minutes."}, status=429)
+    try:
+        texte = ia.reformuler_corps(corps)
+    except ia.IAIndisponible:
+        return JsonResponse({"erreur": "L'assistant est indisponible pour le moment."}, status=503)
+    return JsonResponse({"texte": texte})
+
+
+@equipe
+@require_POST
+def objet_ia(request):
+    """Trois objets proposés par l'assistant pour le brouillon en cours."""
+    corps = (request.POST.get("corps") or "").strip()
+    sujet = (request.POST.get("sujet") or "").strip()[:500]
+    if not corps:
+        return JsonResponse({"erreur": "Écrivez d'abord votre message."}, status=400)
+
+    if _quota_atteint(request, "objet"):
+        return JsonResponse({"erreur": "Trop de propositions demandées. Réessayez dans quelques minutes."}, status=429)
+
+    try:
+        objets = ia.proposer_objets(sujet, corps, request.POST.get("a", "")[:500])
+    except ia.IAIndisponible:
+        return JsonResponse({"erreur": "L'assistant est indisponible pour le moment."}, status=503)
+    return JsonResponse({"objets": objets})
 
 
 @equipe

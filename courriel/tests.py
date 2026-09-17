@@ -7,12 +7,16 @@ from pathlib import Path
 from unittest import mock
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from . import protocoles
-from .models import CompteCourriel, Courriel, PieceJointe
+from contacts.models import Contact
+from pages.models import DemandeDemonstration
+
+from . import carnet, ia, protocoles, views
+from .models import CompteCourriel, Courriel, PieceJointe, Signature
 from .views import _document_isole
 
 
@@ -111,9 +115,11 @@ class Base(TestCase):
         self.addCleanup(reglage.disable)
         self.addCleanup(shutil.rmtree, self.dossier, ignore_errors=True)
         self.compte = CompteCourriel(adresse="contact@satkaar.io", identifiant="contact@satkaar.io",
-                                     imap_hote="ssl0.ovh.net", smtp_hote="ssl0.ovh.net", signature="Damien — Satkaar")
+                                     imap_hote="ssl0.ovh.net", smtp_hote="ssl0.ovh.net")
         self.compte.mot_de_passe = "secret"
         self.compte.save()
+        self.signature = Signature.objects.create(compte=self.compte, libelle="Direction",
+                                                  corps="Damien — Satkaar", par_defaut=True)
         FauxSMTP.envois = []
 
 
@@ -295,6 +301,9 @@ class VuesTests(Base):
         self.assertEqual(formulaire.initial["sujet"], "Re: Demande de devis")
         self.assertIn("-- \nDamien — Satkaar", formulaire.initial["texte"])
         self.assertIn("> Pouvez-vous nous rappeler ?", formulaire.initial["texte"])
+        # La réponse s'ouvre aussi en version mise en forme : signature puis message cité.
+        self.assertIn("<blockquote", formulaire.initial["corps_html"])
+        self.assertIn("Damien — Satkaar", formulaire.initial["corps_html"])
 
     def test_envoi_depuis_le_formulaire(self):
         self.client.force_login(self.equipe)
@@ -311,6 +320,15 @@ class VuesTests(Base):
         self.assertEqual(destinataires, ["elodie@client.fr", "autre@client.fr"])
         self.assertEqual(message["In-Reply-To"], "<a1@client.fr>")
         self.assertEqual(envoye.envoye_par, self.equipe)
+
+    def test_trombone_dans_la_barre_d_envoi(self):
+        """Les pièces jointes se choisissent depuis la barre du bas, comme dans Gmail ;
+        le champ de fichiers reste dans la page pour qui n'a pas JavaScript."""
+        self.client.force_login(self.equipe)
+        page = self.client.get(reverse("courriel:rediger")).content.decode()
+        barre = page[page.index('class="courriel__envoi"'):]
+        self.assertIn("data-joindre", barre)
+        self.assertIn('type="file"', page)
 
     def test_adresse_invalide(self):
         self.client.force_login(self.equipe)
@@ -491,3 +509,285 @@ class DetectionServeurTests(Base):
         detecter.assert_called_once()
         self.assertContains(reponse, "Serveur corrigé automatiquement : pro3.mail.ovh.net")
 
+
+class RedactionHtmlTests(Base):
+    """Message écrit avec mise en forme : deux versions partent, et rien d'exécutable."""
+
+    def test_nettoyage_du_html(self):
+        from .redaction import en_texte, nettoyer
+
+        sale = ('<p>Bonjour <b>Damien</b><script>vol()</script>'
+                '<a href="javascript:vol()">piège</a> <a href="https://satkaar.io" onclick="vol()">site</a></p>'
+                '<ul><li>un</li><li>deux</li></ul><div style="position:fixed;color:#d00">rouge</div>')
+        propre = nettoyer(sale)
+        self.assertNotIn("script", propre)
+        self.assertNotIn("javascript:", propre)
+        self.assertNotIn("onclick", propre)
+        self.assertNotIn("position:fixed", propre)
+        self.assertIn('<a href="https://satkaar.io">site</a>', propre)
+        self.assertIn('style="color:#d00"', propre)
+        self.assertIn("· un", en_texte(propre))
+        self.assertIn("site (https://satkaar.io)", en_texte(propre))
+
+    def test_envoi_en_deux_versions(self):
+        faux = FauxIMAP({})
+        with mock.patch("courriel.protocoles.smtplib.SMTP_SSL", FauxSMTP), \
+                mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", return_value=faux):
+            envoye = protocoles.envoyer(self.compte, ["elodie@client.fr"], "Devis", "Bonjour Élodie",
+                                        html="<p>Bonjour <b>Élodie</b></p><script>vol()</script>")
+        message = FauxSMTP.envois[0][0]
+        types = [p.get_content_type() for p in message.walk()]
+        self.assertIn("text/plain", types)
+        self.assertIn("text/html", types)
+        html = message.get_body(preferencelist=("html",)).get_content()
+        self.assertIn("<b>Élodie</b>", html)
+        self.assertNotIn("script", html)
+        self.assertIn("<b>Élodie</b>", envoye.html)  # la version envoyée est conservée telle quelle
+
+    def test_formulaire_deduit_le_texte_de_la_mise_en_forme(self):
+        self.client.force_login(get_user_model().objects.create_user("chef", "chef@satkaar.io", "x", is_staff=True))
+        with mock.patch("courriel.protocoles.smtplib.SMTP_SSL", FauxSMTP), \
+                mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", return_value=FauxIMAP({})):
+            self.client.post(reverse("courriel:rediger"), {
+                "compte": self.compte.pk, "a": "elodie@client.fr", "sujet": "Devis", "texte": "",
+                "corps_html": "<p>Bonjour,</p><ul><li>un devis</li></ul>",
+            })
+        envoye = Courriel.objects.get(dossier=Courriel.Dossier.ENVOYES)
+        self.assertEqual(envoye.texte, "Bonjour,\n· un devis")
+        self.assertIn("<li>un devis</li>", envoye.html)
+
+    def test_message_vide_refuse(self):
+        self.client.force_login(get_user_model().objects.create_user("chef2", "chef2@satkaar.io", "x", is_staff=True))
+        reponse = self.client.post(reverse("courriel:rediger"), {
+            "compte": self.compte.pk, "a": "elodie@client.fr", "sujet": "Vide", "texte": "", "corps_html": "",
+        })
+        self.assertContains(reponse, "Écrivez votre message.")
+
+
+
+class EspaceMail(Base):
+    """Une équipe connectée, un client, et un message reçu : le décor des écrans du Mail."""
+
+    def setUp(self):
+        super().setUp()
+        utilisateurs = get_user_model().objects
+        self.equipe = utilisateurs.create_user("equipe", "equipe@satkaar.io", "x", is_staff=True)
+        self.client_site = utilisateurs.create_user("client", "client@mairie.fr", "x")
+        self.recu = protocoles.enregistrer(self.compte, protocoles.lire_message(message_brut()), uid="7")
+
+
+class CarnetTests(EspaceMail):
+    """Le carnet rassemble les fiches contact et les correspondants des messages."""
+
+    def setUp(self):
+        super().setUp()
+        Contact.objects.create(nom="Vanessa Roux", organisation="Mairie d'Aix", courriel="v.roux@aix.fr")
+        # Une demande reçue sur le site : elle devient une fiche contact, et entre ainsi au carnet.
+        DemandeDemonstration.objects.create(nom="Paul Blanc", organisation="Chambre du Var",
+                                            courriel="paul@chambre-var.fr", sujet="katarina")
+
+    def test_les_deux_sources_sont_reunies(self):
+        par_adresse = {f["adresse"]: f for f in carnet.entrees()}
+        self.assertEqual(par_adresse["v.roux@aix.fr"]["nom"], "Vanessa Roux")
+        self.assertEqual(par_adresse["v.roux@aix.fr"]["detail"], "Mairie d'Aix")
+        self.assertEqual(par_adresse["v.roux@aix.fr"]["origine"], "contact")
+        self.assertEqual(par_adresse["paul@chambre-var.fr"]["origine"], "contact")
+        # L'expéditeur du message reçu pendant le setUp, avec son nom d'en-tête.
+        self.assertEqual(par_adresse["elodie@client.fr"]["nom"], "Élodie Martin")
+        self.assertEqual(par_adresse["elodie@client.fr"]["echanges"], 1)
+
+    def test_la_fiche_contact_donne_le_nom_meme_si_le_mail_en_porte_un_autre(self):
+        Contact.objects.create(nom="Élodie Martin (Aix)", courriel="elodie@client.fr", organisation="Client SA")
+        fiche = next(f for f in carnet.entrees() if f["adresse"] == "elodie@client.fr")
+        self.assertEqual(fiche["nom"], "Élodie Martin (Aix)")
+        self.assertEqual(fiche["origine"], "contact")
+
+    def test_destinataires_des_messages_envoyes(self):
+        with mock.patch("courriel.protocoles.smtplib.SMTP_SSL", FauxSMTP), \
+                mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", return_value=FauxIMAP({})):
+            protocoles.envoyer(self.compte, ["jean@mairie.fr"], "Suivi", "Bonjour", copie=["sec@mairie.fr"])
+        adresses = {f["adresse"] for f in carnet.entrees()}
+        self.assertIn("jean@mairie.fr", adresses)
+        self.assertIn("sec@mairie.fr", adresses)
+
+    def test_les_plus_frequents_arrivent_en_tete(self):
+        for numero in range(3):
+            protocoles.enregistrer(self.compte, protocoles.lire_message(
+                message_brut(message_id=f"<b{numero}@client.fr>", avec_piece=False)), uid=str(20 + numero))
+        self.assertEqual(carnet.entrees()[0]["adresse"], "elodie@client.fr")
+
+    def test_url_reservee_a_l_equipe(self):
+        self.assertEqual(self.client.get(reverse("courriel:carnet")).status_code, 302)
+        self.client.force_login(self.client_site)
+        self.assertEqual(self.client.get(reverse("courriel:carnet")).status_code, 404)
+        self.client.force_login(self.equipe)
+        reponse = self.client.get(reverse("courriel:carnet"))
+        self.assertIn("v.roux@aix.fr", [f["adresse"] for f in reponse.json()["adresses"]])
+
+
+class ObjetIATests(EspaceMail):
+    """Propositions d'objet : l'assistant est toujours simulé, aucun appel n'est facturé en test."""
+
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+        self.client.force_login(self.equipe)
+
+    def test_propositions_renvoyees(self):
+        with mock.patch("courriel.ia.demander", return_value="Point sur le devis\n- Devis Vanessa : suite\n3. Suivi du devis") as appel:
+            reponse = self.client.post(reverse("courriel:objet_ia"),
+                                       {"sujet": "devis", "corps": "Bonjour, où en est le devis ?", "a": "v.roux@aix.fr"})
+        self.assertEqual(reponse.json()["objets"],
+                         ["Point sur le devis", "Devis Vanessa : suite", "Suivi du devis"])
+        contenu = appel.call_args.args[1]
+        self.assertIn("<objet>devis</objet>", contenu)
+        self.assertIn("où en est le devis ?", contenu)
+
+    def test_message_vide_refuse_sans_appeler_l_assistant(self):
+        with mock.patch("courriel.ia.demander") as appel:
+            reponse = self.client.post(reverse("courriel:objet_ia"), {"sujet": "Devis", "corps": "  "})
+        self.assertEqual(reponse.status_code, 400)
+        appel.assert_not_called()
+
+    def test_assistant_indisponible(self):
+        with mock.patch("courriel.ia.demander", side_effect=ia.IAIndisponible):
+            reponse = self.client.post(reverse("courriel:objet_ia"), {"corps": "Bonjour"})
+        self.assertEqual(reponse.status_code, 503)
+        self.assertIn("indisponible", reponse.json()["erreur"])
+
+    def test_quota_par_personne(self):
+        with mock.patch("courriel.ia.demander", return_value="Un objet"):
+            for _ in range(views.IA_APPELS_MAX):
+                self.assertEqual(self.client.post(reverse("courriel:objet_ia"), {"corps": "Bonjour"}).status_code, 200)
+            self.assertEqual(self.client.post(reverse("courriel:objet_ia"), {"corps": "Bonjour"}).status_code, 429)
+
+    def test_reserve_a_l_equipe_et_au_post(self):
+        self.assertEqual(self.client.get(reverse("courriel:objet_ia")).status_code, 405)
+        self.client.force_login(self.client_site)
+        self.assertEqual(self.client.post(reverse("courriel:objet_ia"), {"corps": "x"}).status_code, 404)
+
+    def test_le_bouton_est_dans_la_page(self):
+        page = self.client.get(reverse("courriel:rediger")).content.decode()
+        self.assertIn("data-objet-bouton", page)
+        self.assertIn(reverse("courriel:carnet"), page)
+
+
+class SignatureTests(EspaceMail):
+    """Plusieurs signatures par boîte, celle par défaut à l'ouverture, et le choix à la rédaction."""
+
+    def setUp(self):
+        super().setUp()
+        self.client.force_login(self.equipe)
+        self.autre_boite = CompteCourriel(adresse="devis@satkaar.io", identifiant="devis@satkaar.io",
+                                          imap_hote="ssl0.ovh.net", smtp_hote="ssl0.ovh.net")
+        self.autre_boite.mot_de_passe = "secret"
+        self.autre_boite.save()
+
+    def test_signature_par_defaut_de_la_boite(self):
+        partagee = Signature.objects.create(libelle="Groupe", corps="L'équipe Satkaar")
+        self.assertEqual(Signature.par_defaut_de(self.compte), self.signature)
+        self.assertIsNone(Signature.par_defaut_de(self.autre_boite))
+        # Les signatures sans boîte sont proposées partout.
+        self.assertIn(partagee, Signature.disponibles(self.autre_boite))
+        self.assertNotIn(self.signature, Signature.disponibles(self.autre_boite))
+
+    def test_le_brouillon_porte_la_signature_par_defaut(self):
+        initial = self.client.get(reverse("courriel:rediger")).context["form"].initial
+        self.assertIn("-- \nDamien — Satkaar", initial["texte"])
+        self.assertIn(f'data-signature="{self.signature.pk}"', initial["corps_html"])
+
+    def test_le_choix_est_propose_a_la_redaction(self):
+        page = self.client.get(reverse("courriel:rediger")).content.decode()
+        self.assertIn("data-signature-choix", page)
+        self.assertIn("Direction", page)
+        # Le raccourci vers l'ajout d'une boîte est à côté du choix de l'expéditeur.
+        self.assertIn(reverse("courriel:compte_ajouter"), page)
+
+    def test_une_seule_signature_par_defaut_par_boite(self):
+        self.client.post(reverse("courriel:signature_ajouter"),
+                         {"libelle": "Support", "compte": self.compte.pk, "corps": "Le support", "par_defaut": "1"})
+        self.signature.refresh_from_db()
+        self.assertFalse(self.signature.par_defaut)
+        self.assertEqual(Signature.par_defaut_de(self.compte).libelle, "Support")
+
+    def test_creation_modification_suppression(self):
+        self.client.post(reverse("courriel:signature_ajouter"), {"libelle": "Support", "corps": "Le support"})
+        creee = Signature.objects.get(libelle="Support")
+        self.assertIsNone(creee.compte)
+        self.client.post(reverse("courriel:signature", args=[creee.pk]),
+                         {"libelle": "Support client", "corps": "Le support", "compte": self.compte.pk})
+        creee.refresh_from_db()
+        self.assertEqual((creee.libelle, creee.compte), ("Support client", self.compte))
+        self.client.post(reverse("courriel:signature_supprimer", args=[creee.pk]))
+        self.assertFalse(Signature.objects.filter(pk=creee.pk).exists())
+
+    def test_la_signature_reste_au_dessus_du_message_cite(self):
+        initial = self.client.get(reverse("courriel:rediger"),
+                                  {"mode": "repondre", "origine": self.recu.pk}).context["form"].initial
+        html = initial["corps_html"]
+        self.assertLess(html.index("data-signature"), html.index("data-origine"))
+
+    def test_pages_reservees_a_l_equipe(self):
+        self.client.force_login(self.client_site)
+        for url in (reverse("courriel:signatures"), reverse("courriel:signature_ajouter"),
+                    reverse("courriel:signature", args=[self.signature.pk])):
+            self.assertEqual(self.client.get(url).status_code, 404)
+        self.assertEqual(self.client.post(reverse("courriel:signature_supprimer", args=[self.signature.pk])).status_code, 404)
+
+    def test_la_boite_ne_porte_plus_de_signature(self):
+        """Le réglage a déménagé : la page d'une boîte renvoie vers les signatures."""
+        page = self.client.get(reverse("courriel:compte", args=[self.compte.pk])).content.decode()
+        self.assertNotIn('name="signature"', page)
+        self.assertIn(reverse("courriel:signatures"), page)
+
+
+class ReformulationTests(EspaceMail):
+    """Reformulation du corps du message ; l'assistant est simulé, rien n'est facturé en test."""
+
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+        self.client.force_login(self.equipe)
+
+    def test_le_message_est_remis_au_propre(self):
+        with mock.patch("courriel.ia.demander", return_value="Bonjour,\n\nPouvez-vous me rappeler ?") as appel:
+            reponse = self.client.post(reverse("courriel:reformuler"), {"corps": "slt tu peux me rappeler"})
+        self.assertEqual(reponse.json()["texte"], "Bonjour,\n\nPouvez-vous me rappeler ?")
+        self.assertIn("<message>\nslt tu peux me rappeler\n</message>", appel.call_args.args[1])
+
+    def test_message_vide_refuse_sans_appeler_l_assistant(self):
+        with mock.patch("courriel.ia.demander") as appel:
+            self.assertEqual(self.client.post(reverse("courriel:reformuler"), {"corps": " "}).status_code, 400)
+        appel.assert_not_called()
+
+    def test_assistant_indisponible(self):
+        with mock.patch("courriel.ia.demander", side_effect=ia.IAIndisponible):
+            self.assertEqual(self.client.post(reverse("courriel:reformuler"), {"corps": "Bonjour"}).status_code, 503)
+
+    def test_quota_par_personne_distinct_de_celui_des_objets(self):
+        with mock.patch("courriel.ia.demander", return_value="Bonjour"):
+            for _ in range(views.IA_APPELS_MAX):
+                self.assertEqual(self.client.post(reverse("courriel:reformuler"), {"corps": "x"}).status_code, 200)
+            self.assertEqual(self.client.post(reverse("courriel:reformuler"), {"corps": "x"}).status_code, 429)
+            # Le plafond des reformulations n'entame pas celui des propositions d'objet.
+            self.assertEqual(self.client.post(reverse("courriel:objet_ia"), {"corps": "x"}).status_code, 200)
+
+    def test_reserve_a_l_equipe_et_au_post(self):
+        self.assertEqual(self.client.get(reverse("courriel:reformuler")).status_code, 405)
+        self.client.force_login(self.client_site)
+        self.assertEqual(self.client.post(reverse("courriel:reformuler"), {"corps": "x"}).status_code, 404)
+
+    def test_le_bouton_est_dans_la_barre_d_envoi(self):
+        page = self.client.get(reverse("courriel:rediger")).content.decode()
+        barre = page[page.index('class="courriel__envoi"'):]
+        self.assertIn("data-reformuler hidden", barre)
+        # Le formulaire porte l'URL sous un autre nom : sans quoi le script prendrait
+        # le formulaire pour le bouton, et tout clic dedans lancerait une reformulation.
+        balise = page[page.index("<form class=\"courriel__redaction\""):page.index(">", page.index("<form class=\"courriel__redaction\""))]
+        self.assertIn("data-reformuler-url=", balise)
+        self.assertNotIn("data-reformuler ", balise)
+        # « Gérer » a quitté la pastille : la page des signatures reste dans la colonne de gauche.
+        debut = page.index("data-signature-bloc")
+        pastille = page[debut:page.index("</span>", debut)]
+        self.assertIn("data-signature-choix", pastille)
+        self.assertNotIn("Gérer", pastille)

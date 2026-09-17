@@ -27,7 +27,6 @@ class CompteCourriel(models.Model):
     smtp_hote = models.CharField("serveur SMTP", max_length=120)
     smtp_port = models.PositiveIntegerField("port SMTP", default=465)
     smtp_securite = models.CharField("sécurité SMTP", max_length=10, choices=Securite.choices, default=Securite.SSL)
-    signature = models.TextField(blank=True, help_text="Ajoutée sous chaque nouveau message, réponse et transfert.")
     actif = models.BooleanField("relever cette boîte", default=True)
     derniere_releve = models.DateTimeField("dernière relève", null=True, blank=True)
     derniere_erreur = models.CharField(max_length=300, blank=True)
@@ -57,6 +56,46 @@ class CompteCourriel(models.Model):
     @mot_de_passe.setter
     def mot_de_passe(self, clair):
         self.mot_de_passe_chiffre = chiffrer(clair)
+
+
+
+class Signature(models.Model):
+    """Bloc ajouté au bas des messages. Une boîte peut en avoir plusieurs (« Direction »,
+    « Support »…) ; celle qui est cochée par défaut s'écrit toute seule à l'ouverture."""
+
+    compte = models.ForeignKey(CompteCourriel, on_delete=models.CASCADE, related_name="signatures",
+                               null=True, blank=True, verbose_name="boîte",
+                               help_text="Vide : proposée pour toutes les boîtes.")
+    libelle = models.CharField("nom", max_length=80, help_text="Pour la reconnaître : « Direction », « Support »…")
+    corps = models.TextField("signature", help_text="Ajoutée sous « -- », au bas du message.")
+    par_defaut = models.BooleanField("proposée par défaut", default=False)
+    cree_le = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-par_defaut", "libelle")
+        verbose_name = "signature"
+
+    def __str__(self):
+        return self.libelle
+
+    @property
+    def texte(self):
+        return f"-- \n{self.corps}"
+
+    @property
+    def html(self):
+        from django.utils.html import escape
+        return "<p>--<br>" + escape(self.corps).replace("\n", "<br>") + "</p>"
+
+    @classmethod
+    def disponibles(cls, compte=None):
+        """Celles de la boîte, plus celles partagées par toutes les boîtes."""
+        toutes = cls.objects.all()
+        return toutes.filter(models.Q(compte=compte) | models.Q(compte__isnull=True)) if compte else toutes
+
+    @classmethod
+    def par_defaut_de(cls, compte):
+        return cls.disponibles(compte).filter(par_defaut=True).first()
 
 
 class Courriel(models.Model):

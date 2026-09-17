@@ -1,0 +1,52 @@
+{% extends "courriel/base_courriel.html" %}
+
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <h2>Signatures</h2>
+  <span class="app__barre-info">Proposées au bas de chaque message, selon la boîte d'envoi</span>
+</div>
+<div class="app__barre-droite"><a class="app__bouton app__bouton--plein" href="{% url 'courriel:signature_ajouter' %}">+ Ajouter une signature</a></div>
+{% endblock %}
+
+{% block courriel %}
+
+{% if liste %}
+  <div class="courriel__boites">
+    {% for s in liste %}
+      <article class="stats__carte courriel__boite">
+        <div class="courriel__boite-tete">
+          <span class="courriel__avatar courriel__avatar--grand" aria-hidden="true">✎</span>
+          <div>
+            <h2>{{ s.libelle }}</h2>
+            <p>{% if s.compte %}{{ s.compte.adresse }}{% else %}Toutes les boîtes{% endif %}{% if s.par_defaut %} · proposée par défaut{% endif %}</p>
+          </div>
+        </div>
+        <pre class="courriel__signature-apercu">{{ s.corps }}</pre>
+        <div class="courriel__boite-actions">
+          <a class="courriel__bouton" href="{% url 'courriel:signature' s.pk %}">Modifier</a>
+          <details class="courriel__confirmer">
+            <summary class="courriel__bouton courriel__bouton--danger">Supprimer</summary>
+            <form method="post" action="{% url 'courriel:signature_supprimer' s.pk %}">
+              {% csrf_token %}
+              <p>Les messages déjà envoyés ne changent pas.</p>
+              <button type="submit" class="courriel__bouton courriel__bouton--danger-plein">Confirmer la suppression</button>
+            </form>
+          </details>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="courriel__liste courriel__vide">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+    <p><strong>Aucune signature.</strong> Créez-en une par rôle ou par boîte : elle se choisit ensuite dans l'écran de rédaction.</p>
+    <p><a class="lien-fleche" href="{% url 'courriel:signature_ajouter' %}">Créer une signature</a></p>
+  </div>
+{% endif %}
+
+<aside class="stats__carte courriel__astuce">
+  <h2>Comment elles s'utilisent</h2>
+  <p>À l'ouverture d'un nouveau message, la signature <strong>proposée par défaut</strong> pour la boîte choisie s'écrit toute seule. Le menu « Signature », à côté de « De », permet d'en prendre une autre ou de n'en mettre aucune.</p>
+  <p>Une signature sans boîte est proposée pour toutes ; une signature rattachée à une boîte n'apparaît que pour celle-là.</p>
+</aside>
+{% endblock %}

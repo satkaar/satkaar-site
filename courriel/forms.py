@@ -6,7 +6,8 @@ from django.core.validators import validate_email
 
 from pages.forms import ChampsAccessiblesMixin
 
-from .models import CompteCourriel
+from . import redaction
+from .models import CompteCourriel, Signature
 
 PIECES_MAX = 20 * 1024 * 1024  # total des pièces jointes d'un envoi
 
@@ -47,11 +48,8 @@ class CompteForm(ChampsAccessiblesMixin, forms.ModelForm):
     class Meta:
         model = CompteCourriel
         fields = ["libelle", "adresse", "nom_expediteur", "identifiant", "mot_de_passe", "imap_hote", "imap_port",
-                  "smtp_hote", "smtp_port", "smtp_securite", "signature", "actif"]
-        widgets = {
-            "identifiant": forms.TextInput(attrs={"autocomplete": "off"}),
-            "signature": forms.Textarea(attrs={"rows": 4}),
-        }
+                  "smtp_hote", "smtp_port", "smtp_securite", "actif"]
+        widgets = {"identifiant": forms.TextInput(attrs={"autocomplete": "off"})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -99,6 +97,27 @@ class ChampBoite(forms.ModelChoiceField):
         return f"{compte.nom_expediteur} <{compte.adresse}>"
 
 
+
+class SignatureForm(ChampsAccessiblesMixin, forms.ModelForm):
+    class Meta:
+        model = Signature
+        fields = ["libelle", "compte", "corps", "par_defaut"]
+        widgets = {"corps": forms.Textarea(attrs={"rows": 6})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["compte"].empty_label = "Toutes les boîtes"
+        self._preparer_champs()
+
+    def save(self, commit=True):
+        signature = super().save(commit=commit)
+        if commit and signature.par_defaut:
+            # Une seule signature par défaut pour une boîte donnée — et une seule partagée.
+            (Signature.objects.filter(compte=signature.compte).exclude(pk=signature.pk)
+             .update(par_defaut=False))
+        return signature
+
+
 class RedactionForm(ChampsAccessiblesMixin, forms.Form):
     compte = ChampBoite(label="De", queryset=CompteCourriel.objects.filter(actif=True), empty_label=None)
     a = forms.CharField(label="À", widget=forms.TextInput(attrs={"autocomplete": "email", "placeholder": "nom@exemple.fr"}),
@@ -106,7 +125,10 @@ class RedactionForm(ChampsAccessiblesMixin, forms.Form):
     copie = forms.CharField(label="Cc", required=False)
     copie_cachee = forms.CharField(label="Cci", required=False)
     sujet = forms.CharField(label="Objet", max_length=500, required=False)
-    texte = forms.CharField(label="Message", widget=forms.Textarea(attrs={"rows": 14}))
+    # Deux versions du corps : le texte (saisi sans JavaScript, ou déduit de la mise en forme)
+    # et le HTML produit par l'éditeur.
+    texte = forms.CharField(label="Message", widget=forms.Textarea(attrs={"rows": 14}), required=False)
+    corps_html = forms.CharField(required=False, widget=forms.HiddenInput)
     pieces = ChampFichiers(label="Pièces jointes", required=False, help_text="20 Mo au total.")
 
     def __init__(self, *args, **kwargs):
@@ -124,6 +146,17 @@ class RedactionForm(ChampsAccessiblesMixin, forms.Form):
 
     def clean_copie_cachee(self):
         return adresses(self.cleaned_data["copie_cachee"])
+
+    def clean(self):
+        donnees = super().clean()
+        html = redaction.nettoyer(donnees.get("corps_html", ""))
+        # Avec l'éditeur, la version texte se déduit de la mise en forme : une seule règle,
+        # la même pour tout le monde. Sans lui, c'est la zone de texte qui fait foi.
+        texte = redaction.en_texte(html) if html else (donnees.get("texte") or "").strip()
+        if not texte and not html:
+            self.add_error("texte", "Écrivez votre message.")
+        donnees["corps_html"], donnees["texte"] = html, texte
+        return donnees
 
     def clean_pieces(self):
         pieces = self.cleaned_data["pieces"]

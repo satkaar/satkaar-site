@@ -38,9 +38,12 @@ Réponds uniquement par le message reformulé, sans titre, guillemets ni comment
 JETONS_MAX = 8000
 
 
-class ReformulationIndisponible(Exception):
-    """La reformulation n'a pas pu être produite ; le visiteur garde son texte."""
+class IAIndisponible(Exception):
+    """L'assistant n'a pas pu répondre ; l'auteur garde son texte."""
 
+
+# Nom d'origine, gardé pour la reformulation du formulaire de contact.
+ReformulationIndisponible = IAIndisponible
 
 _client = None
 
@@ -52,42 +55,48 @@ def _client_anthropic():
     return _client
 
 
-def reformuler_message(brouillon):
+def demander(consigne, contenu, jetons_max=JETONS_MAX, journal="Assistant"):
+    """Un aller-retour avec Claude : renvoie le texte produit, ou lève IAIndisponible.
+    Tous les appels du site passent par ici, pour une seule façon de traiter les pannes."""
     try:
         reponse = _client_anthropic().beta.messages.create(
             model=MODELE,
-            max_tokens=JETONS_MAX,
+            max_tokens=jetons_max,
             output_config={"effort": "low"},
             # Si les filtres de sécurité déclinent la demande, l'API la rejoue
             # sur le modèle de repli recommandé au lieu de renvoyer un refus.
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
-            system=CONSIGNE,
-            messages=[{"role": "user", "content": f"<message>\n{brouillon}\n</message>"}],
+            system=consigne,
+            messages=[{"role": "user", "content": contenu}],
         )
     except anthropic.RateLimitError as e:
-        logger.warning("Reformulation : quota Anthropic atteint (%s)", e.request_id)
-        raise ReformulationIndisponible from e
+        logger.warning("%s : quota Anthropic atteint (%s)", journal, e.request_id)
+        raise IAIndisponible from e
     except anthropic.APIStatusError as e:
-        logger.error("Reformulation : erreur API %s (%s) %s", e.status_code, e.request_id, e.message)
-        raise ReformulationIndisponible from e
+        logger.error("%s : erreur API %s (%s) %s", journal, e.status_code, e.request_id, e.message)
+        raise IAIndisponible from e
     except anthropic.APIConnectionError as e:
-        logger.warning("Reformulation : API Anthropic injoignable : %s", e)
-        raise ReformulationIndisponible from e
+        logger.warning("%s : API Anthropic injoignable : %s", journal, e)
+        raise IAIndisponible from e
     except anthropic.AnthropicError as e:
-        logger.error("Reformulation : client Anthropic inutilisable : %s", e)
-        raise ReformulationIndisponible from e
+        logger.error("%s : client Anthropic inutilisable : %s", journal, e)
+        raise IAIndisponible from e
     except TypeError as e:
         # Le SDK lève TypeError quand aucun identifiant n'est trouvé (ANTHROPIC_API_KEY
         # absente). La trace complète reste dans les journaux.
-        logger.exception("Reformulation : identifiants Anthropic introuvables ?")
-        raise ReformulationIndisponible from e
+        logger.exception("%s : identifiants Anthropic introuvables ?", journal)
+        raise IAIndisponible from e
 
     if reponse.stop_reason == "refusal":
-        logger.warning("Reformulation refusée (%s)", reponse._request_id)
-        raise ReformulationIndisponible
+        logger.warning("%s : demande refusée (%s)", journal, reponse._request_id)
+        raise IAIndisponible
 
     texte = "".join(bloc.text for bloc in reponse.content if bloc.type == "text").strip()
     if not texte:
-        raise ReformulationIndisponible
+        raise IAIndisponible
     return texte
+
+
+def reformuler_message(brouillon):
+    return demander(CONSIGNE, f"<message>\n{brouillon}\n</message>", journal="Reformulation")
