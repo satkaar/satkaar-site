@@ -1,0 +1,6 @@
+{# En-tête de colonne cliquable : un clic trie, un second inverse. #}
+<th scope="col"{% if tri_cle == cle %} aria-sort="{% if tri_decroissant %}descending{% else %}ascending{% endif %}"{% endif %}>
+  <a class="tableau-tri{% if tri_cle == cle %} tableau-tri--actif{% endif %}" href="?{{ liens }}tri={% if tri_cle == cle and not tri_decroissant %}-{% endif %}{{ cle }}">
+    {{ libelle }}<span class="tableau-tri__fleche" aria-hidden="true">{% if tri_cle == cle %}{% if tri_decroissant %}↓{% else %}↑{% endif %}{% else %}↕{% endif %}</span>
+  </a>
+</th>

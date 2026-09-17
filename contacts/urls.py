@@ -1,11 +1,13 @@
 from django.urls import path
 
 from . import views
+from .models import Contact
 
 app_name = "contacts"
 
 urlpatterns = [
     path("", views.liste, name="liste"),
+    path("sortants/", views.liste, {"sens": Contact.Sens.SORTANT}, name="sortants"),
     path("nouveau/", views.editer, name="ajouter"),
     path("export.csv", views.export, name="export"),
     path("<int:pk>/", views.fiche, name="fiche"),

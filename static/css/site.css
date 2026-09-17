@@ -8236,3 +8236,101 @@ a.annee__jour--3:hover { background: rgba(26, 44, 91, 0.75); }
 .courriel__ia-etat--erreur {
   color: var(--crm-alerte);
 }
+
+/* Tableau de prospection : dense, en-têtes collants et triables, comme un tableur. */
+.tableau-prospection {
+  font-size: 0.82rem;
+}
+
+.tableau-prospection th,
+.tableau-prospection td {
+  padding: 0.2rem 0.55rem;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.tableau-prospection thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--crm-creme);
+  box-shadow: inset 0 -1px 0 var(--crm-bord);
+}
+
+.tableau-prospection tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--crm-creme) 45%, transparent);
+}
+
+.tableau-prospection tbody tr:hover {
+  background: var(--crm-creme);
+}
+
+.tableau-prospection th[scope="row"] {
+  font-weight: 700;
+}
+
+.tableau-nombre {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tableau-tri {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tableau-tri:hover {
+  color: var(--crm-marque);
+  text-decoration: underline;
+}
+
+.tableau-tri__fleche {
+  color: var(--crm-muet);
+  font-size: 0.75em;
+}
+
+.tableau-tri--actif {
+  color: var(--crm-marque);
+}
+
+.tableau-tri--actif .tableau-tri__fleche {
+  color: var(--crm-marque);
+}
+
+.tableau-etape {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.etape-choix {
+  min-width: 7.5rem;
+  padding: 0.12rem 1.3rem 0.12rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.etape-choix--lead { background: #eef2ff; }
+.etape-choix--contacte { background: #e6f4ff; }
+.etape-choix--demo { background: #e8f5ee; }
+.etape-choix--proposition { background: #fdf0e4; }
+.etape-choix--client { background: #e7f6ec; }
+.etape-choix--perdu { background: #fdeaea; }
+
+.tableau-valider {
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.tableau-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--crm-muet);
+}

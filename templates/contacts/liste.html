@@ -1,8 +1,8 @@
 {% extends "espace/base_app.html" %}
-{% block seo %}{% include "partials/meta.html" with titre="Contacts — Satkaar" %}{% endblock %}
+{% block seo %}{% include "partials/meta.html" with titre=page.titre|add:" — Satkaar" %}{% endblock %}
 {% block classe_app %} app--stats app--contacts{% endblock %}
-{% block titre_page %}Contacts{% endblock %}
-{% block sous_titre_page %}Prospects et clients · Isidor, Vanessa, Bernard{% endblock %}
+{% block titre_page %}{{ page.titre }}{% endblock %}
+{% block sous_titre_page %}{{ page.sous_titre }} · Isidor, Vanessa, Bernard{% endblock %}
 {% block actions_page %}
   <nav class="app__vues" aria-label="Affichage des contacts">
     <a href="?{{ parametres }}"{% if vue == "pipeline" %} aria-current="true"{% endif %}>Pipeline</a>
@@ -25,10 +25,10 @@
       <label class="visuellement-cache" for="recherche">Rechercher un contact</label>
       <input class="champ contacts__recherche" type="search" id="recherche" name="q" value="{{ recherche }}" placeholder="Nom, organisation, commune…">
     </form>
-    <a class="app__bouton" href="{% url 'contacts:export' %}{% if parametres %}?{{ parametres }}{% endif %}">
+    <a class="app__bouton" href="{% url 'contacts:export' %}?sens={{ sens }}{% if parametres %}&amp;{{ parametres }}{% endif %}">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> CSV
     </a>
-    <a class="app__bouton app__bouton--plein" href="{% url 'contacts:ajouter' %}{% if produit %}?produit={{ produit }}{% endif %}">+ Nouveau contact</a>
+    <a class="app__bouton app__bouton--plein" href="{% url 'contacts:ajouter' %}?sens={{ sens }}{% if produit %}&amp;produit={{ produit }}{% endif %}">+ Nouveau contact</a>
   </div>
 </div>
 {% endblock %}
@@ -36,6 +36,7 @@
 {% block contenu %}
 {% if messages %}<div class="courriel__messages" role="status">{% for m in messages %}<p class="courriel__info courriel__info--{{ m.tags }}">{{ m }}</p>{% endfor %}</div>{% endif %}
 
+{% if page.synthese %}
 <section class="stats__bloc" aria-labelledby="t-synthese">
   <h2 class="stats__titre visuellement-cache" id="t-synthese">Synthèse</h2>
   <div class="tuiles tuiles--4">
@@ -67,9 +68,10 @@
     {% endfor %}
   </div>
 </section>
+{% endif %}
 
 <section class="stats__bloc" aria-labelledby="t-pipeline">
-  <h2 class="stats__titre visuellement-cache" id="t-pipeline">Contacts</h2>
+  <h2 class="stats__titre visuellement-cache" id="t-pipeline">{{ page.titre }}</h2>
 
   {% if vue == "pipeline" %}
     <div class="piste">
@@ -88,6 +90,59 @@
     {% if perdus %}<p class="contacts__perdus">{{ perdus }} contact{{ perdus|pluralize }} perdu{{ perdus|pluralize }} dans cette sélection · <a href="?statut=perdu&amp;vue=liste{% if produit %}&amp;produit={{ produit }}{% endif %}">voir la liste</a></p>{% endif %}
   {% else %}
     {% if contacts %}
+      {% if sens == "sortant" %}
+        {# Tableau de prospection : une ligne par commune, colonnes triables, étape modifiable sur place. #}
+        <div class="stats__carte stats__carte--tableau stats__tableau-defilant">
+          <table class="stats__tableau contacts__tableau tableau-prospection">
+            <thead>
+              <tr>
+                {% include "contacts/_tri.html" with cle="nom" libelle="Nom" %}
+                <th scope="col">Prénom</th>
+                {% include "contacts/_tri.html" with cle="ville" libelle="Ville" %}
+                {% include "contacts/_tri.html" with cle="departement" libelle="Département" %}
+                {% include "contacts/_tri.html" with cle="region" libelle="Région" %}
+                {% include "contacts/_tri.html" with cle="population" libelle="Habitants" %}
+                {% include "contacts/_tri.html" with cle="age" libelle="Âge" %}
+                {% include "contacts/_tri.html" with cle="statut" libelle="Statut" %}
+                {% include "contacts/_tri.html" with cle="contact" libelle="Contacté le" %}
+                {% include "contacts/_tri.html" with cle="reponse" libelle="Réponse le" %}
+                {% include "contacts/_tri.html" with cle="courriel" libelle="Courriel" %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in contacts %}
+                <tr>
+                  <th scope="row"><a href="{% url 'contacts:fiche' c.pk %}">{{ c.nom }}</a></th>
+                  <td>{{ c.prenom|default:"—" }}</td>
+                  <td>{{ c.ville|default:"—" }}</td>
+                  <td>{{ c.departement|default:"—" }}</td>
+                  <td>{{ c.region|default:"—" }}</td>
+                  <td class="tableau-nombre">{% if c.taille %}{{ c.taille|floatformat:"0g" }}{% else %}—{% endif %}</td>
+                  <td class="tableau-nombre">{{ c.age|default_if_none:"—" }}</td>
+                  <td>
+                    <form class="tableau-etape" method="post" action="{% url 'contacts:etape' c.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="suivant" value="{{ request.get_full_path }}">
+                      <label class="visuellement-cache" for="etape-{{ c.pk }}">Étape de {{ c.nom_complet }}</label>
+                      <select class="champ etape-choix etape-choix--{{ c.statut }}" id="etape-{{ c.pk }}" name="statut" data-auto-envoi>
+                        {% for v, l in statuts %}<option value="{{ v }}"{% if c.statut == v %} selected{% endif %}>{{ l }}</option>{% endfor %}
+                      </select>
+                      <button type="submit" class="courriel__bouton tableau-valider" data-sans-js>OK</button>
+                    </form>
+                  </td>
+                  <td>{{ c.date_contact|date:"d/m/Y"|default:"—" }}</td>
+                  <td>{{ c.date_reponse|date:"d/m/Y"|default:"—" }}</td>
+                  <td>
+                    {% if c.courriel %}
+                      <a href="{% url 'courriel:rediger' %}?a={{ c.courriel|urlencode }}" title="Écrire à {{ c.courriel }}">{{ c.courriel }}</a>
+                    {% else %}—{% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
       <div class="stats__carte stats__carte--tableau stats__tableau-defilant">
         <table class="stats__tableau contacts__tableau">
           <thead><tr><th scope="col">Contact</th><th scope="col">Produit</th><th scope="col">Étape</th><th scope="col">Potentiel</th><th scope="col">Relance</th><th scope="col">Suivi par</th><th scope="col">Source</th></tr></thead>
@@ -106,10 +161,26 @@
           </tbody>
         </table>
       </div>
+      {% endif %}
+
+      {% if pagination.has_other_pages %}
+        <nav class="tableau-pages" aria-label="Pages du tableau">
+          {% if pagination.has_previous %}<a class="filtre" href="?{{ liens }}{% if tri_cle %}tri={% if tri_decroissant %}-{% endif %}{{ tri_cle }}&amp;{% endif %}page={{ pagination.previous_page_number }}">← Précédente</a>{% endif %}
+          <span>{{ pagination.start_index }}–{{ pagination.end_index }} sur {{ total }}</span>
+          {% if pagination.has_next %}<a class="filtre" href="?{{ liens }}{% if tri_cle %}tri={% if tri_decroissant %}-{% endif %}{{ tri_cle }}&amp;{% endif %}page={{ pagination.next_page_number }}">Suivante →</a>{% endif %}
+        </nav>
+      {% endif %}
     {% else %}
-      <div class="app__vide"><p>Aucun contact ne correspond à ces filtres.</p></div>
+      <div class="app__vide"><p>{{ page.vide }}</p></div>
     {% endif %}
   {% endif %}
-  <p class="contacts__note">* Estimation Isidor : 29,90 € HT par mois + 0,33 € HT par hectare et par mois, sur 12 mois. Les demandes déposées sur le site arrivent ici automatiquement comme leads.</p>
+  {# L'astérisque n'est expliqué que s'il est affiché quelque part. #}
+  <p class="contacts__note">{% if note_estimation %}* Estimation Isidor : 29,90 € HT par mois + 0,33 € HT par hectare et par mois, sur 12 mois. {% endif %}{{ page.note }}</p>
 </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% load static %}
+  <script src="{% static 'js/contacts.js' %}" defer></script>
 {% endblock %}

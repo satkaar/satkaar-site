@@ -7,3 +7,7 @@ staticfiles/
 media/
 .DS_Store
 documents_prives/
+
+# Fichiers de prospection : données personnelles d'élus, régénérables par
+# « manage.py collecter_mairies ». Ils restent hors du dépôt public.
+/donnees/*.csv

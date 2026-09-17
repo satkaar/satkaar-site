@@ -17,9 +17,11 @@ class ContactForm(ChampsAccessiblesMixin, forms.ModelForm):
 
     class Meta:
         model = Contact
-        fields = ["nom", "organisation", "fonction", "courriel", "telephone", "ville", "produit", "statut", "source",
-                  "taille", "montant", "prochaine_relance", "responsable"]
-        widgets = {"prochaine_relance": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")}
+        fields = ["nom", "prenom", "organisation", "fonction", "courriel", "telephone", "ville", "departement",
+                  "region", "date_naissance", "sens", "produit", "statut", "source", "taille", "montant",
+                  "date_contact", "date_reponse", "prochaine_relance", "responsable"]
+        widgets = {champ: forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")
+                   for champ in ("date_naissance", "date_contact", "date_reponse", "prochaine_relance")}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

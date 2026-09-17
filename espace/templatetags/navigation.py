@@ -14,6 +14,8 @@ ICONES = {
     "statistiques": '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     "mail": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/>',
     "contacts": '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>',
+    # Prospection : la même personne, avec la flèche qui part vers elle.
+    "contacts-sortants": '<circle cx="8" cy="8" r="3.5"/><path d="M1.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 12h6M19 9l3 3-3 3"/>',
     "agenda": '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/>',
 }
 
@@ -40,11 +42,20 @@ def navigation_espace(context):
         non_lus = Courriel.objects.filter(dossier=Courriel.Dossier.RECEPTION, lu=False, corbeille=False).count()
         debut = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
         du_jour = Evenement.objects.filter(debut__lt=debut + timedelta(days=1), fin__gt=debut).count()
-        nouveaux = Contact.objects.filter(statut=Contact.Statut.LEAD).count()
+        # Le menu montre, pour chaque pipeline, ce qui attend un premier geste.
+        a_traiter = {sens: Contact.objects.filter(sens=sens, statut=Contact.Statut.LEAD).count()
+                     for sens in Contact.Sens.values}
+        # Sur une fiche ou un formulaire, la vue indique de quel pipeline vient le contact.
+        courant = getattr(request, "contacts_sens", Contact.Sens.ENTRANT if nom != "sortants" else Contact.Sens.SORTANT)
         pages += [
             _page("statistiques", "Statistiques", "espace:statistiques", nom == "statistiques"),
             _page("mail", "Mail", "courriel:boite", application == "courriel", non_lus, "non lus" if non_lus > 1 else "non lu"),
             _page("agenda", "Agenda", "agenda:mois", application == "agenda", du_jour, "aujourd'hui"),
-            _page("contacts", "Contacts", "contacts:liste", application == "contacts", nouveaux, "nouveaux leads" if nouveaux > 1 else "nouveau lead"),
+            _page("contacts", "Contacts entrants", "contacts:liste",
+                  application == "contacts" and courant == Contact.Sens.ENTRANT,
+                  a_traiter[Contact.Sens.ENTRANT], "demandes à traiter" if a_traiter[Contact.Sens.ENTRANT] > 1 else "demande à traiter"),
+            _page("contacts-sortants", "Contacts sortants", "contacts:sortants",
+                  application == "contacts" and courant == Contact.Sens.SORTANT,
+                  a_traiter[Contact.Sens.SORTANT], "à contacter"),
         ]
     return pages
