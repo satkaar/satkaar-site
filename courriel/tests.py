@@ -32,9 +32,11 @@ def message_brut(sujet="Demande de devis", message_id="<a1@client.fr>", avec_pie
 
 
 class FauxIMAP:
-    def __init__(self, messages, envoyes=None):
+    def __init__(self, messages, envoyes=None, drapeaux=None, categories=None):
         self.dossiers = {"INBOX": messages, '"INBOX.Sent"': envoyes or {}}
         self.messages = messages
+        self.drapeaux = drapeaux or {}
+        self.categories = categories or {}
         self.commandes = []
         self.lecture_seule = None
         self.depose = None
@@ -51,11 +53,15 @@ class FauxIMAP:
     def uid(self, commande, *arguments):
         self.commandes.append((commande, *arguments))
         if commande == "search":
+            if "X-GM-RAW" in arguments:  # recherche par onglet Gmail
+                nom = arguments[-1].strip('"').split(":")[-1]
+                return "OK", [b" ".join(self.categories.get(nom, []))]
             return "OK", [b" ".join(self.messages)]
         uids, parties = arguments
         reponse = []
         for uid in uids.split(b","):
-            reponse += [(b"1 (UID " + uid + b" BODY[] {100}", self.messages[uid]), b")"]
+            drapeaux = self.drapeaux.get(uid, b"")
+            reponse += [(b"1 (UID " + uid + b" FLAGS (" + drapeaux + b") BODY[] {100}", self.messages[uid]), b")"]
         return "OK", reponse
 
     def list(self):
@@ -144,7 +150,9 @@ class ReleveTests(Base):
             self.assertEqual(protocoles.relever(self.compte), 2)
             self.assertEqual(protocoles.relever(self.compte), 0)
         self.assertTrue(faux.lecture_seule)
-        self.assertTrue(all(c[2] == "(BODY.PEEK[])" for c in faux.commandes if c[0] == "fetch"))
+        # PEEK : lire un message ici ne le marque pas comme lu sur le serveur.
+        self.assertTrue(all("BODY.PEEK[]" in c[2] and "BODY[]" not in c[2].replace("BODY.PEEK[]", "")
+                            for c in faux.commandes if c[0] == "fetch"))
         self.assertEqual(Courriel.objects.count(), 2)
         piece = PieceJointe.objects.get()
         self.assertEqual(piece.taille, len(b"%PDF-1.4 cahier"))
@@ -173,8 +181,21 @@ class ImportTests(Base):
         self.assertEqual([c[1] for c in faux.commandes if c[0] == "fetch"][0], b"7,8")
 
     def test_uid_apres_le_litteral(self):
-        reponse = [(b"1 (BODY[] {5}", b"12345"), b" UID 42)"]
-        self.assertEqual(protocoles._uids_et_messages(reponse), [("42", b"12345")])
+        reponse = [(b"1 (BODY[] {5}", b"12345"), b" UID 42 FLAGS (\\Seen))"]
+        self.assertEqual(protocoles._uids_et_messages(reponse), [("42", "\\Seen", b"12345")])
+
+    def test_messages_deja_lus_sur_le_serveur(self):
+        """Un message lu (ou marqué) dans le webmail arrive lu (ou étoilé) ici."""
+        faux = FauxIMAP({b"7": message_brut(), b"8": message_brut("Relance", "<a2@client.fr>", avec_piece=False)},
+                        drapeaux={b"7": b"\\Seen", b"8": b"\\Flagged"})
+        with mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", return_value=faux):
+            protocoles.relever(self.compte)
+        lu = Courriel.objects.get(uid="7")
+        non_lu = Courriel.objects.get(uid="8")
+        self.assertTrue(lu.lu)
+        self.assertFalse(lu.etoile)
+        self.assertFalse(non_lu.lu)
+        self.assertTrue(non_lu.etoile)
 
 
 class GmailTests(Base):
@@ -338,3 +359,135 @@ class VuesTests(Base):
         self.client.force_login(self.equipe)
         reponse = self.client.get(f"/espace/courriels/{self.recu.pk}/?images=1")
         self.assertRedirects(reponse, f"/espace/mail/{self.recu.pk}/?images=1", status_code=301)
+
+    def test_mot_de_passe_saisi_plus_tard_declenche_l_import(self):
+        """Fiche préparée sans mot de passe : le premier enregistrement complet importe l'historique."""
+        self.client.force_login(self.equipe)
+        preparee = CompteCourriel.objects.create(adresse="devis@satkaar.io", identifiant="devis@satkaar.io",
+                                                 imap_hote="ssl0.ovh.net", smtp_hote="ssl0.ovh.net")
+        with mock.patch("courriel.views.protocoles.tester"), \
+                mock.patch("courriel.views.protocoles.importer_historique", return_value=(7, 2)) as importer:
+            self.client.post(reverse("courriel:compte", args=[preparee.pk]), {
+                "adresse": "devis@satkaar.io", "nom_expediteur": "Satkaar", "identifiant": "devis@satkaar.io",
+                "mot_de_passe": "enfin-le-mot-de-passe", "imap_hote": "ssl0.ovh.net", "imap_port": 993,
+                "smtp_hote": "ssl0.ovh.net", "smtp_port": 465, "smtp_securite": "ssl", "actif": "on",
+            })
+        importer.assert_called_once_with(preparee, reception=200, envoyes=100)
+        preparee.refresh_from_db()
+        self.assertEqual(preparee.mot_de_passe, "enfin-le-mot-de-passe")
+
+
+class ClassementTests(Base):
+    """Onglets de la boîte : catégories de Gmail quand elles existent, indices du message sinon."""
+
+    def classer(self, **donnees):
+        from .classement import classer
+
+        return classer({"expediteur_adresse": "", "sujet": "", "entetes": {}, **donnees})
+
+    def test_reseaux_sociaux_par_le_domaine(self):
+        self.assertEqual(self.classer(expediteur_adresse="news@linkedin.com", sujet="Vous avez 3 invitations"),
+                         Courriel.Categorie.RESEAUX)
+
+    def test_notification_par_expediteur_automatique_ou_sujet(self):
+        self.assertEqual(self.classer(expediteur_adresse="noreply@qonto.com", sujet="Votre relevé"),
+                         Courriel.Categorie.NOTIFICATIONS)
+        self.assertEqual(self.classer(expediteur_adresse="compta@client.fr", sujet="Facture 2026-014"),
+                         Courriel.Categorie.NOTIFICATIONS)
+
+    def test_promotion_par_desinscription(self):
+        lettre = self.classer(expediteur_adresse="hello@boutique.fr", sujet="Nos nouveautés de septembre",
+                              entetes={"list_unsubscribe": "<https://boutique.fr/stop>"})
+        self.assertEqual(lettre, Courriel.Categorie.PROMOTIONS)
+
+    def test_message_humain_reste_en_principale(self):
+        self.assertEqual(self.classer(expediteur_adresse="elodie@client.fr", sujet="Re: Demande de devis"),
+                         Courriel.Categorie.PRINCIPALE)
+
+    def test_lien_de_desinscription_en_pied_de_message(self):
+        """En-têtes perdus (message déjà importé) : le pied de page trahit l'envoi de masse."""
+        from .classement import classer_enregistre
+
+        message = Courriel(expediteur_adresse="contact@lettre.fr", sujet="Nouvelle mission freelance",
+                           texte="Bonjour Damien," + " blabla" * 3000 + " Pour ne plus recevoir nos offres, cliquez ici.")
+        self.assertEqual(classer_enregistre(message), Courriel.Categorie.PROMOTIONS)
+
+    def test_les_onglets_de_gmail_priment(self):
+        gmail = CompteCourriel(adresse="damien@gmail.com", identifiant="damien@gmail.com",
+                               imap_hote="imap.gmail.com", smtp_hote="smtp.gmail.com")
+        gmail.mot_de_passe = "secret"
+        gmail.save()
+        faux = FauxIMAP({b"7": message_brut(), b"8": message_brut("Offre", "<a2@pub.fr>", avec_piece=False)},
+                        categories={"promotions": [b"8"]})
+        with mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", return_value=faux):
+            protocoles.relever(gmail)
+            self.assertEqual(protocoles.reclasser(gmail), 0)  # rien à changer au second passage
+        self.assertEqual(Courriel.objects.get(compte=gmail, uid="8").categorie, Courriel.Categorie.PROMOTIONS)
+        self.assertEqual(Courriel.objects.get(compte=gmail, uid="7").categorie, Courriel.Categorie.PRINCIPALE)
+
+
+class OngletsTests(VuesTests):
+    def test_barre_d_onglets_et_filtre(self):
+        self.client.force_login(self.equipe)
+        Courriel.objects.filter(pk=self.recu.pk).update(categorie=Courriel.Categorie.PRINCIPALE)
+        protocoles.enregistrer(self.compte, protocoles.lire_message(message_brut("Soldes", "<p1@pub.fr>", avec_piece=False)),
+                               uid="9", categorie=Courriel.Categorie.PROMOTIONS)
+        page = self.client.get(reverse("courriel:boite"))
+        onglets = {o["cle"]: o for o in page.context["onglets"]}
+        self.assertEqual(onglets["principale"]["total"], 1)
+        self.assertEqual(onglets["promotions"]["nouveaux"], 1)
+        self.assertContains(page, "Promotions")
+        promotions = self.client.get(reverse("courriel:boite"), {"categorie": "promotions"})
+        self.assertEqual([c.sujet for c in promotions.context["page"].object_list], ["Soldes"])
+        # Le message de l'onglet Principale n'est plus dans la liste (il reste en aperçu d'onglet).
+        self.assertNotContains(promotions, reverse("courriel:lire", args=[self.recu.pk]))
+
+
+class DetectionServeurTests(Base):
+    """OVH répartit les boîtes sur plusieurs plateformes : on trouve la bonne toute seule."""
+
+    def setUp(self):
+        super().setUp()
+        self.compte.imap_hote = "ssl0.ovh.net"
+        self.compte.save()
+
+    def _imap_qui_marche_sur(self, hote_valide):
+        def fabrique(hote, *a, **k):
+            if hote != hote_valide:
+                raise imaplib.IMAP4.error("AUTHENTICATIONFAILED")
+            return FauxIMAP({})
+        return fabrique
+
+    def test_serveur_email_pro_detecte(self):
+        with mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", side_effect=self._imap_qui_marche_sur("pro3.mail.ovh.net")):
+            self.assertEqual(protocoles.detecter_serveur(self.compte), "pro3.mail.ovh.net")
+        self.compte.refresh_from_db()
+        self.assertEqual((self.compte.imap_hote, self.compte.smtp_hote, self.compte.smtp_port, self.compte.smtp_securite),
+                         ("pro3.mail.ovh.net", "pro3.mail.ovh.net", 587, "starttls"))
+
+    def test_aucun_serveur_ne_repond(self):
+        with mock.patch("courriel.protocoles.imaplib.IMAP4_SSL", side_effect=self._imap_qui_marche_sur("nulle.part")):
+            self.assertIsNone(protocoles.detecter_serveur(self.compte))
+
+    def test_hors_ovh_on_ne_cherche_pas(self):
+        gmail = CompteCourriel(adresse="x@gmail.com", identifiant="x@gmail.com", imap_hote="imap.gmail.com")
+        gmail.mot_de_passe = "secret"
+        gmail.save()
+        with mock.patch("courriel.protocoles.imaplib.IMAP4_SSL") as ouvrir:
+            self.assertIsNone(protocoles.detecter_serveur(gmail))
+        ouvrir.assert_not_called()
+
+    def test_formulaire_corrige_le_serveur(self):
+        utilisateur = get_user_model().objects.create_user("chef", "chef@satkaar.io", "x", is_staff=True)
+        self.client.force_login(utilisateur)
+        with mock.patch("courriel.views.protocoles.tester", side_effect=protocoles.ErreurCourriel("refusé")), \
+                mock.patch("courriel.views.protocoles.detecter_serveur", return_value="pro3.mail.ovh.net") as detecter, \
+                mock.patch("courriel.views.protocoles.importer_historique", return_value=(3, 1)):
+            reponse = self.client.post(reverse("courriel:compte", args=[self.compte.pk]), {
+                "adresse": self.compte.adresse, "nom_expediteur": "Satkaar", "identifiant": self.compte.identifiant,
+                "mot_de_passe": "secret", "imap_hote": "ssl0.ovh.net", "imap_port": 993,
+                "smtp_hote": "ssl0.ovh.net", "smtp_port": 465, "smtp_securite": "ssl", "actif": "on",
+            }, follow=True)
+        detecter.assert_called_once()
+        self.assertContains(reponse, "Serveur corrigé automatiquement : pro3.mail.ovh.net")
+

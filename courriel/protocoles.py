@@ -20,6 +20,7 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 from django.utils import timezone
 
+from . import classement
 from .models import CompteCourriel, Courriel, PieceJointe
 
 logger = logging.getLogger(__name__)
@@ -90,6 +91,10 @@ def lire_message(octets):
 
     repondre_a = _adresses(message, "Reply-To")
     return {
+        # Indices de classement : lettre d'information (désinscription), envoi de masse, robot.
+        "entetes": {"list_unsubscribe": _entete(message, "List-Unsubscribe"),
+                    "precedence": _entete(message, "Precedence"),
+                    "auto_submitted": _entete(message, "Auto-Submitted")},
         "message_id": _entete(message, "Message-ID")[:512],
         "expediteur_nom": expediteur[0][:255],
         "expediteur_adresse": expediteur[1][:255],
@@ -109,6 +114,7 @@ def lire_message(octets):
 @transaction.atomic
 def enregistrer(compte, donnees, dossier=Courriel.Dossier.RECEPTION, **champs):
     pieces = donnees.pop("pieces", [])
+    donnees.pop("entetes", None)
     courriel = Courriel.objects.create(compte=compte, dossier=dossier, **donnees, **champs)
     for piece in pieces:
         PieceJointe.objects.create(
@@ -145,17 +151,19 @@ PAR_LOT = 20  # messages rapatriés par commande FETCH
 
 
 def _uids_et_messages(reponse):
-    """Réponse d'un FETCH groupé → [(uid, octets)]. L'UID peut précéder ou suivre le littéral."""
+    """Réponse d'un FETCH groupé → [(uid, drapeaux, octets)]. L'UID et les drapeaux peuvent
+    précéder ou suivre le littéral selon les serveurs."""
     resultats = []
     for i, element in enumerate(reponse or []):
         if not isinstance(element, tuple):
             continue
         entete, corps = element
-        trouve = re.search(rb"UID (\d+)", entete)
-        if not trouve and i + 1 < len(reponse) and isinstance(reponse[i + 1], bytes):
-            trouve = re.search(rb"UID (\d+)", reponse[i + 1])
+        suivant = reponse[i + 1] if i + 1 < len(reponse) and isinstance(reponse[i + 1], bytes) else b""
+        contexte = bytes(entete) + b" " + bytes(suivant)
+        trouve = re.search(rb"UID (\d+)", contexte)
+        drapeaux = re.search(rb"FLAGS \(([^)]*)\)", contexte)
         if trouve and corps:
-            resultats.append((trouve.group(1).decode(), bytes(corps)))
+            resultats.append((trouve.group(1).decode(), (drapeaux.group(1).decode() if drapeaux else ""), bytes(corps)))
     return resultats
 
 
@@ -170,10 +178,11 @@ def _importer_dossier(client, compte, dossier_serveur, dossier_local, limite):
     a_lire = [u for u in uids if u.decode() not in connus]
     nouveaux = 0
     for i in range(0, len(a_lire), PAR_LOT):
-        statut, reponse = client.uid("fetch", b",".join(a_lire[i:i + PAR_LOT]), "(BODY.PEEK[])")
+        # FLAGS : un message déjà lu dans le webmail ne doit pas ressortir « non lu » ici.
+        statut, reponse = client.uid("fetch", b",".join(a_lire[i:i + PAR_LOT]), "(FLAGS BODY.PEEK[])")
         if statut != "OK":
             continue
-        for uid, brut in _uids_et_messages(reponse):
+        for uid, drapeaux, brut in _uids_et_messages(reponse):
             donnees_message = lire_message(brut)
             if not donnees_message["message_id"]:
                 donnees_message["message_id"] = f"<uid-{uid}-{dossier_local}@{compte.imap_hote}>"
@@ -182,9 +191,54 @@ def _importer_dossier(client, compte, dossier_serveur, dossier_local, limite):
                 existant.update(uid=uid)  # déjà connu (envoyé d'ici, ou UIDVALIDITY changé côté serveur)
                 continue
             enregistrer(compte, donnees_message, dossier=dossier_local, uid=uid,
-                        lu=dossier_local == Courriel.Dossier.ENVOYES)
+                        lu="\\Seen" in drapeaux or dossier_local == Courriel.Dossier.ENVOYES,
+                        etoile="\\Flagged" in drapeaux,
+                        categorie=classement.classer(donnees_message))
             nouveaux += 1
+    if dossier_local == Courriel.Dossier.RECEPTION:
+        _appliquer_categories_gmail(client, compte)
     return nouveaux
+
+
+def _appliquer_categories_gmail(client, compte):
+    """Reprend les onglets de Gmail (Promotions, Réseaux sociaux, Notifications) sur les messages
+    déjà importés. Sans effet sur les autres hébergeurs, qui gardent le classement par indices."""
+    if not compte.est_gmail:
+        return 0
+    par_uid = classement.categories_gmail(client)
+    if not par_uid:
+        return 0
+    connus = compte.courriels.filter(dossier=Courriel.Dossier.RECEPTION)
+    modifies = 0
+    for categorie in set(par_uid.values()):
+        uids = [uid for uid, valeur in par_uid.items() if valeur == categorie]
+        modifies += connus.filter(uid__in=uids).exclude(categorie=categorie).update(categorie=categorie)
+    # Ce que Gmail ne range dans aucun onglet (sa catégorie « Personnel ») garde le classement
+    # par indices : lettres d'information et réseaux sociaux y sont nombreux.
+    a_classer = []
+    for message in connus.exclude(uid__in=par_uid).only("id", "expediteur_adresse", "sujet", "texte", "html", "categorie"):
+        categorie = classement.classer_enregistre(message)
+        if message.categorie != categorie:
+            message.categorie = categorie
+            a_classer.append(message)
+    if a_classer:
+        Courriel.objects.bulk_update(a_classer, ["categorie"], batch_size=200)
+        modifies += len(a_classer)
+    return modifies
+
+
+def reclasser(compte):
+    """Relit les onglets de la boîte pour les messages déjà importés (Gmail)."""
+    client = _imap(compte)
+    try:
+        statut, _ = client.select("INBOX", readonly=True)
+        if statut != "OK":
+            raise ErreurCourriel("Boîte de réception introuvable sur le serveur.")
+        return _appliquer_categories_gmail(client, compte)
+    except (OSError, imaplib.IMAP4.error) as erreur:
+        raise ErreurCourriel(f"Classement interrompu : {erreur}") from erreur
+    finally:
+        _fermer(client)
 
 
 def relever(compte, limite=50):
@@ -273,6 +327,47 @@ def _smtp(compte):
         serveur.close()
         raise ErreurCourriel("Identifiant ou mot de passe SMTP refusé.") from erreur
     return serveur
+
+
+# OVH répartit les boîtes sur plusieurs plateformes (MX Plan, Email Pro, Exchange) que rien ne
+# distingue dans le DNS du domaine : quand l'identification échoue, on essaie les autres.
+SERVEURS_A_ESSAYER = [
+    ("ssl0.ovh.net", "ssl0.ovh.net", 465, "ssl"),
+    ("imap.mail.ovh.net", "smtp.mail.ovh.net", 465, "ssl"),
+    ("pro1.mail.ovh.net", "pro1.mail.ovh.net", 587, "starttls"),
+    ("pro2.mail.ovh.net", "pro2.mail.ovh.net", 587, "starttls"),
+    ("pro3.mail.ovh.net", "pro3.mail.ovh.net", 587, "starttls"),
+    ("ex2.mail.ovh.net", "ex2.mail.ovh.net", 587, "starttls"),
+    ("ex3.mail.ovh.net", "ex3.mail.ovh.net", 587, "starttls"),
+    ("ex4.mail.ovh.net", "ex4.mail.ovh.net", 587, "starttls"),
+    ("ex5.mail.ovh.net", "ex5.mail.ovh.net", 587, "starttls"),
+]
+
+
+def detecter_serveur(compte):
+    """Cherche la plateforme qui accepte ces identifiants et corrige la boîte.
+
+    Ne s'applique qu'à OVH, dont les serveurs ne se devinent pas : ailleurs, un refus reste
+    un refus. Renvoie le serveur IMAP retenu, ou None.
+    """
+    if "ovh" not in compte.imap_hote.lower():
+        return None
+    for imap_hote, smtp_hote, smtp_port, securite in SERVEURS_A_ESSAYER:
+        if imap_hote == compte.imap_hote:
+            continue  # déjà essayé
+        essai = CompteCourriel(identifiant=compte.identifiant, mot_de_passe_chiffre=compte.mot_de_passe_chiffre,
+                               imap_hote=imap_hote, imap_port=993)
+        try:
+            _fermer(_imap(essai))
+        except ErreurCourriel:
+            continue
+        CompteCourriel.objects.filter(pk=compte.pk).update(
+            imap_hote=imap_hote, imap_port=993, smtp_hote=smtp_hote, smtp_port=smtp_port, smtp_securite=securite)
+        compte.imap_hote, compte.imap_port = imap_hote, 993
+        compte.smtp_hote, compte.smtp_port, compte.smtp_securite = smtp_hote, smtp_port, securite
+        logger.info("Serveur OVH détecté pour %s : %s", compte.adresse, imap_hote)
+        return imap_hote
+    return None
 
 
 def tester(compte):

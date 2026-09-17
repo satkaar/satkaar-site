@@ -15,7 +15,7 @@ from django.views.decorators.http import require_POST
 
 from espace.acces import equipe
 
-from . import protocoles
+from . import classement, protocoles
 from .forms import FOURNISSEURS, CompteForm, RedactionForm
 from .models import CompteCourriel, Courriel, PieceJointe
 
@@ -59,6 +59,16 @@ def boite(request, dossier="reception"):
         liste = liste.filter(Q(sujet__icontains=recherche) | Q(expediteur_nom__icontains=recherche)
                              | Q(expediteur_adresse__icontains=recherche) | Q(destinataires__icontains=recherche)
                              | Q(texte__icontains=recherche))
+    # Onglets de la boîte de réception, à la manière de Gmail : ils comptent tous les messages
+    # de la sélection, puis n'en affichent qu'un.
+    categorie, onglets = "", []
+    if dossier == "reception":
+        onglets = classement.onglets(list(liste))
+        categorie = request.GET.get("categorie", "")
+        if categorie in Courriel.Categorie.values:
+            liste = liste.filter(categorie=categorie)
+        else:
+            categorie = ""
     page = _page(liste, request.GET.get("page"))
     limite = timezone.now() - RELEVE_AUTO
     releve_auto = CompteCourriel.objects.filter(actif=True).filter(
@@ -66,6 +76,7 @@ def boite(request, dossier="reception"):
     return render(request, "courriel/boite.html", _barre(
         dossier if not compte else f"compte-{compte.pk}", titre=titre, dossier=dossier, page=page, compte=compte,
         recherche=recherche, releve_auto=releve_auto and dossier == "reception",
+        onglets=onglets, categorie=categorie,
     ))
 
 
@@ -234,14 +245,20 @@ def compte(request, pk=None):
         try:
             protocoles.tester(boite_mail)
         except protocoles.ErreurCourriel as erreur:
-            CompteCourriel.objects.filter(pk=boite_mail.pk).update(derniere_erreur=str(erreur)[:300])
-            messages.warning(request, f"Boîte enregistrée, mais la connexion échoue : {erreur}")
-            return redirect("courriel:comptes")
+            # Chez OVH, la bonne plateforme ne se devine pas : on la cherche avant d'abandonner.
+            serveur = protocoles.detecter_serveur(boite_mail)
+            if serveur:
+                messages.info(request, f"Serveur corrigé automatiquement : {serveur}.")
+            else:
+                CompteCourriel.objects.filter(pk=boite_mail.pk).update(derniere_erreur=str(erreur)[:300])
+                messages.warning(request, f"Boîte enregistrée, mais la connexion échoue : {erreur}")
+                return redirect("courriel:comptes")
         CompteCourriel.objects.filter(pk=boite_mail.pk).update(derniere_erreur="")
-        if instance:
+        if instance and boite_mail.courriels.exists():
             messages.success(request, "Boîte enregistrée : la réception (IMAP) et l'envoi (SMTP) répondent.")
             return redirect("courriel:comptes")
-        # Nouvelle boîte : on rapatrie tout de suite ses derniers messages reçus et envoyés.
+        # Boîte encore vide (nouvelle, ou mot de passe enfin saisi) : on rapatrie tout de suite
+        # ses derniers messages reçus et envoyés.
         _importer(request, boite_mail, reception=200, envoyes=100)
         return redirect(f"{reverse('courriel:boite')}?compte={boite_mail.pk}")
     return render(request, "courriel/compte.html", _barre("comptes", form=form, instance=instance, fournisseurs=FOURNISSEURS))

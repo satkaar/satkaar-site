@@ -65,7 +65,14 @@ class Courriel(models.Model):
         ENVOYES = "envoyes", "Envoyés"
 
     compte = models.ForeignKey(CompteCourriel, on_delete=models.CASCADE, related_name="courriels")
+    class Categorie(models.TextChoices):
+        PRINCIPALE = "principale", "Principale"
+        PROMOTIONS = "promotions", "Promotions"
+        RESEAUX = "reseaux", "Réseaux sociaux"
+        NOTIFICATIONS = "notifications", "Notifications"
+
     dossier = models.CharField(max_length=10, choices=Dossier.choices, default=Dossier.RECEPTION)
+    categorie = models.CharField("catégorie", max_length=15, choices=Categorie.choices, default=Categorie.PRINCIPALE)
     message_id = models.CharField(max_length=512)
     uid = models.CharField("UID IMAP", max_length=40, blank=True)
     expediteur_nom = models.CharField(max_length=255, blank=True)
@@ -90,7 +97,8 @@ class Courriel(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["compte", "dossier", "message_id"], name="courriel_unique_par_dossier"),
         ]
-        indexes = [models.Index(fields=["compte", "dossier", "corbeille", "-date"], name="courriel_liste_idx")]
+        indexes = [models.Index(fields=["compte", "dossier", "corbeille", "-date"], name="courriel_liste_idx"),
+                   models.Index(fields=["dossier", "categorie", "corbeille", "-date"], name="courriel_onglet_idx")]
 
     def __str__(self):
         return self.sujet or "(sans objet)"
