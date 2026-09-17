@@ -16,7 +16,7 @@ from contacts.models import Contact
 from pages.models import DemandeDemonstration
 
 from . import carnet, ia, protocoles, views
-from .models import CompteCourriel, Courriel, PieceJointe, Signature
+from .models import CompteCourriel, Courriel, Modele, PieceJointe, Signature
 from .views import _document_isole
 
 
@@ -791,3 +791,121 @@ class ReformulationTests(EspaceMail):
         pastille = page[debut:page.index("</span>", debut)]
         self.assertIn("data-signature-choix", pastille)
         self.assertNotIn("Gérer", pastille)
+
+
+class ModeleTests(EspaceMail):
+    """Modèles de message : gestion, insertion à la rédaction, enregistrement du message en cours."""
+
+    def setUp(self):
+        super().setUp()
+        self.client.force_login(self.equipe)
+        self.modele = Modele.objects.create(libelle="Première approche", sujet="Vanessa pour {ville}",
+                                            corps="<p>Bonjour {prenom},</p><p>Je me permets…</p>")
+
+    def test_gestion_complete(self):
+        self.client.post(reverse("courriel:modele_ajouter"),
+                         {"libelle": "Relance", "sujet": "Suite", "corps": "<p>Bonjour,</p>", "compte": self.compte.pk})
+        cree = Modele.objects.get(libelle="Relance")
+        self.assertEqual((cree.sujet, cree.compte), ("Suite", self.compte))
+        self.client.post(reverse("courriel:modele", args=[cree.pk]),
+                         {"libelle": "Relance douce", "sujet": "Suite", "corps": "<p>Bonjour,</p>"})
+        cree.refresh_from_db()
+        self.assertEqual((cree.libelle, cree.compte), ("Relance douce", None))
+        self.client.post(reverse("courriel:modele_supprimer", args=[cree.pk]))
+        self.assertFalse(Modele.objects.filter(pk=cree.pk).exists())
+
+    def test_le_corps_est_nettoye_et_ne_peut_pas_etre_vide(self):
+        self.client.post(reverse("courriel:modele_ajouter"),
+                         {"libelle": "Piégé", "corps": "<p>Bonjour</p><script>alert(1)</script>"})
+        self.assertNotIn("script", Modele.objects.get(libelle="Piégé").corps)
+        reponse = self.client.post(reverse("courriel:modele_ajouter"), {"libelle": "Vide", "corps": "<p> </p>"})
+        self.assertContains(reponse, "Écrivez le message du modèle.")
+
+    def test_les_modeles_accompagnent_l_ecran_de_redaction(self):
+        page = self.client.get(reverse("courriel:rediger"))
+        self.assertEqual([m["libelle"] for m in page.context["modeles"]], ["Première approche"])
+        self.assertContains(page, "data-modele-menu")
+        # Le bouton est dans la barre d'envoi, à côté de la signature.
+        barre = page.content.decode()[page.content.decode().index('class="courriel__envoi"'):]
+        self.assertIn("data-modele-bloc", barre)
+        self.assertLess(barre.index("data-modele-bloc"), barre.index("data-signature-bloc"))
+
+    def test_disponibles_par_boite(self):
+        propre = Modele.objects.create(libelle="Devis", corps="<p>Devis</p>", compte=self.compte)
+        autre = CompteCourriel(adresse="x@satkaar.io", identifiant="x", imap_hote="i", smtp_hote="s")
+        autre.mot_de_passe = "x"
+        autre.save()
+        self.assertIn(propre, Modele.disponibles(self.compte))
+        self.assertNotIn(propre, Modele.disponibles(autre))
+        self.assertIn(self.modele, Modele.disponibles(autre))  # partagé
+
+    def test_enregistrer_le_message_en_cours(self):
+        reponse = self.client.post(reverse("courriel:modele_depuis_message"), {
+            "libelle": "Depuis la barre", "sujet": "Devis Vanessa",
+            "corps": "<p>Bonjour,</p><script>alert(1)</script>", "compte": self.compte.pk,
+        })
+        donnees = reponse.json()
+        cree = Modele.objects.get(pk=donnees["pk"])
+        self.assertEqual((cree.libelle, cree.sujet, cree.compte), ("Depuis la barre", "Devis Vanessa", self.compte))
+        self.assertNotIn("script", cree.corps)
+        self.assertEqual(donnees["libelle"], "Depuis la barre")
+
+    def test_enregistrement_refuse_sans_nom_ou_sans_message(self):
+        for donnees in ({"libelle": "", "corps": "<p>Bonjour</p>"}, {"libelle": "Nom", "corps": "<p> </p>"}):
+            self.assertEqual(self.client.post(reverse("courriel:modele_depuis_message"), donnees).status_code, 400)
+        self.assertEqual(Modele.objects.count(), 1)
+
+    def test_le_carnet_porte_de_quoi_remplir_les_reperes(self):
+        Contact.objects.create(nom="ROUX", prenom="Vanessa", courriel="v.roux@aix.fr",
+                               organisation="Mairie d'Aix", ville="Aix-en-Provence")
+        fiche = next(f for f in carnet.entrees() if f["adresse"] == "v.roux@aix.fr")
+        self.assertEqual((fiche["prenom"], fiche["nom"]), ("Vanessa", "Vanessa ROUX"))
+        self.assertEqual((fiche["organisation"], fiche["ville"]), ("Mairie d'Aix", "Aix-en-Provence"))
+
+    def test_pages_reservees_a_l_equipe(self):
+        self.client.force_login(self.client_site)
+        for url in (reverse("courriel:modeles"), reverse("courriel:modele_ajouter"),
+                    reverse("courriel:modele", args=[self.modele.pk])):
+            self.assertEqual(self.client.get(url).status_code, 404)
+        self.assertEqual(self.client.post(reverse("courriel:modele_depuis_message"), {}).status_code, 404)
+
+
+class ReglageDisparuTests(EspaceMail):
+    """Un réglage supprimé ailleurs ramène à sa liste avec un mot, pas sur une page 404."""
+
+    def setUp(self):
+        super().setUp()
+        self.client.force_login(self.equipe)
+
+    def test_modele(self):
+        for url in (reverse("courriel:modele", args=[999]), reverse("courriel:modele_supprimer", args=[999])):
+            methode = self.client.post if "supprimer" in url else self.client.get
+            reponse = methode(url, follow=True)
+            self.assertRedirects(reponse, reverse("courriel:modeles"))
+            self.assertContains(reponse, "Ce modèle n&#x27;existe plus")
+
+    def test_signature(self):
+        reponse = self.client.get(reverse("courriel:signature", args=[999]), follow=True)
+        self.assertRedirects(reponse, reverse("courriel:signatures"))
+        self.assertContains(reponse, "elle a sans doute été supprimée")
+        reponse = self.client.post(reverse("courriel:signature_supprimer", args=[999]), follow=True)
+        self.assertContains(reponse, "Cette signature n&#x27;existe plus")
+
+    def test_boite_mail(self):
+        for url in (reverse("courriel:compte", args=[999]), reverse("courriel:compte_supprimer", args=[999]),
+                    reverse("courriel:compte_importer", args=[999])):
+            methode = self.client.get if url.endswith(f"{999}/") else self.client.post
+            reponse = methode(url, follow=True)
+            self.assertRedirects(reponse, reverse("courriel:comptes"))
+            self.assertContains(reponse, "Cette boîte n&#x27;est plus connectée")
+
+    def test_un_reglage_existant_reste_modifiable(self):
+        """Le filet ne doit pas avaler le cas normal."""
+        modele = Modele.objects.create(libelle="Devis", corps="<p>Bonjour</p>")
+        self.assertContains(self.client.get(reverse("courriel:modele", args=[modele.pk])), "Devis")
+        self.assertEqual(self.client.get(reverse("courriel:signature", args=[self.signature.pk])).status_code, 200)
+        self.assertEqual(self.client.get(reverse("courriel:compte", args=[self.compte.pk])).status_code, 200)
+
+    def test_toujours_reserve_a_l_equipe(self):
+        self.client.force_login(self.client_site)
+        self.assertEqual(self.client.get(reverse("courriel:modele", args=[999])).status_code, 404)

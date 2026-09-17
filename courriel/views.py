@@ -17,9 +17,9 @@ from django.views.decorators.http import require_POST
 
 from espace.acces import equipe
 
-from . import carnet, classement, ia, protocoles
-from .forms import FOURNISSEURS, CompteForm, RedactionForm, SignatureForm
-from .models import CompteCourriel, Courriel, PieceJointe, Signature
+from . import carnet, classement, ia, protocoles, redaction
+from .forms import FOURNISSEURS, CompteForm, ModeleForm, RedactionForm, SignatureForm
+from .models import CompteCourriel, Courriel, Modele, PieceJointe, Signature
 
 PAR_PAGE = 40
 RELEVE_AUTO = timedelta(minutes=5)
@@ -233,6 +233,8 @@ def rediger(request):
     return render(request, "courriel/rediger.html", _barre(
         "rediger", form=form, origine=origine, mode=mode,
         pieces_origine=origine.pieces_jointes.all() if origine and mode == "transferer" else [],
+        modeles=[{"pk": m.pk, "libelle": m.libelle, "compte": m.compte_id, "sujet": m.sujet, "corps": m.corps}
+                 for m in Modele.objects.all()],
         signatures=[{"pk": s.pk, "libelle": s.libelle, "compte": s.compte_id,
                      "html": s.html, "texte": s.texte, "defaut": s.par_defaut}
                     for s in Signature.objects.all()],
@@ -247,7 +249,11 @@ def signatures(request):
 
 @equipe
 def signature(request, pk=None):
-    instance = get_object_or_404(Signature, pk=pk) if pk else None
+    instance = None
+    if pk:
+        instance = _encore_la(request, Signature, pk, "Cette signature n'existe plus : elle a sans doute été supprimée entre-temps.")
+        if instance is None:
+            return redirect("courriel:signatures")
     form = SignatureForm(request.POST or None, instance=instance)
     if request.method == "POST" and form.is_valid():
         enregistree = form.save()
@@ -259,10 +265,67 @@ def signature(request, pk=None):
 @equipe
 @require_POST
 def signature_supprimer(request, pk):
-    a_retirer = get_object_or_404(Signature, pk=pk)
-    a_retirer.delete()
-    messages.success(request, f"Signature « {a_retirer.libelle} » supprimée.")
+    a_retirer = _encore_la(request, Signature, pk, "Cette signature n'existe plus : elle a sans doute été supprimée entre-temps.")
+    if a_retirer is not None:
+        a_retirer.delete()
+        messages.success(request, f"Signature « {a_retirer.libelle} » supprimée.")
     return redirect("courriel:signatures")
+
+
+def _encore_la(request, classe, pk, message):
+    """Un réglage supprimé ailleurs (autre onglet, lien gardé) ne doit pas donner une page
+    d'erreur : on le dit, et l'appelant ramène à la liste."""
+    objet = classe.objects.filter(pk=pk).first()
+    if objet is None:
+        messages.info(request, message)
+    return objet
+
+
+@equipe
+def modeles(request):
+    liste = Modele.objects.select_related("compte")
+    return render(request, "courriel/modeles.html", _barre("modeles", liste=liste))
+
+
+@equipe
+def modele(request, pk=None):
+    instance = None
+    if pk:
+        instance = _encore_la(request, Modele, pk, "Ce modèle n'existe plus : il a sans doute été supprimé entre-temps.")
+        if instance is None:
+            return redirect("courriel:modeles")
+    form = ModeleForm(request.POST or None, instance=instance)
+    if request.method == "POST" and form.is_valid():
+        enregistre = form.save()
+        messages.success(request, f"Modèle « {enregistre.libelle} » enregistré.")
+        return redirect("courriel:modeles")
+    return render(request, "courriel/modele.html", _barre("modeles", form=form, instance=instance,
+                                                          reperes=Modele.REPERES))
+
+
+@equipe
+@require_POST
+def modele_supprimer(request, pk):
+    a_retirer = _encore_la(request, Modele, pk, "Ce modèle n'existe plus : il a sans doute été supprimé entre-temps.")
+    if a_retirer is not None:
+        a_retirer.delete()
+        messages.success(request, f"Modèle « {a_retirer.libelle} » supprimé.")
+    return redirect("courriel:modeles")
+
+
+@equipe
+@require_POST
+def modele_depuis_message(request):
+    """« Enregistrer comme modèle » depuis l'écran de rédaction."""
+    libelle = (request.POST.get("libelle") or "").strip()[:80]
+    corps = redaction.nettoyer(request.POST.get("corps", ""))
+    if not libelle or not redaction.en_texte(corps).strip():
+        return JsonResponse({"erreur": "Donnez un nom au modèle et écrivez le message."}, status=400)
+    compte = CompteCourriel.objects.filter(pk=request.POST.get("compte")).first() if request.POST.get("compte", "").isdigit() else None
+    cree = Modele.objects.create(libelle=libelle, sujet=(request.POST.get("sujet") or "")[:500],
+                                 corps=corps, compte=compte)
+    return JsonResponse({"pk": cree.pk, "libelle": cree.libelle, "sujet": cree.sujet,
+                         "corps": cree.corps, "compte": cree.compte_id})
 
 
 @equipe
@@ -340,7 +403,11 @@ def comptes(request):
 
 @equipe
 def compte(request, pk=None):
-    instance = get_object_or_404(CompteCourriel, pk=pk) if pk else None
+    instance = None
+    if pk:
+        instance = _encore_la(request, CompteCourriel, pk, "Cette boîte n'est plus connectée à l'espace : elle a sans doute été retirée entre-temps.")
+        if instance is None:
+            return redirect("courriel:comptes")
     depart = None if instance else {**{k: v for k, v in FOURNISSEURS["ovh"].items() if k != "libelle"}, "nom_expediteur": "Satkaar"}
     form = CompteForm(request.POST or None, instance=instance, initial=depart)
     if request.method == "POST" and form.is_valid():
@@ -382,7 +449,9 @@ def _importer(request, boite_mail, reception, envoyes):
 @require_POST
 def compte_importer(request, pk):
     """Historique plus profond : les 1 000 derniers reçus et 300 derniers envoyés (déjà importés ignorés)."""
-    boite_mail = get_object_or_404(CompteCourriel, pk=pk)
+    boite_mail = _encore_la(request, CompteCourriel, pk, "Cette boîte n'est plus connectée à l'espace : elle a sans doute été retirée entre-temps.")
+    if boite_mail is None:
+        return redirect("courriel:comptes")
     _importer(request, boite_mail, reception=1000, envoyes=300)
     return redirect("courriel:comptes")
 
@@ -390,7 +459,9 @@ def compte_importer(request, pk):
 @equipe
 @require_POST
 def compte_supprimer(request, pk):
-    boite_mail = get_object_or_404(CompteCourriel, pk=pk)
+    boite_mail = _encore_la(request, CompteCourriel, pk, "Cette boîte n'est plus connectée à l'espace : elle a sans doute été retirée entre-temps.")
+    if boite_mail is None:
+        return redirect("courriel:comptes")
     boite_mail.delete()
     messages.success(request, f"La boîte {boite_mail.adresse} et ses messages importés ont été retirés de l'espace. "
                               "Rien n'a été supprimé sur le serveur de messagerie.")

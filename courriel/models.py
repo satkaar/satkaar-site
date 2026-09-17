@@ -98,6 +98,46 @@ class Signature(models.Model):
         return cls.disponibles(compte).filter(par_defaut=True).first()
 
 
+
+class Modele(models.Model):
+    """Message tout prêt : objet et corps mis en forme, à reprendre à la rédaction.
+
+    Le corps peut porter des repères entre accolades — {prenom}, {nom}, {organisation},
+    {ville} — remplis d'après la fiche contact du destinataire au moment de l'insertion."""
+
+    REPERES = ("prenom", "nom", "organisation", "ville")
+
+    compte = models.ForeignKey(CompteCourriel, on_delete=models.CASCADE, related_name="modeles",
+                               null=True, blank=True, verbose_name="boîte",
+                               help_text="Vide : proposé pour toutes les boîtes.")
+    libelle = models.CharField("nom", max_length=80, help_text="Pour le reconnaître : « Première approche mairie »…")
+    sujet = models.CharField("objet", max_length=500, blank=True)
+    corps = models.TextField("message", help_text="Mise en forme conservée. Repères : {prenom}, {nom}, {organisation}, {ville}.")
+    cree_le = models.DateTimeField(auto_now_add=True)
+    modifie_le = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("libelle",)
+        verbose_name = "modèle de message"
+        verbose_name_plural = "modèles de message"
+
+    def __str__(self):
+        return self.libelle
+
+    @property
+    def apercu(self):
+        # en_texte() sépare les paragraphes, là où strip_tags collerait les mots entre eux.
+        from . import redaction
+        texte = " ".join(redaction.en_texte(self.corps).split())
+        return texte[:160] + ("…" if len(texte) > 160 else "")
+
+    @classmethod
+    def disponibles(cls, compte=None):
+        """Ceux de la boîte, plus ceux partagés par toutes les boîtes."""
+        tous = cls.objects.all()
+        return tous.filter(models.Q(compte=compte) | models.Q(compte__isnull=True)) if compte else tous
+
+
 class Courriel(models.Model):
     class Dossier(models.TextChoices):
         RECEPTION = "reception", "Boîte de réception"

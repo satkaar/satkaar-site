@@ -706,3 +706,175 @@
       });
   });
 })();
+
+// --- Modèles de message : insertion, repères remplis, enregistrement du message en cours ---
+(function () {
+  var donnees = document.getElementById("modeles");
+  var form = document.querySelector("[data-modele-url]");
+  var bloc = document.querySelector("[data-modele-bloc]");
+  var bouton = document.querySelector("[data-modele-menu]");
+  var panneau = document.querySelector("[data-modele-panneau]");
+  var liste = document.querySelector("[data-modele-liste]");
+  var garder = document.querySelector("[data-modele-garder]");
+  var zone = document.querySelector("[data-zone]");
+  var boite = document.getElementById("id_compte");
+  var sujet = document.getElementById("id_sujet");
+  if (!donnees || !form || !bloc || !bouton || !panneau || !liste || !garder || !zone || !boite || !sujet) return;
+  var modeles = JSON.parse(donnees.textContent);
+  var jeton = form.querySelector("[name=csrfmiddlewaretoken]");
+  var destinataire = document.getElementById("id_a");
+
+  // Nommer le modèle se fait dans le menu, sans boîte de dialogue.
+  var saisie = document.createElement("div");
+  saisie.className = "courriel__menu-nom";
+  saisie.hidden = true;
+  saisie.innerHTML = '<label class="visuellement-cache" for="modele-nom">Nom du modèle</label>'
+    + '<input class="champ" type="text" id="modele-nom" maxlength="80" placeholder="Nom du modèle">'
+    + '<button type="button" class="courriel__bouton courriel__bouton--plein" data-modele-valider>Garder</button>';
+  garder.parentNode.appendChild(saisie);
+  var champNom = saisie.querySelector("input");
+  var valider = saisie.querySelector("[data-modele-valider]");
+
+  function disponibles() {
+    return modeles.filter(function (m) { return m.compte === null || String(m.compte) === String(boite.value); });
+  }
+
+  function ouvrir(ouvert) {
+    panneau.hidden = !ouvert;
+    bouton.setAttribute("aria-expanded", ouvert ? "true" : "false");
+    if (!ouvert) saisie.hidden = true;
+  }
+
+  function remplir() {
+    var possibles = disponibles();
+    liste.textContent = "";
+    if (!possibles.length) {
+      var vide = document.createElement("li");
+      vide.className = "courriel__menu-vide";
+      vide.textContent = "Aucun modèle pour cette boîte.";
+      liste.appendChild(vide);
+    }
+    possibles.forEach(function (m) {
+      var li = document.createElement("li");
+      var choix = document.createElement("button");
+      choix.type = "button";
+      choix.className = "courriel__menu-modele";
+      choix.innerHTML = '<strong></strong><span></span>';
+      choix.querySelector("strong").textContent = m.libelle;
+      choix.querySelector("span").textContent = m.sujet || "Sans objet";
+      choix.addEventListener("click", function () { inserer(m); ouvrir(false); });
+      li.appendChild(choix);
+      liste.appendChild(li);
+    });
+    bloc.hidden = false;
+  }
+
+  // Le carnet sert à reconnaître le destinataire pour remplir {prenom}, {nom}…
+  var carnet = null;
+  function fiche() {
+    var adresse = (destinataire ? destinataire.value : "").toLowerCase();
+    if (!carnet || !adresse) return null;
+    return carnet.filter(function (f) { return f.adresse && adresse.indexOf(f.adresse) !== -1; })[0] || null;
+  }
+
+  function reperes(texte) {
+    var f = fiche() || {};
+    return texte.replace(/\{(prenom|nom|organisation|ville)\}/g, function (_, cle) { return f[cle] || ""; });
+  }
+
+  function inserer(modele) {
+    // Les repères valent pour l'objet comme pour le corps.
+    if (!sujet.value.trim() && modele.sujet) sujet.value = reperes(modele.sujet);
+    var corps = document.createElement("div");
+    corps.innerHTML = reperes(modele.corps);
+    // Le modèle se pose au-dessus de la signature et du message cité, qui ne bougent pas.
+    var suite = zone.querySelector("[data-signature]") || zone.querySelector("[data-origine]");
+    Array.prototype.slice.call(corps.childNodes).forEach(function (noeud) {
+      if (suite) zone.insertBefore(noeud, suite);
+      else zone.appendChild(noeud);
+    });
+  }
+
+  function corpsSaisi() {
+    var morceaux = Array.prototype.filter.call(zone.childNodes, function (n) {
+      return !(n.nodeType === 1 && (n.hasAttribute("data-signature") || n.hasAttribute("data-origine")));
+    });
+    var copie = document.createElement("div");
+    morceaux.forEach(function (n) { copie.appendChild(n.cloneNode(true)); });
+    return copie.innerHTML;
+  }
+
+  function dire(texte) {
+    garder.textContent = texte;
+    window.setTimeout(function () { garder.textContent = "Enregistrer ce message comme modèle"; }, 2500);
+  }
+
+  bouton.addEventListener("click", function () { ouvrir(panneau.hidden); });
+  document.addEventListener("click", function (e) {
+    if (!panneau.hidden && !bloc.contains(e.target)) ouvrir(false);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !panneau.hidden) { ouvrir(false); bouton.focus(); }
+  });
+
+  garder.addEventListener("click", function () {
+    if (!corpsSaisi().replace(/<[^>]*>|&nbsp;|\s/g, "")) {
+      dire("Message vide");
+      return;
+    }
+    saisie.hidden = false;
+    champNom.value = sujet.value.trim();
+    champNom.focus();
+  });
+
+  champNom.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); valider.click(); }
+  });
+
+  valider.addEventListener("click", function () {
+    var nom = champNom.value.trim();
+    if (!nom) { champNom.focus(); return; }
+    var envoi = new FormData();
+    envoi.append("libelle", nom);
+    envoi.append("sujet", sujet.value);
+    envoi.append("corps", corpsSaisi());
+    envoi.append("compte", boite.value);
+    valider.disabled = true;
+    valider.textContent = "…";
+    fetch(form.dataset.modeleUrl, {
+      method: "POST", headers: { "X-CSRFToken": jeton ? jeton.value : "" },
+      body: envoi, credentials: "same-origin"
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (resultat) {
+        if (resultat.pk) {
+          modeles.push(resultat);
+          remplir();
+          saisie.hidden = true;
+          dire("Enregistré ✓");
+        } else {
+          dire(resultat.erreur || "Échec");
+        }
+      })
+      .catch(function () { dire("Échec"); })
+      .then(function () { valider.disabled = false; valider.textContent = "Garder"; });
+  });
+
+  boite.addEventListener("change", remplir);
+  remplir();
+
+  // Le carnet est chargé une fois, pour les repères.
+  if (form.dataset.carnet) {
+    fetch(form.dataset.carnet, { credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { carnet = d.adresses || []; })
+      .catch(function () { carnet = []; });
+  }
+
+  // Ouverture directe depuis la page des modèles : ?modele=12
+  var demande = new URLSearchParams(window.location.search).get("modele");
+  if (demande) {
+    var choisi = modeles.filter(function (m) { return String(m.pk) === demande; })[0];
+    if (choisi) inserer(choisi);
+  }
+})();

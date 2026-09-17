@@ -1,0 +1,31 @@
+{% extends "courriel/base_courriel.html" %}
+
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <a class="app__retour" href="{% url 'courriel:modeles' %}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg> Modèles</a>
+  <h2>{% if instance %}Modifier {{ instance }}{% else %}Nouveau modèle{% endif %}</h2>
+</div>
+{% endblock %}
+
+{% block courriel %}
+
+<form class="courriel__formulaire" method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="courriel__info courriel__info--error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+
+  <section class="stats__carte">
+    <h2>Modèle</h2>
+    {% include "courriel/_champ.html" with champ=form.libelle aide=True %}
+    {% include "courriel/_champ.html" with champ=form.compte aide=True %}
+    {% include "courriel/_champ.html" with champ=form.sujet %}
+    {% include "courriel/_champ.html" with champ=form.corps aide=True %}
+    <p class="aide-champ">Repères remplacés d'après la fiche contact du destinataire :
+      {% for r in reperes %}<code>{{ r }}</code>{% if not forloop.last %} · {% endif %}{% endfor %} — à écrire entre accolades.</p>
+  </section>
+
+  <div class="courriel__envoi">
+    <button type="submit" class="courriel__bouton courriel__bouton--plein courriel__bouton--grand" data-envoyer><span data-libelle>Enregistrer</span></button>
+    <a class="courriel__bouton courriel__bouton--discret" href="{% url 'courriel:modeles' %}">Annuler</a>
+  </div>
+</form>
+{% endblock %}

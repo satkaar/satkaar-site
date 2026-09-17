@@ -7,7 +7,7 @@ from django.core.validators import validate_email
 from pages.forms import ChampsAccessiblesMixin
 
 from . import redaction
-from .models import CompteCourriel, Signature
+from .models import CompteCourriel, Modele, Signature
 
 PIECES_MAX = 20 * 1024 * 1024  # total des pièces jointes d'un envoi
 
@@ -116,6 +116,27 @@ class SignatureForm(ChampsAccessiblesMixin, forms.ModelForm):
             (Signature.objects.filter(compte=signature.compte).exclude(pk=signature.pk)
              .update(par_defaut=False))
         return signature
+
+
+
+class ModeleForm(ChampsAccessiblesMixin, forms.ModelForm):
+    """Le corps arrive de l'éditeur : on le nettoie comme un message avant de l'enregistrer."""
+
+    class Meta:
+        model = Modele
+        fields = ["libelle", "compte", "sujet", "corps"]
+        widgets = {"corps": forms.Textarea(attrs={"rows": 10})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["compte"].empty_label = "Toutes les boîtes"
+        self._preparer_champs()
+
+    def clean_corps(self):
+        corps = redaction.nettoyer(self.cleaned_data["corps"])
+        if not redaction.en_texte(corps).strip():
+            raise ValidationError("Écrivez le message du modèle.")
+        return corps
 
 
 class RedactionForm(ChampsAccessiblesMixin, forms.Form):

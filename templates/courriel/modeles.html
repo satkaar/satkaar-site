@@ -1,0 +1,53 @@
+{% extends "courriel/base_courriel.html" %}
+
+{% block barre_mail %}
+<div class="app__barre-gauche">
+  <h2>Modèles de message</h2>
+  <span class="app__barre-info">Messages tout prêts, à reprendre en un clic à la rédaction</span>
+</div>
+<div class="app__barre-droite"><a class="app__bouton app__bouton--plein" href="{% url 'courriel:modele_ajouter' %}">+ Ajouter un modèle</a></div>
+{% endblock %}
+
+{% block courriel %}
+
+{% if liste %}
+  <div class="courriel__boites">
+    {% for m in liste %}
+      <article class="stats__carte courriel__boite">
+        <div class="courriel__boite-tete">
+          <span class="courriel__avatar courriel__avatar--grand" aria-hidden="true">✉</span>
+          <div>
+            <h2>{{ m.libelle }}</h2>
+            <p>{% if m.compte %}{{ m.compte.adresse }}{% else %}Toutes les boîtes{% endif %}{% if m.sujet %} · {{ m.sujet }}{% endif %}</p>
+          </div>
+        </div>
+        <p class="courriel__modele-apercu">{{ m.apercu }}</p>
+        <div class="courriel__boite-actions">
+          <a class="courriel__bouton" href="{% url 'courriel:modele' m.pk %}">Modifier</a>
+          <a class="courriel__bouton" href="{% url 'courriel:rediger' %}?modele={{ m.pk }}">Écrire avec ce modèle</a>
+          <details class="courriel__confirmer">
+            <summary class="courriel__bouton courriel__bouton--danger">Supprimer</summary>
+            <form method="post" action="{% url 'courriel:modele_supprimer' m.pk %}">
+              {% csrf_token %}
+              <p>Les messages déjà envoyés ne changent pas.</p>
+              <button type="submit" class="courriel__bouton courriel__bouton--danger-plein">Confirmer la suppression</button>
+            </form>
+          </details>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="courriel__liste courriel__vide">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>
+    <p><strong>Aucun modèle.</strong> Écrivez une fois vos messages récurrents — première approche, relance, envoi de devis — et reprenez-les ensuite en un clic.</p>
+    <p><a class="lien-fleche" href="{% url 'courriel:modele_ajouter' %}">Créer un modèle</a></p>
+  </div>
+{% endif %}
+
+<aside class="stats__carte courriel__astuce">
+  <h2>Comment ils s'utilisent</h2>
+  <p>À la rédaction, le menu <strong>Modèle</strong> de la barre du bas remplit l'objet et le message ; la signature et le message cité restent en place. Le bouton <strong>Enregistrer comme modèle</strong> fait l'inverse : il garde le message en cours pour la fois suivante.</p>
+  <p>Un modèle peut porter des repères entre accolades — <code>{prenom}</code>, <code>{nom}</code>, <code>{organisation}</code>, <code>{ville}</code> — remplacés d'après la fiche contact du destinataire. Sans fiche, le repère est simplement retiré.</p>
+</aside>
+{% endblock %}

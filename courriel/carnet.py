@@ -16,19 +16,25 @@ LIMITE_MESSAGES = 1500  # les derniers messages suffisent à connaître les corr
 LIMITE = 400  # adresses envoyées au navigateur
 
 
-def _ajouter(carnet, adresse, nom="", detail="", origine="", quand=None):
+def _ajouter(carnet, adresse, nom="", detail="", origine="", quand=None, fiche_contact=None):
     adresse = (adresse or "").strip().lower()
     if "@" not in adresse or len(adresse) > 254:
         return None
     fiche = carnet.get(adresse)
     if fiche is None:
         fiche = carnet[adresse] = {"adresse": adresse, "nom": "", "detail": "", "origine": origine,
-                                   "echanges": 0, "dernier": None}
+                                   "echanges": 0, "dernier": None,
+                                   "prenom": "", "organisation": "", "ville": ""}
     # Le premier passage (contacts, puis demandes) donne le nom ; les messages ne l'écrasent pas.
     if nom and not fiche["nom"]:
         fiche["nom"] = nom.strip()[:160]
     if detail and not fiche["detail"]:
         fiche["detail"] = detail.strip()[:160]
+    if fiche_contact:
+        # De quoi remplir les repères d'un modèle : {prenom}, {nom}, {organisation}, {ville}.
+        fiche["prenom"] = fiche_contact.prenom
+        fiche["organisation"] = fiche_contact.organisation
+        fiche["ville"] = fiche_contact.ville
     if quand and (fiche["dernier"] is None or quand > fiche["dernier"]):
         fiche["dernier"] = quand
     return fiche
@@ -38,8 +44,10 @@ def entrees(limite=LIMITE):
     """Le carnet, prêt à être envoyé en JSON : adresse, nom, détail, origine, échanges."""
     carnet = {}
 
-    for contact in Contact.objects.exclude(courriel="").only("nom", "courriel", "organisation", "fonction"):
-        _ajouter(carnet, contact.courriel, contact.nom, contact.organisation or contact.fonction, "contact")
+    for contact in Contact.objects.exclude(courriel="").only("nom", "prenom", "courriel", "organisation",
+                                                             "fonction", "ville"):
+        _ajouter(carnet, contact.courriel, contact.nom_complet, contact.organisation or contact.fonction,
+                 "contact", fiche_contact=contact)
 
     messages = Courriel.objects.order_by("-date").values_list(
         "dossier", "expediteur_nom", "expediteur_adresse", "destinataires", "copie", "date")[:LIMITE_MESSAGES]

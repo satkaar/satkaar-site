@@ -8145,7 +8145,7 @@ a.annee__jour--3:hover { background: rgba(26, 44, 91, 0.75); }
   gap: 0.4rem;
   padding: 0.25rem 0.5rem 0.25rem 0.6rem;
   border: 1px solid var(--crm-bord);
-  border-radius: 999px;
+  border-radius: 5px;
   background: var(--blanc);
   font-size: 0.82rem;
   color: var(--crm-muet);
@@ -8188,11 +8188,16 @@ a.annee__jour--3:hover { background: rgba(26, 44, 91, 0.75); }
 
 .courriel__lien-discret {
   flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--crm-muet);
+  font-family: inherit;
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .courriel__lien-discret:hover {
@@ -8333,4 +8338,190 @@ a.annee__jour--3:hover { background: rgba(26, 44, 91, 0.75); }
   margin-top: 0.75rem;
   font-size: 0.85rem;
   color: var(--crm-muet);
+}
+
+/* Modèles de message : aperçu sur la page de gestion, nommage dans la barre d'envoi. */
+.courriel__modele-apercu {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--crm-bord);
+  background: var(--crm-creme);
+  color: var(--crm-texte);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.courriel__modele-nom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.courriel__modele-nom input {
+  width: 12rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.82rem;
+}
+
+/* Bouton « Modèles » de la barre d'envoi, et son menu. */
+.courriel__modeles {
+  position: relative;
+  display: inline-flex;
+}
+
+.courriel__de-outil--bouton {
+  font-weight: 600;
+  color: var(--crm-marque);
+  cursor: pointer;
+}
+
+.courriel__de-outil--bouton:hover,
+.courriel__de-outil--bouton[aria-expanded="true"] {
+  border-color: var(--crm-marque);
+  background: var(--crm-creme);
+}
+
+.courriel__menu {
+  position: absolute;
+  z-index: 40;
+  bottom: calc(100% + 0.35rem);
+  left: 0;
+  width: min(24rem, 80vw);
+  padding: 0.35rem;
+  border: 1px solid var(--crm-bord);
+  border-radius: 5px;
+  background: var(--blanc);
+  box-shadow: 0 14px 32px rgb(15 23 42 / 0.18);
+}
+
+.courriel__menu-liste {
+  max-height: 16rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.courriel__menu-modele {
+  display: grid;
+  gap: 0.1rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.courriel__menu-modele:hover {
+  background: var(--crm-creme);
+}
+
+.courriel__menu-modele strong {
+  font-size: 0.85rem;
+  color: var(--crm-marque);
+}
+
+.courriel__menu-modele span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  color: var(--crm-muet);
+}
+
+.courriel__menu-vide {
+  padding: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--crm-muet);
+}
+
+.courriel__menu-pied {
+  display: grid;
+  gap: 0.1rem;
+  margin-top: 0.3rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--stats-filet);
+}
+
+.courriel__menu-action {
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--crm-marque);
+  font: 600 0.8rem/1.3 var(--police-texte);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.courriel__menu-action:hover {
+  background: var(--crm-creme);
+}
+
+.courriel__menu-nom {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.courriel__menu-nom input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.82rem;
+}
+
+/* Barre d'envoi : tous les boutons à la même hauteur et au même rayon. */
+.courriel__redaction .courriel__envoi .courriel__bouton,
+.courriel__redaction .courriel__envoi .courriel__ia,
+.courriel__redaction .courriel__envoi .courriel__de-outil,
+.courriel__redaction .courriel__envoi .redaction__bouton--barre {
+  height: 2.25rem;
+  padding-block: 0;
+  border-radius: 5px;
+}
+
+.courriel__redaction .courriel__envoi .redaction__bouton--barre {
+  width: 2.25rem;
+  padding-inline: 0;
+}
+
+.courriel__redaction .courriel__envoi .courriel__bouton--grand {
+  padding-inline: 1.1rem;
+  font-size: 0.88rem;
+}
+
+/* Le menu de la signature se cale dans la pastille sans écraser son texte. */
+.courriel__redaction .courriel__envoi .courriel__de-outil select {
+  padding-block: 0;
+  line-height: 1.9;
+}
+
+/* Le menu de la signature n'est plus dessiné par le système : le cadre natif de macOS
+   doublait celui de la pastille. Le chevron est redessiné ici, faute de quoi il disparaît.
+   Son anneau de focus dessinait un second encadré (Chrome le garde après un clic sur un
+   menu) : c'est la pastille entière qui s'éclaire à sa place, pour rester repérable au clavier. */
+.courriel__envoi [data-signature-bloc] select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding-right: 1.25rem;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a2c5b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.15rem center / 0.75rem;
+}
+
+.courriel__envoi [data-signature-bloc] select:focus,
+.courriel__envoi [data-signature-bloc] select:focus-visible {
+  border: 0;
+  outline: none;
+}
+
+.courriel__envoi [data-signature-bloc]:focus-within {
+  border-color: var(--crm-marque);
+  box-shadow: 0 0 0 2px rgb(26 44 91 / 0.15);
 }
